@@ -48,8 +48,12 @@ import static com.android.systemui.statusbar.phone.BarTransitions.MODE_TRANSPARE
 import static com.android.systemui.statusbar.phone.BarTransitions.MODE_WARNING;
 import static com.android.systemui.statusbar.phone.BarTransitions.TransitionMode;
 
+import android.animation.TimeInterpolator;
+import android.annotation.ChaosLab.Classification;
+import android.annotation.ChaosLab;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.ActivityTaskManager;
@@ -76,6 +80,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
+import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.hardware.display.DisplayManager;
@@ -109,6 +114,7 @@ import android.util.Log;
 import android.util.MathUtils;
 import android.util.Slog;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.IWindowManager;
 import android.view.InsetsState.InternalInsetsType;
@@ -119,6 +125,7 @@ import android.view.ThreadedRenderer;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.WindowInsetsController.Appearance;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
@@ -158,6 +165,7 @@ import com.android.systemui.biometrics.FODCircleViewImpl;
 import com.android.systemui.biometrics.FODCircleViewImplCallback;
 import com.android.systemui.broadcast.BroadcastDispatcher;
 import com.android.systemui.bubbles.BubbleController;
+import com.android.systemui.chaos.lab.gestureanywhere.GestureAnywhereView;
 import com.android.systemui.charging.WirelessChargingAnimation;
 import com.android.systemui.classifier.FalsingLog;
 import com.android.systemui.colorextraction.SysuiColorExtractor;
@@ -441,6 +449,8 @@ public class StatusBar extends SystemUI implements DemoMode,
     private View mReportRejectedTouch;
 
     private boolean mExpandedVisible;
+
+    private boolean mGaEnabled;
 
     private final int[] mAbsPos = new int[2];
 
@@ -1110,6 +1120,7 @@ public class StatusBar extends SystemUI implements DemoMode,
     // ================================================================================
     // Constructing the view
     // ================================================================================
+    @ChaosLab(name="GestureAnywhere", classification=Classification.CHANGE_CODE)
     protected void makeStatusBarView(@Nullable RegisterStatusBarResult result) {
         final Context context = mContext;
         updateDisplaySize(); // populates mDisplayMetrics
@@ -1210,6 +1221,8 @@ public class StatusBar extends SystemUI implements DemoMode,
         mNotificationLogger.setHeadsUpManager(mHeadsUpManager);
 
         createNavigationBar(result);
+
+        addGestureAnywhereView();
 
         if (ENABLE_LOCKSCREEN_WALLPAPER && mWallpaperSupported) {
             mLockscreenWallpaper = mLockscreenWallpaperLazy.get();
@@ -2088,21 +2101,28 @@ public class StatusBar extends SystemUI implements DemoMode,
 
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
-            /*resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.XXX),
-                    false, this, UserHandle.USER_ALL);*/
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.GESTURE_ANYWHERE_ENABLED),
+                    false, this, UserHandle.USER_ALL);
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            /*if (uri.equals(Settings.System.getUriFor(
-                    Settings.System.XXX))) {
-                doXXX();
-            }*/
         }
 
         public void update() {
-            //doXXX();
+	    refreshGA();
+        }
+    }
+
+    private void refreshGA() {
+        mGaEnabled = LineageSettings.System.getInt(
+                    mContext.getContentResolver(), LineageSettings.System.GESTURE_ANYWHERE_ENABLED, 0) == 1;
+        if (mGaEnabled) {
+            Settings.System.putInt(mContext.getContentResolver(),
+                LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER, 1);
+            Settings.System.putInt(mContext.getContentResolver(),
+                LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER, 0);
         }
     }
 
@@ -4375,6 +4395,9 @@ public class StatusBar extends SystemUI implements DemoMode,
 
     private final Optional<Recents> mRecentsOptional;
 
+    @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_FIELD)
+    protected GestureAnywhereView mGestureAnywhereView;
+
     protected NotificationShelf mNotificationShelf;
     protected EmptyShadeView mEmptyShadeView;
 
@@ -4734,5 +4757,39 @@ public class StatusBar extends SystemUI implements DemoMode,
 
     public int getFodHeight(boolean includeDecor) {
         return mFODCircleViewImpl.getHeight(includeDecor);
+    }
+
+    @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
+    protected void addGestureAnywhereView() {
+        mGestureAnywhereView = (GestureAnywhereView)View.inflate(
+                mContext, R.layout.gesture_anywhere_overlay, null);
+        mWindowManager.addView(mGestureAnywhereView, getGestureAnywhereViewLayoutParams(Gravity.LEFT));
+        mGestureAnywhereView.setStatusBar(this);
+    }
+
+    @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
+    protected void removeGestureAnywhereView() {
+        if (mGestureAnywhereView != null)
+            mWindowManager.removeView(mGestureAnywhereView);
+    }
+
+    @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_METHOD)
+    protected WindowManager.LayoutParams getGestureAnywhereViewLayoutParams(int gravity) {
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_STATUS_BAR_SUB_PANEL,
+                0
+                | WindowManager.LayoutParams.FLAG_TOUCHABLE_WHEN_WAKING
+                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+                | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
+                PixelFormat.TRANSLUCENT);
+        lp.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION;
+        lp.gravity = Gravity.TOP | gravity;
+        lp.setTitle("GestureAnywhereView");
+
+        return lp;
     }
 }
