@@ -124,7 +124,7 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
             }
 
             int width = LineageSettings.System.getInt(
-                    resolver, LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_WIDTH, 10);
+                    resolver, LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_WIDTH, 40);
             if (mTriggerWidth != width)
                 setTriggerWidth(width);
             setTopPercentage(LineageSettings.System.getInt(
