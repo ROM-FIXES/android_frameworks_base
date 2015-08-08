@@ -5568,6 +5568,12 @@ public final class Settings {
          */
         public static final String LOCKSCREEN_MEDIA_BLUR = "lockscreen_media_blur";
 
+        /**
+         * Three Finger Gesture from Oppo
+         * @hide
+         */
+        public static final String THREE_FINGER_GESTURE = "three_finger_gesture";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5647,7 +5653,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SMART_CHARGING_RESUME_LEVEL);
             PUBLIC_SETTINGS.add(LOCKSCREEN_ALBUMART_FILTER);
             PUBLIC_SETTINGS.add(LOCKSCREEN_MEDIA_BLUR);
-
+            PUBLIC_SETTINGS.add(THREE_FINGER_GESTURE);
         }
 
         /**

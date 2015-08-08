@@ -92,5 +92,6 @@ public class SystemSettings {
         Settings.System.SMART_CHARGING_RESUME_LEVEL,
         Settings.System.LOCKSCREEN_ALBUMART_FILTER,
         Settings.System.LOCKSCREEN_MEDIA_BLUR,
+        Settings.System.THREE_FINGER_GESTURE,
     };
 }
