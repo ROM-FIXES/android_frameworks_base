@@ -6193,6 +6193,12 @@ public final class Settings {
         * Custom System Settings start
         *****************************/
 
+        /**
+         * Three Finger Gesture from Oppo
+         * @hide
+         */
+        public static final String THREE_FINGER_GESTURE = "three_finger_gesture";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -6308,6 +6314,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SHOW_WEB_SUGGESTIONS);
             PUBLIC_SETTINGS.add(VIBRATE_WHEN_RINGING);
             PUBLIC_SETTINGS.add(APPLY_RAMPING_RINGER);
+            PUBLIC_SETTINGS.add(THREE_FINGER_GESTURE);
         }
 
         /**
