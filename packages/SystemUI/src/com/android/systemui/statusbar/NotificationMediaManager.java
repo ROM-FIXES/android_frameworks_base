@@ -26,6 +26,7 @@ import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.WallpaperManager;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
@@ -37,6 +38,7 @@ import android.media.MediaMetadata;
 import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Trace;
 import android.service.notification.NotificationStats;
@@ -74,6 +76,8 @@ import com.android.systemui.statusbar.policy.KeyguardStateController;
 import com.android.systemui.util.Utils;
 import com.android.systemui.util.concurrency.DelayableExecutor;
 
+import lineageos.providers.LineageSettings;
+
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -96,6 +100,9 @@ import dagger.Lazy;
 public class NotificationMediaManager implements Dumpable {
     private static final String TAG = "NotificationMediaManager";
     public static final boolean DEBUG_MEDIA = false;
+
+    private static final String LOCKSCREEN_MEDIA_METADATA =
+            "lineagesecure:" + LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA;
 
     private final StatusBarStateController mStatusBarStateController;
     private final SysuiColorExtractor mColorExtractor;
@@ -153,6 +160,8 @@ public class NotificationMediaManager implements Dumpable {
     private Display mCurrentDisplay;
 
     private LockscreenWallpaper.WallpaperDrawable mWallapperDrawable;
+
+    private boolean mShowMediaMetadata;
 
     private final MediaController.Callback mMediaListener = new MediaController.Callback() {
         @Override
@@ -222,6 +231,24 @@ public class NotificationMediaManager implements Dumpable {
         setupNotifPipeline();
 
         dumpManager.registerDumpable(this);
+
+
+        ContentObserver notificationMediaContentObserver = new ContentObserver(null) {
+            @Override
+            public void onChange(boolean selfChange, Uri uri) {
+                if (uri.equals(
+                        LineageSettings.Secure.getUriFor(LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA))) {
+                    mShowMediaMetadata = LineageSettings.Secure.getInt(mContext.getContentResolver(),
+                            LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA, 0) == 1;
+                    dispatchUpdateMediaMetaData(false /* changed */, true /* allowAnimation */);
+                }
+            }
+        };
+        mContext.getContentResolver().registerContentObserver(
+                LineageSettings.Secure.getUriFor(LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA), false,
+                    notificationMediaContentObserver);
+        notificationMediaContentObserver.onChange(true);
+
     }
 
     private void setupNotifPipeline() {
@@ -587,7 +614,7 @@ public class NotificationMediaManager implements Dumpable {
             }
             mProcessArtworkTasks.clear();
         }
-        if (artworkBitmap != null && !Utils.useQsMediaPlayer(mContext)) {
+        if (artworkBitmap != null) {
             mProcessArtworkTasks.add(new ProcessArtworkTask(this, metaDataChanged,
                     allowEnterAnimation).execute(artworkBitmap));
         } else {
@@ -600,11 +627,14 @@ public class NotificationMediaManager implements Dumpable {
     private void finishUpdateMediaMetaData(boolean metaDataChanged, boolean allowEnterAnimation,
             @Nullable Bitmap bmp) {
         Drawable artworkDrawable = null;
-        if (bmp != null) {
+        // set media artwork as lockscreen wallpaper if player is playing
+        if (bmp != null && (mShowMediaMetadata || !ENABLE_LOCKSCREEN_WALLPAPER) &&
+                PlaybackState.STATE_PLAYING == getMediaControllerPlaybackState(mMediaController)) {
             artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(), bmp);
         }
         boolean hasMediaArtwork = artworkDrawable != null;
         boolean allowWhenShade = false;
+        // if no media artwork, show normal lockscreen wallpaper
         if (ENABLE_LOCKSCREEN_WALLPAPER && artworkDrawable == null) {
             Bitmap lockWallpaper =
                     mLockscreenWallpaper != null ? mLockscreenWallpaper.getBitmap() : null;
