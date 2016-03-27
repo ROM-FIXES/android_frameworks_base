@@ -113,5 +113,6 @@ public class SystemSettings {
         Settings.System.SENSOR_BLOCK,
         Settings.System.LESS_BORING_HEADS_UP,
         Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON,
+        Settings.System.HEADS_UP_TIMEOUT,
     };
 }

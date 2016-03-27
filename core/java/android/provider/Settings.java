@@ -5871,6 +5871,12 @@ public final class Settings {
          */
         public static final String NOTIFICATION_SOUND_VIB_SCREEN_ON = "notification_sound_vib_screen_on";
 
+        /**
+         * Heads up timeout configuration
+         * @hide
+         */
+        public static final String HEADS_UP_TIMEOUT = "heads_up_timeout";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5993,6 +5999,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SENSOR_BLOCKED_APP);
             PUBLIC_SETTINGS.add(LESS_BORING_HEADS_UP);
             PUBLIC_SETTINGS.add(NOTIFICATION_SOUND_VIB_SCREEN_ON);
+            PUBLIC_SETTINGS.add(HEADS_UP_TIMEOUT);
         }
 
         /**
