@@ -37,6 +37,7 @@ import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
 import android.gesture.Prediction;
 import android.os.Handler;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -59,7 +60,7 @@ import lineageos.providers.LineageSettings;
 
 public class GestureAnywhereView extends TriggerOverlayView implements GestureOverlayView.OnGestureListener {
     private static final String TAG = "GestureAnywhere";
-    private final File mStoreFile = new File("/data/system", "ga_gestures");
+    private final File mStoreFile = new File(Environment.getExternalStorageDirectory(), "ga_gestures");
     State mState = State.Collapsed;
     private View mContent;
     private GestureOverlayView mGestureView;
