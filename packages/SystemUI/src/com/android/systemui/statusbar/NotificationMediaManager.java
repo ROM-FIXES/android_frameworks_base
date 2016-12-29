@@ -101,6 +101,9 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable,
     private static final String LOCKSCREEN_MEDIA_METADATA =
             "lineagesecure:" + LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA;
 
+    private static final String LOCKSCREEN_MEDIA_BLUR =
+            "lineagesecure:" + LineageSettings.Secure.LOCKSCREEN_MEDIA_BLUR;
+
     private final StatusBarStateController mStatusBarStateController
             = Dependency.get(StatusBarStateController.class);
     private final SysuiColorExtractor mColorExtractor = Dependency.get(SysuiColorExtractor.class);
@@ -139,6 +142,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable,
     private final MediaArtworkProcessor mMediaArtworkProcessor;
     private final Set<AsyncTask<?, ?, ?>> mProcessArtworkTasks = new ArraySet<>();
     private final WallpaperManager mWallpaperManager;
+    private float mLockscreenMediaBlur;
 
     protected NotificationPresenter mPresenter;
     private MediaController mMediaController;
@@ -805,7 +809,13 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable,
     };
 
     private Bitmap processArtwork(Bitmap artwork) {
-        return mMediaArtworkProcessor.processArtwork(mContext, artwork);
+        return mMediaArtworkProcessor.processArtwork(mContext, artwork, mLockscreenMediaBlur);
+    }
+
+    public void setLockScreenMediaBlurLevel() {
+        mLockscreenMediaBlur = (float) LineageSettings.Secure.getIntForUser(mContext.getContentResolver(),
+                LineageSettings.Secure.LOCKSCREEN_MEDIA_BLUR, 25,
+                UserHandle.USER_CURRENT);
     }
 
     @MainThread
