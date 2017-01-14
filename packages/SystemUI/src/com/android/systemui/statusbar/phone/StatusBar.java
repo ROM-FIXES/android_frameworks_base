@@ -233,6 +233,7 @@ import com.android.systemui.statusbar.phone.dagger.StatusBarComponent;
 import com.android.systemui.statusbar.phone.dagger.StatusBarPhoneModule;
 import com.android.systemui.statusbar.policy.BatteryController;
 import com.android.systemui.statusbar.policy.BrightnessMirrorController;
+import com.android.systemui.statusbar.policy.BurnInProtectionController;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.systemui.statusbar.policy.ConfigurationController.ConfigurationListener;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController;
@@ -287,6 +288,8 @@ public class StatusBar extends SystemUI implements DemoMode,
 
     private static final String FORCE_SHOW_NAVBAR =
             "lineagesystem:" + LineageSettings.System.FORCE_SHOW_NAVBAR;
+    public static final String SYSTEMUI_BURNIN_PROTECTION =
+            "lineagesystem:" + LineageSettings.System.SYSTEMUI_BURNIN_PROTECTION;
     public static final String SCREEN_BRIGHTNESS_MODE =
             "system:" + Settings.System.SCREEN_BRIGHTNESS_MODE;
     private static final String STATUS_BAR_BRIGHTNESS_CONTROL =
@@ -381,6 +384,9 @@ public class StatusBar extends SystemUI implements DemoMode,
     @Nullable
     protected LockscreenWallpaper mLockscreenWallpaper;
     private final AutoHideController mAutoHideController;
+
+    private BurnInProtectionController mBurnInProtectionController;
+
     @Nullable
     private final KeyguardLiftController mKeyguardLiftController;
 
@@ -587,6 +593,8 @@ public class StatusBar extends SystemUI implements DemoMode,
     private final NotificationLockscreenUserManager mLockscreenUserManager;
     private final NotificationRemoteInputManager mRemoteInputManager;
     private boolean mWallpaperSupported;
+
+    private boolean mBurnInProtectionEnabled;
 
     private PulseController mPulseController;
     private VisualizerView mVisualizerView;
@@ -947,6 +955,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         mTunerService.addTunable(this, FORCE_SHOW_NAVBAR);
         mTunerService.addTunable(this, SCREEN_BRIGHTNESS_MODE);
         mTunerService.addTunable(this, STATUS_BAR_BRIGHTNESS_CONTROL);
+        mTunerService.addTunable(this, SYSTEMUI_BURNIN_PROTECTION);
 
         mDisplayManager = mContext.getSystemService(DisplayManager.class);
 
@@ -1215,6 +1224,11 @@ public class StatusBar extends SystemUI implements DemoMode,
                             mStatusBarView.findViewById(R.id.notification_lights_out));
                     mNotificationShadeWindowViewController.setStatusBarView(mStatusBarView);
                     checkBarModes();
+                    if (mContext.getResources().getBoolean(
+                            com.android.internal.R.bool.config_enableBurnInProtection)) {
+                        mBurnInProtectionController = new BurnInProtectionController(mContext,
+                                this, mStatusBarView);
+                    }
                 }).getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.status_bar_container, new CollapsedStatusBarFragment(),
@@ -4145,6 +4159,9 @@ public class StatusBar extends SystemUI implements DemoMode,
 
             updateNotificationPanelTouchState();
             mNotificationShadeWindowViewController.cancelCurrentTouch();
+            if (mBurnInProtectionController != null) {
+                mBurnInProtectionController.stopShiftTimer(mBurnInProtectionEnabled);
+            }
             if (mLaunchCameraOnFinishedGoingToSleep) {
                 mLaunchCameraOnFinishedGoingToSleep = false;
 
@@ -4325,6 +4342,9 @@ public class StatusBar extends SystemUI implements DemoMode,
                 mNotificationPanelViewController.launchCamera(
                         mDeviceInteractive /* animate */, source);
                 updateScrimController();
+                if (mBurnInProtectionController != null) {
+                    mBurnInProtectionController.startShiftTimer(mBurnInProtectionEnabled);
+                }
             } else {
                 // We need to defer the camera launch until the screen comes on, since otherwise
                 // we will dismiss us too early since we are waiting on an activity to be drawn and
@@ -4797,6 +4817,16 @@ public class StatusBar extends SystemUI implements DemoMode,
             } else {
                 if (hasNavbar) {
                     mNavigationBarController.onDisplayRemoved(mDisplayId);
+                }
+            }
+        } else if (SYSTEMUI_BURNIN_PROTECTION.equals(key)) {
+            mBurnInProtectionEnabled = newValue != null && Integer.parseInt(newValue) == 1;
+            if (mBurnInProtectionController != null) {
+                if (mBurnInProtectionEnabled) {
+                    mBurnInProtectionController.startShiftTimer(true);
+                } else {
+                    // Forcefully disable it
+                    mBurnInProtectionController.stopShiftTimer(true);
                 }
             }
         } else if (SCREEN_BRIGHTNESS_MODE.equals(key)) {
