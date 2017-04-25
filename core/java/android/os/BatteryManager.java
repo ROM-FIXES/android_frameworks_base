@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008 The Android Open Source Project
+ *           (C) 2017, The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,6 +139,11 @@ public class BatteryManager {
      * {@hide}
      */
     public static final String EXTRA_SEQUENCE = "seq";
+    /*
+     * boolean value to detect fast charging
+     * {@hide}
+     */
+    public static final String EXTRA_DASH_CHARGER = "dash_charger";
 
     /**
      * Extra for {@link android.content.Intent#ACTION_BATTERY_LEVEL_CHANGED}:
