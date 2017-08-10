@@ -139,6 +139,11 @@ static struct {
     jmethodID getAffineTransform;
 } gTouchCalibrationClassInfo;
 
+static struct {
+    jclass clazz;
+    jmethodID notifyOutSideScreenTouch;
+} gOneHandedProxyInfo;
+
 // --- Global functions ---
 
 template<typename T>
@@ -199,6 +204,17 @@ protected:
 
 public:
     NativeInputManager(jobject contextObj, jobject serviceObj, const sp<Looper>& looper);
+
+    void updatePointerMappingParameters(int offsetX, int offsetY, float scale, int width,
+            int height) {
+        mInputManager->getDispatcher()->updatePointerMappingParameters(offsetX, offsetY, scale,
+                width, height);
+    }
+
+    virtual void notifyOutSideScreenTouch(int x, int y) {
+        jniEnv()->CallStaticVoidMethod(gOneHandedProxyInfo.clazz,
+                gOneHandedProxyInfo.notifyOutSideScreenTouch, x, y);
+    }
 
     inline sp<InputManager> getInputManager() const { return mInputManager; }
 
@@ -1653,6 +1669,13 @@ static void nativeReloadCalibration(JNIEnv* env, jclass clazz, jlong ptr) {
     im->reloadCalibration();
 }
 
+static void nativeUpdatePointerMappingParameters(JNIEnv* env, jclass clazz,
+                      jlong ptr, jint offsetX, jint offsetY, jfloat scale,
+                      jint width, jint height) {
+    NativeInputManager* im = reinterpret_cast<NativeInputManager*>(ptr);
+    im->updatePointerMappingParameters(offsetX, offsetY, scale, width, height);
+}
+
 static void nativeVibrate(JNIEnv* env,
         jclass /* clazz */, jlong ptr, jint deviceId, jlongArray patternObj,
         jint repeat, jint token) {
@@ -1869,6 +1892,8 @@ static const JNINativeMethod gInputManagerMethods[] = {
             (void*) nativeReloadPointerIcons },
     { "nativeSetCustomPointerIcon", "(JLandroid/view/PointerIcon;)V",
             (void*) nativeSetCustomPointerIcon },
+    { "nativeUpdatePointerMappingParameters", "(JIIFII)V",
+            (void*) nativeUpdatePointerMappingParameters },
     { "nativeCanDispatchToDisplay", "(JII)Z",
             (void*) nativeCanDispatchToDisplay },
     {"nativeSetMotionClassifierEnabled", "(JZ)V",
@@ -2025,6 +2050,11 @@ int register_android_server_InputManager(JNIEnv* env) {
 
     GET_METHOD_ID(gTouchCalibrationClassInfo.getAffineTransform, gTouchCalibrationClassInfo.clazz,
             "getAffineTransform", "()[F");
+
+    // One Handed
+    FIND_CLASS(gOneHandedProxyInfo.clazz, "com/android/server/wm/onehand/IOneHandedAnimatorProxy");
+    GET_STATIC_METHOD_ID(gOneHandedProxyInfo.notifyOutSideScreenTouch, gOneHandedProxyInfo.clazz, "notifyOutSideScreenTouchFromNative", "(II)V");
+    gOneHandedProxyInfo.clazz = jclass(env->NewGlobalRef(gOneHandedProxyInfo.clazz));
 
     return 0;
 }

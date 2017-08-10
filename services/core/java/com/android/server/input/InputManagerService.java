@@ -247,6 +247,8 @@ public class InputManagerService extends IInputManager.Stub
     private static native void nativeReloadPointerIcons(long ptr);
     private static native void nativeSetCustomPointerIcon(long ptr, PointerIcon icon);
     private static native void nativeSetPointerCapture(long ptr, boolean detached);
+    private static native void nativeUpdatePointerMappingParameters(long ptr, int offsetX,
+            int offsetY, float scale, int width, int height);
     private static native boolean nativeCanDispatchToDisplay(long ptr, int deviceId, int displayId);
     private static native void nativeSetMotionClassifierEnabled(long ptr, boolean enabled);
 
@@ -2388,6 +2390,12 @@ public class InputManagerService extends IInputManager.Stub
         @Override
         public void setInteractive(boolean interactive) {
             nativeSetInteractive(mPtr, interactive);
+        }
+
+        @Override
+        public void updatePointerMappingParameters(int offsetX, int offsetY, float scale,
+                int width, int height) {
+            nativeUpdatePointerMappingParameters(mPtr, offsetX, offsetY, scale, width, height);
         }
 
         @Override
