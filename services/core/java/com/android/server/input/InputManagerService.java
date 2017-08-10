@@ -249,6 +249,8 @@ public class InputManagerService extends IInputManager.Stub
     private static native void nativeSetPointerCapture(long ptr, boolean detached);
     private static native boolean nativeCanDispatchToDisplay(long ptr, int deviceId, int displayId);
     private static native void nativeSetMotionClassifierEnabled(long ptr, boolean enabled);
+    private static native void nativeUpdatePointerMappingParameters(long ptr, int offsetX,
+            int offsetY, float scale, int width, int height);
 
     // Input event injection constants defined in InputDispatcher.h.
     private static final int INPUT_EVENT_INJECTION_SUCCEEDED = 0;
@@ -2388,6 +2390,12 @@ public class InputManagerService extends IInputManager.Stub
         @Override
         public void setInteractive(boolean interactive) {
             nativeSetInteractive(mPtr, interactive);
+        }
+
+        @Override
+        public void updatePointerMappingParameters(int offsetX, int offsetY, float scale,
+                int width, int height) {
+            nativeUpdatePointerMappingParameters(mPtr, offsetX, offsetY, scale, width, height);
         }
 
         @Override

@@ -68,6 +68,7 @@ import static android.view.WindowManager.LayoutParams.TYPE_DREAM;
 import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD;
 import static android.view.WindowManager.LayoutParams.TYPE_INPUT_METHOD_DIALOG;
 import static android.view.WindowManager.LayoutParams.TYPE_NAVIGATION_BAR;
+import static android.view.WindowManager.LayoutParams.TYPE_ONEHAND_OVERLAY;
 import static android.view.WindowManager.LayoutParams.TYPE_STATUS_BAR;
 import static android.view.WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG;
 import static android.view.WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
@@ -178,6 +179,7 @@ import android.util.ArraySet;
 import android.util.DisplayMetrics;
 import android.util.Slog;
 import android.util.proto.ProtoOutputStream;
+import android.view.animation.Transformation;
 import android.view.Display;
 import android.view.DisplayCutout;
 import android.view.DisplayInfo;
@@ -533,6 +535,12 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
     private SurfaceControl mWindowingLayer;
 
     /**
+     * This contains surfaces of one handed mode UI which are always on bottom of others.
+     * See {@link #mOverlayLayer}
+     */
+    private SurfaceControl mOneHandOverlayLayer;
+
+    /**
      * Sequence number for the current layout pass.
      */
     int mLayoutSeq = 0;
@@ -546,6 +554,7 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
     private final float[] mTmpFloats = new float[9];
 
     private MagnificationSpec mMagnificationSpec;
+    private boolean mWasInOneHandMode = false;
 
     private InputMonitor mInputMonitor;
 
@@ -959,8 +968,17 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
         final SurfaceControl.Builder b = mWmService.makeSurfaceBuilder(mSession)
                 .setOpaque(true)
                 .setContainerLayer();
+        if (isOneHandedModeSupported()) {
+            mOneHandOverlayLayer = b.setName("Display OneHand Overlays").build();
+        }
         mWindowingLayer = b.setName("Display Root").build();
         mOverlayLayer = b.setName("Display Overlays").build();
+
+        if (isOneHandedModeSupported()) {
+            getPendingTransaction().setLayer(mOneHandOverlayLayer, -1)
+                .setLayerStack(mOneHandOverlayLayer, mDisplayId)
+                .show(mOneHandOverlayLayer);
+        }
 
         getPendingTransaction().setLayer(mWindowingLayer, 0)
                 .setLayerStack(mWindowingLayer, mDisplayId)
@@ -1039,6 +1057,7 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
             // the parent container managing them (e.g. Tasks).
             switch (token.windowType) {
                 case TYPE_WALLPAPER:
+                case TYPE_ONEHAND_OVERLAY:
                     mBelowAppWindowsContainers.addChild(token);
                     break;
                 case TYPE_INPUT_METHOD:
@@ -3915,6 +3934,11 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
 
         final Rect frame = new Rect(0, 0, dw, dh);
 
+        // When One Handed feature is enabled, screen shot region should also be scaled.
+        if (isOneHandedModeSupported()) {
+            mService.mAnimator.mOneHandAnimator.applyTransformationForRect(frame);
+        }
+
         // The screenshot API does not apply the current screen rotation.
         int rot = mDisplay.getRotation();
 
@@ -4792,11 +4816,23 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
             .setParent(mOverlayLayer);
     }
 
+    SurfaceControl.Builder makeScreenRotationAnimationOverlay() {
+        if(isInOneHandedMode()) {
+            return mService.makeSurfaceBuilder(mSession); // no parent is expected.
+        } else {
+            return makeOverlay();
+        }
+    }
+
     /**
      * Reparents the given surface to mOverlayLayer.
      */
     void reparentToOverlay(Transaction transaction, SurfaceControl surface) {
         transaction.reparent(surface, mOverlayLayer);
+    }
+
+    void reparentToOneHandOverlay(Transaction transaction, SurfaceControl surface) {
+        transaction.reparent(surface, mOneHandOverlayLayer.getHandle());
     }
 
     void applyMagnificationSpec(MagnificationSpec spec) {
@@ -4890,6 +4926,20 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
         child.assignRelativeLayer(t, mImeWindowsContainers.getSurfaceControl(), 1);
     }
 
+    private boolean isOneHandedModeSupported() {
+        return isDefaultDisplay;
+    }
+
+    private boolean isInOneHandedMode() {
+        return isOneHandedModeSupported()
+                && mService.mAnimator.mOneHandAnimator.getTransformation() != null;
+    }
+
+    private Transformation getOneHandTransformation() {
+        return isOneHandedModeSupported()?
+                mService.mAnimator.mOneHandAnimator.getTransformation() : null;
+    }
+
     @Override
     void prepareSurfaces() {
         Trace.traceBegin(TRACE_TAG_WINDOW_MANAGER, "prepareSurfaces");
@@ -4897,16 +4947,37 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
             final ScreenRotationAnimation screenRotationAnimation =
                     mWmService.mAnimator.getScreenRotationAnimationLocked(mDisplayId);
             final Transaction transaction = getPendingTransaction();
-            if (screenRotationAnimation != null && screenRotationAnimation.isAnimating()) {
-                screenRotationAnimation.getEnterTransformation().getMatrix().getValues(mTmpFloats);
-                transaction.setMatrix(mWindowingLayer,
-                        mTmpFloats[Matrix.MSCALE_X], mTmpFloats[Matrix.MSKEW_Y],
-                        mTmpFloats[Matrix.MSKEW_X], mTmpFloats[Matrix.MSCALE_Y]);
-                transaction.setPosition(mWindowingLayer,
-                        mTmpFloats[Matrix.MTRANS_X], mTmpFloats[Matrix.MTRANS_Y]);
-                transaction.setAlpha(mWindowingLayer,
+            final boolean isScreenRotationAnimating =
+                    (screenRotationAnimation != null && screenRotationAnimation.isAnimating());
+
+            Transformation oneHandTrans = getOneHandTransformation();
+
+            if (isScreenRotationAnimating || oneHandTrans != null || mWasInOneHandMode) {
+                mTmpMatrix.reset();
+
+                if (oneHandTrans != null) {
+                    // setSize prevents children from being drawn outside of shrunk display.
+                    mTmpMatrix.postConcat(oneHandTrans.getMatrix());
+                    transaction.setMatrix(mWindowingLayer, mTmpMatrix, mTmpFloats);
+                    transaction.setSize(mWindowingLayer, mBaseDisplayWidth, mBaseDisplayHeight);
+                    transaction.setMatrix(mOverlayLayer, mTmpMatrix, mTmpFloats);
+                    transaction.setSize(mOverlayLayer, mBaseDisplayWidth, mBaseDisplayHeight);
+                } else if (mWasInOneHandMode) {
+                    // Remove the effects of oneHandTrans which was applied previously.
+                    transaction.setMatrix(mWindowingLayer, mTmpMatrix, mTmpFloats);
+                    transaction.setSize(mWindowingLayer, mSurfaceSize, mSurfaceSize);
+                    transaction.setMatrix(mOverlayLayer, mTmpMatrix, mTmpFloats);
+                    transaction.setSize(mOverlayLayer, mSurfaceSize, mSurfaceSize);
+                }
+                mWasInOneHandMode = (oneHandTrans != null);
+
+                if (isScreenRotationAnimating) {
+                    mTmpMatrix.preConcat(screenRotationAnimation.getEnterTransformation().getMatrix());
+                    transaction.setMatrix(mWindowingLayer, mTmpMatrix, mTmpFloats);
+                    transaction.setAlpha(mWindowingLayer,
                         screenRotationAnimation.getEnterTransformation().getAlpha());
-            }
+                }
+	    }
 
             super.prepareSurfaces();
 
