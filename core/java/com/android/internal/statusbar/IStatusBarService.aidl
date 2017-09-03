@@ -120,5 +120,5 @@ interface IStatusBarService
      * Custom features
      */
     void screenPinningStateChanged(boolean enabled);
-
+    void toggleCameraFlash();
 }
