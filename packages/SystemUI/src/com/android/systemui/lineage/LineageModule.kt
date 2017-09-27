@@ -31,6 +31,7 @@ import com.android.systemui.qs.tiles.VpnTile
 import com.android.systemui.qs.tiles.WifiTile
 import com.android.systemui.qs.tiles.GestureAnywhereTile
 import com.android.systemui.qs.tiles.SmartPixelsTile;
+import com.android.systemui.qs.tiles.CompassTile;
 
 import dagger.Binds
 import dagger.Module
@@ -122,4 +123,10 @@ interface LineageModule {
     @IntoMap
     @StringKey(SmartPixelsTile.TILE_SPEC)
     fun bindSmartPixelsTile(smartPixelsTile: SmartPixelsTile): QSTileImpl<*>
+
+    /** Inject CompassTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(CompassTile.TILE_SPEC)
+    fun bindCompassTile(compassTile: CompassTile): QSTileImpl<*>
 }
