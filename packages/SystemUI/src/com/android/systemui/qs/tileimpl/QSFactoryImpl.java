@@ -52,6 +52,7 @@ import com.android.systemui.qs.tiles.HotspotTile;
 import com.android.systemui.qs.tiles.InternetTile;
 import com.android.systemui.qs.tiles.LocationTile;
 import com.android.systemui.qs.tiles.MicrophoneToggleTile;
+import com.android.systemui.qs.tiles.MusicTile;
 import com.android.systemui.qs.tiles.NfcTile;
 import com.android.systemui.qs.tiles.NightDisplayTile;
 import com.android.systemui.qs.tiles.OneHandedModeTile;
@@ -125,6 +126,7 @@ public class QSFactoryImpl implements QSFactory {
     private final Provider<GestureAnywhereTile> mGestureAnywhereTileProvider;
     private final Provider<SmartPixelsTile> mSmartPixelsTileProvider;
     private final Provider<CompassTile> mCompassTileProvider;
+    private final Provider<MusicTile> mMusicTileProvider;
 
     private final Lazy<QSHost> mQsHostLazy;
     private final Provider<CustomTile.Builder> mCustomTileBuilderProvider;
@@ -175,7 +177,8 @@ public class QSFactoryImpl implements QSFactory {
             Provider<VpnTile> vpnTileProvider,
             Provider<GestureAnywhereTile> gestureAnywhereTileProvider,
             Provider<SmartPixelsTile> smartPixelsTileProvider,
-            Provider<CompassTile> compassTileProvider) {
+            Provider<CompassTile> compassTileProvider,
+            Provider<MusicTile> musicTileProvider) {
         mQsHostLazy = qsHostLazy;
         mCustomTileBuilderProvider = customTileBuilderProvider;
 
@@ -222,6 +225,7 @@ public class QSFactoryImpl implements QSFactory {
         mGestureAnywhereTileProvider = gestureAnywhereTileProvider;
         mSmartPixelsTileProvider = smartPixelsTileProvider;
         mCompassTileProvider = compassTileProvider;
+        mMusicTileProvider = musicTileProvider;
     }
 
     /** Creates a tile with a type based on {@code tileSpec} */
@@ -324,6 +328,8 @@ public class QSFactoryImpl implements QSFactory {
                 return mSmartPixelsTileProvider.get();
             case "compass":
                 return mCompassTileProvider.get();
+            case "music":
+                return mMusicTileProvider.get();
         }
 
         // Custom tiles
