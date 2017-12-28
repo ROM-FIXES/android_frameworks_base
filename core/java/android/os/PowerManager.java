@@ -450,6 +450,13 @@ public final class PowerManager {
     public static final String REBOOT_DOWNLOAD = "download";
 
     /**
+     * The value to pass as the 'reason' argument to reboot() to
+     * reboot SystemUI
+     * @hide
+     */
+    public static final String REBOOT_SYSTEMUI = "systemui";
+
+    /**
      * The value to pass as the 'reason' argument to reboot() when device owner requests a reboot on
      * the device.
      * @hide
