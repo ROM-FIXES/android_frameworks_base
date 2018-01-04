@@ -36,4 +36,7 @@
         <item>com.android.shell</item>
         <item>com.android.frameworks.wmtests</item>
     </string-array>
+
+    <!-- Whether the device supports Smart Pixels -->
+    <bool name="config_supportSmartPixels">true</bool>
 </resources>

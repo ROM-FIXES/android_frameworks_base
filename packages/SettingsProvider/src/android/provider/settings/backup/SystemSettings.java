@@ -115,7 +115,11 @@ public class SystemSettings {
                 Settings.System.NOTIFICATION_COOLDOWN_ENABLED,
                 Settings.System.NOTIFICATION_COOLDOWN_ALL,
                 Settings.System.NOTIFICATION_COOLDOWN_VIBRATE_UNLOCKED,
-                Settings.System.THREE_FINGER_GESTURE
+                Settings.System.THREE_FINGER_GESTURE,
+                Settings.System.SMART_PIXELS_ENABLE,
+                Settings.System.SMART_PIXELS_PATTERN,
+                Settings.System.SMART_PIXELS_SHIFT_TIMEOUT,
+                Settings.System.SMART_PIXELS_ON_POWER_SAVE
         ));
         if (Flags.backUpSmoothDisplayAndForcePeakRefreshRate()) {
             settings.add(Settings.System.PEAK_REFRESH_RATE);
