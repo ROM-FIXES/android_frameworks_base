@@ -6352,6 +6352,30 @@ public final class Settings {
          */
         public static final String EDGE_LIGHT_CUSTOM_COLOR = "edge_light_custom_color";
 
+        /**
+         * Whether to enable Smart Pixels
+         * @hide
+         */
+        public static final String SMART_PIXELS_ENABLE = "smart_pixels_enable";
+
+        /**
+         * Smart Pixels pattern
+         * @hide
+         */
+        public static final String SMART_PIXELS_PATTERN = "smart_pixels_pattern";
+
+        /**
+         * Smart Pixels Shift Timeout
+         * @hide
+         */
+        public static final String SMART_PIXELS_SHIFT_TIMEOUT = "smart_pixels_shift_timeout";
+
+        /**
+         * Whether Smart Pixels should enable on power saver mode
+         * @hide
+         */
+        public static final String SMART_PIXELS_ON_POWER_SAVE = "smart_pixels_on_power_save";
+
 
         /***************************
         * Custom System Settings end
@@ -6461,6 +6485,10 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SHOW_WEB_SUGGESTIONS);
             PUBLIC_SETTINGS.add(VIBRATE_WHEN_RINGING);
             PUBLIC_SETTINGS.add(APPLY_RAMPING_RINGER);
+            PUBLIC_SETTINGS.add(SMART_PIXELS_ENABLE);
+            PUBLIC_SETTINGS.add(SMART_PIXELS_PATTERN);
+            PUBLIC_SETTINGS.add(SMART_PIXELS_SHIFT_TIMEOUT);
+            PUBLIC_SETTINGS.add(SMART_PIXELS_ON_POWER_SAVE);
         }
 
         /**

@@ -122,7 +122,11 @@ public class SystemSettings {
                 Settings.System.EDGE_LIGHT_ALWAYS_TRIGGER_ON_PULSE,
                 Settings.System.EDGE_LIGHT_REPEAT_ANIMATION,
                 Settings.System.EDGE_LIGHT_COLOR_MODE,
-                Settings.System.EDGE_LIGHT_CUSTOM_COLOR
+                Settings.System.EDGE_LIGHT_CUSTOM_COLOR,
+                Settings.System.SMART_PIXELS_ENABLE,
+                Settings.System.SMART_PIXELS_PATTERN,
+                Settings.System.SMART_PIXELS_SHIFT_TIMEOUT,
+                Settings.System.SMART_PIXELS_ON_POWER_SAVE
         ));
         if (Flags.backUpSmoothDisplayAndForcePeakRefreshRate()) {
             settings.add(Settings.System.PEAK_REFRESH_RATE);
