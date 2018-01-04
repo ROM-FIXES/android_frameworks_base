@@ -46,4 +46,8 @@
     <bool name="config_allowMediaUidForCameraServiceProxy">false</bool>
     <!-- Wether device has dash charging support -->
     <bool name="config_hasDashCharger">true</bool>
+
+    <!-- Whether the device supports Smart Pixels -->
+    <bool name="config_supportSmartPixels">true</bool>
+
 </resources>
