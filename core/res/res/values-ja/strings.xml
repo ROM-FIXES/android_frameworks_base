@@ -1997,7 +1997,6 @@
     <string name="shortcut_restore_unknown_issue" msgid="2478146134395982154">"ショートカットを復元できませんでした"</string>
     <string name="shortcut_disabled_reason_unknown" msgid="753074793553599166">"ショートカットは無効になっています"</string>
     <string name="onehand_guide">縮小画面の外側をタップして片手モードを終了します</string>
-    <string name="onehand_link">詳細を確認</string>
     <string name="harmful_app_warning_uninstall" msgid="6472912975664191772">"アンインストール"</string>
     <string name="harmful_app_warning_open_anyway" msgid="5963657791740211807">"開く"</string>
     <string name="harmful_app_warning_title" msgid="8794823880881113856">"有害なアプリが検出されました"</string>
