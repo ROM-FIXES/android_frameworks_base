@@ -124,7 +124,8 @@ public class SystemSettings {
                 Settings.System.ADAPTIVE_PLAYBACK_TIMEOUT,
                 Settings.System.SENSOR_BLOCK,
                 Settings.System.LESS_BORING_HEADS_UP,
-                Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON
+                Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON,
+                Settings.System.NOTIFICATION_GUTS_KILL_APP_BUTTON
         ));
         if (Flags.backUpSmoothDisplayAndForcePeakRefreshRate()) {
             settings.add(Settings.System.PEAK_REFRESH_RATE);
