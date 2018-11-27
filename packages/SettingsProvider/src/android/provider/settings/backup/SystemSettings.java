@@ -114,5 +114,6 @@ public class SystemSettings {
         Settings.System.LESS_BORING_HEADS_UP,
         Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON,
         Settings.System.HEADS_UP_TIMEOUT,
+        Settings.System.NOTIFICATION_GUTS_KILL_APP_BUTTON,
     };
 }
