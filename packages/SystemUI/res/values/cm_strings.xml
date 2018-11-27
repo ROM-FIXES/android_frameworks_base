@@ -245,4 +245,8 @@
     <string name="tristate_colorspace_natural">Natural</string>
     <string name="tristate_colorspace_cinematic">Cinematic</string>
     <string name="tristate_colorspace_brilliant">Brilliant</string>
+
+    <!-- Kill button in notification guts -->
+    <string name="force_stop_dlg_title">Force stop?</string>
+    <string name="force_stop_dlg_text">If you force stop an app, it may misbehave.</string>
 </resources>
