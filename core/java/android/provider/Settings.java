@@ -5877,6 +5877,13 @@ public final class Settings {
          */
         public static final String HEADS_UP_TIMEOUT = "heads_up_timeout";
 
+        /**
+         * Whether to show the kill app button in notification guts
+         * @hide
+         */
+        public static final String NOTIFICATION_GUTS_KILL_APP_BUTTON =
+                "notification_guts_kill_app_button";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -6000,6 +6007,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(LESS_BORING_HEADS_UP);
             PUBLIC_SETTINGS.add(NOTIFICATION_SOUND_VIB_SCREEN_ON);
             PUBLIC_SETTINGS.add(HEADS_UP_TIMEOUT);
+            PUBLIC_SETTINGS.add(NOTIFICATION_GUTS_KILL_APP_BUTTON);
         }
 
         /**
