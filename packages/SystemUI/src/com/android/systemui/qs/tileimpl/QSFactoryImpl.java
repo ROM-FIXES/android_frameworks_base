@@ -48,6 +48,7 @@ import com.android.systemui.qs.tiles.LiveDisplayTile;
 import com.android.systemui.qs.tiles.LocationTile;
 import com.android.systemui.qs.tiles.NfcTile;
 import com.android.systemui.qs.tiles.NightDisplayTile;
+import com.android.systemui.qs.tiles.OneHandTile;
 import com.android.systemui.qs.tiles.PowerShareTile;
 import com.android.systemui.qs.tiles.ProfilesTile;
 import com.android.systemui.qs.tiles.ReadingModeTile;
@@ -61,6 +62,7 @@ import com.android.systemui.qs.tiles.VpnTile;
 import com.android.systemui.qs.tiles.WifiTile;
 import com.android.systemui.qs.tiles.WorkModeTile;
 import com.android.systemui.util.leak.GarbageMonitor;
+
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -97,6 +99,7 @@ public class QSFactoryImpl implements QSFactory {
     private final Provider<GestureAnywhereTile> mGestureAnywhereTileProvider;
     private final Provider<LiveDisplayTile> mLiveDisplayTileProvider;
     private final Provider<AODTile> mAODTileProvider;
+    private final Provider<OneHandTile> mOneHandTileProvider;
     private final Provider<PowerShareTile> mPowerShareTileProvider;
     private final Provider<ProfilesTile> mProfilesTileProvider;
     private final Provider<ReadingModeTile> mReadingModeTileProvider;
@@ -133,6 +136,7 @@ public class QSFactoryImpl implements QSFactory {
 	    Provider<GestureAnywhereTile> gestureAnywhereTileProvider,
             Provider<HeadsUpTile> headsUpTileProvider,
             Provider<LiveDisplayTile> liveDisplayTileProvider,
+	    Provider<OneHandTile> oneHandTileProvider,
             Provider<PowerShareTile> powerShareTileProvider,
             Provider<ProfilesTile> profilesTileProvider,
             Provider<ReadingModeTile> readingModeTileProvider,
@@ -167,6 +171,7 @@ public class QSFactoryImpl implements QSFactory {
         mGestureAnywhereTileProvider = gestureAnywhereTileProvider;
         mLiveDisplayTileProvider = liveDisplayTileProvider;
         mAODTileProvider = aodTileProvider;
+	mOneHandTileProvider = oneHandTileProvider;
         mPowerShareTileProvider = powerShareTileProvider;
         mProfilesTileProvider = profilesTileProvider;
         mReadingModeTileProvider = readingModeTileProvider;
@@ -242,6 +247,8 @@ public class QSFactoryImpl implements QSFactory {
                 return mLiveDisplayTileProvider.get();
             case "aod":
                 return mAODTileProvider.get();
+            case "onehand":
+                return mOneHandTileProvider.get();
             case "powershare":
                 return mPowerShareTileProvider.get();
             case "profiles":
