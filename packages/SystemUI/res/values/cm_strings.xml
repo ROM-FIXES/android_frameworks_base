@@ -209,4 +209,7 @@
     <!-- Power menu item for taking a screenshot [CHAR LIMIT=20]-->
     <string name="global_action_screenshot_cust">"Screenhot"</string>
     <string name="global_action_screenrecord">Screenrec</string>
+
+    <!-- OneHand mode QS tile -->
+    <string name="qs_onehand_label">OneHand mode</string>
 </resources>
