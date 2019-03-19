@@ -5339,6 +5339,12 @@ public final class Settings {
          */
         public static final String SHOW_QS_DATE = "show_qs_date";
 
+        /**
+         * Switch between filters for lockscreen album art
+         * @hide
+         */
+        public static final String LOCKSCREEN_ALBUMART_FILTER = "lockscreen_albumart_filter";
+
        /**
         * Whether to show QS panel footer warnings like for active VPN
         * @hide
