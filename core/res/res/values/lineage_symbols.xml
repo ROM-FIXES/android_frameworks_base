@@ -27,4 +27,12 @@
     <java-symbol type="array" name="config_forceEnabledComponents" />
 
     <java-symbol type="bool" name="config_has_Soli" />
+
+  <!-- Smart charging -->
+  <java-symbol type="bool" name="config_smartChargingAvailable" />
+  <java-symbol type="integer" name="config_smartChargingBatteryLevel" />
+  <java-symbol type="integer" name="config_smartChargingBatteryResumeLevel" />
+  <java-symbol type="string" name="config_smartChargingSysfsNode" />
+  <java-symbol type="string" name="config_smartChargingSuspendValue" />
+  <java-symbol type="string" name="config_smartChargingResumeValue" />
 </resources>
