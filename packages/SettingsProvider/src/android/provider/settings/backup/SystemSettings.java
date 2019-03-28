@@ -87,5 +87,8 @@ public class SystemSettings {
         Settings.System.DISPLAY_COLOR_MODE,
         Settings.System.ALARM_ALERT,
         Settings.System.NOTIFICATION_LIGHT_PULSE,
+        Settings.System.SMART_CHARGING,
+        Settings.System.SMART_CHARGING_LEVEL,
+        Settings.System.SMART_CHARGING_RESUME_LEVEL,
     };
 }

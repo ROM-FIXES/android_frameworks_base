@@ -5541,6 +5541,21 @@ public final class Settings {
         * Custom System Settings start
         *****************************/
 
+        /**
+         * @hide
+         */
+        public static final String SMART_CHARGING = "smart_charging";
+
+        /**
+         * @hide
+         */
+        public static final String SMART_CHARGING_LEVEL = "smart_charging_level";
+
+        /**
+         * @hide
+         */
+        public static final String SMART_CHARGING_RESUME_LEVEL = "smart_charging_resume_level";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5615,6 +5630,9 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SHOW_WEB_SUGGESTIONS);
             PUBLIC_SETTINGS.add(VIBRATE_WHEN_RINGING);
             PUBLIC_SETTINGS.add(APPLY_RAMPING_RINGER);
+            PUBLIC_SETTINGS.add(SMART_CHARGING);
+            PUBLIC_SETTINGS.add(SMART_CHARGING_LEVEL);
+            PUBLIC_SETTINGS.add(SMART_CHARGING_RESUME_LEVEL);
         }
 
         /**
