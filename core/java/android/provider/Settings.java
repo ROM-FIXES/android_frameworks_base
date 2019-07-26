@@ -5641,6 +5641,12 @@ public final class Settings {
         @Readable
         public static final String SENSOR_BLOCKED_APP = "sensor_blocked_app";
 
+        /**
+         * Whether to show heads up only for dialer and sms apps
+         * @hide
+         */
+        public static final String LESS_BORING_HEADS_UP = "less_boring_heads_up";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5730,6 +5736,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(ALERT_SLIDER_NOTIFICATIONS);
             PUBLIC_SETTINGS.add(SENSOR_BLOCK);
             PUBLIC_SETTINGS.add(SENSOR_BLOCKED_APP);
+            PUBLIC_SETTINGS.add(LESS_BORING_HEADS_UP);
         }
 
         /**
