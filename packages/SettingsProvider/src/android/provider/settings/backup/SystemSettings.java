@@ -111,5 +111,6 @@ public class SystemSettings {
         Settings.System.ADAPTIVE_PLAYBACK_ENABLED,
         Settings.System.ADAPTIVE_PLAYBACK_TIMEOUT,
         Settings.System.SENSOR_BLOCK,
+        Settings.System.LESS_BORING_HEADS_UP,
     };
 }
