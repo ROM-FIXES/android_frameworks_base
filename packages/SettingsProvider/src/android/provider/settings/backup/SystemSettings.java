@@ -98,5 +98,6 @@ public class SystemSettings {
         Settings.System.ADAPTIVE_PLAYBACK_TIMEOUT,
         Settings.System.ALERT_SLIDER_NOTIFICATIONS,
         Settings.System.SENSOR_BLOCK,
+        Settings.System.LESS_BORING_HEADS_UP,
     };
 }
