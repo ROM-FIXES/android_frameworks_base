@@ -309,6 +309,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private static final String PULSE_ON_NEW_TRACKS =
             Settings.Secure.PULSE_ON_NEW_TRACKS;
 
+    private static final String LESS_BORING_HEADS_UP =
+            "system:" + Settings.System.LESS_BORING_HEADS_UP;
+
     private static final int MSG_OPEN_SETTINGS_PANEL = 1002;
     private static final int MSG_LAUNCH_TRANSITION_TIMEOUT = 1003;
     // 1020-1040 reserved for BaseStatusBar
@@ -1022,6 +1025,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     KeyguardSliceProvider sliceProvider = KeyguardSliceProvider.getAttachedInstance();
                     if (sliceProvider != null)
                         sliceProvider.setPulseOnNewTracks(showPulseOnNewTracks);
+                } else if (uri.equals(Settings.System.getUriFor(Settings.System.LESS_BORING_HEADS_UP))) {
+                    boolean lessBoringHeadsUp = Settings.Secure.getInt(mContext.getContentResolver(),
+                            Settings.System.LESS_BORING_HEADS_UP, 0) == 1;
+                    mNotificationInterruptStateProvider.setUseLessBoringHeadsUp(lessBoringHeadsUp);
                 }
             }
         };
@@ -1030,6 +1037,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 contentObserver);
         mContext.getContentResolver().registerContentObserver(
                 Settings.Secure.getUriFor(Settings.Secure.PULSE_ON_NEW_TRACKS), false,
+                contentObserver);
+        mContext.getContentResolver().registerContentObserver(
+                Settings.System.getUriFor(Settings.System.LESS_BORING_HEADS_UP), false,
                 contentObserver);
         contentObserver.onChange(true);
 
