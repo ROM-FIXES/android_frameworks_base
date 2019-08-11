@@ -857,4 +857,7 @@
     <string name="open_saver_setting_action" msgid="8314624730997322529">"设置"</string>
     <string name="auto_saver_okay_action" msgid="2701221740227683650">"知道了"</string>
     <string name="heap_dump_tile_name" msgid="9141031328971226374">"转储 SysUI 堆"</string>
+    <!-- Screenshot QS Tile -->
+    <string name="quick_settings_screenshot_label">屏幕截图</string>
+
 </resources>

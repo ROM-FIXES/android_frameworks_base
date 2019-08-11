@@ -457,4 +457,11 @@ interface IWindowManager
      * This requires the ONE_HANDED_MODE permission.
      */
     void unregisterOneHandedModeListener(IOneHandedModeListener listener);
+
+    /**
+     * Long screenshot
+     * @hide
+     */
+    void takeScreenshot(int type);
+    void stopLongshotConnection();
 }

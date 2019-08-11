@@ -151,4 +151,7 @@
     <!-- OneHand mode QS tile -->
     <string name="qs_onehand_label">OneHand mode</string>
 
+    <!-- Screenshot QS Tile -->
+    <string name="quick_settings_screenshot_label">Screenshot</string>
+
 </resources>

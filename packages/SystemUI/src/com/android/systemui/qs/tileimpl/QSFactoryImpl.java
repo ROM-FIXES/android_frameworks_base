@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2017 The Android Open Source Project
  * Copyright (C) 2017-2018 The LineageOS Project
+ * Copyright (C) 2017-2019 The MoKee Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use mHost file
  * except in compliance with the License. You may obtain a copy of the License at
@@ -46,6 +47,7 @@ import com.android.systemui.qs.tiles.NightDisplayTile;
 import com.android.systemui.qs.tiles.ProfilesTile;
 import com.android.systemui.qs.tiles.ReadingModeTile;
 import com.android.systemui.qs.tiles.RotationLockTile;
+import com.android.systemui.qs.tiles.ScreenShotTile;
 import com.android.systemui.qs.tiles.SyncTile;
 import com.android.systemui.qs.tiles.UsbTetherTile;
 import com.android.systemui.qs.tiles.UserTile;
@@ -133,6 +135,8 @@ public class QSFactoryImpl implements QSFactory {
                 return new VolumeTile(mHost);
             case "onehand":
                 return new OneHandTile(mHost);
+            case "screenshot":
+                return new ScreenShotTile(mHost);
         }
 
         // Intent tiles.
