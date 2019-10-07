@@ -11296,6 +11296,13 @@ public final class Settings {
         @Readable
         public static final String MONET_ENGINE_WHITE_LUMINANCE = "monet_engine_white_luminance_user";
 
+        /**
+         * Whether to enable DOZE only when charging
+         * @hide
+         */
+        @Readable
+        public static final String DOZE_ON_CHARGE = "doze_on_charge";
+
         /*****************************
         * Custom Secure Settings end
         *****************************/
