@@ -11638,6 +11638,13 @@ public final class Settings {
          */
         public static final String PULSE_ON_NEW_TRACKS = "pulse_on_new_tracks";
 
+        /**
+         * Whether to enable DOZE only when charging
+         * @hide
+         */
+        @Readable
+        public static final String DOZE_ON_CHARGE = "doze_on_charge";
+
         /*****************************
         * Custom Secure Settings end
         *****************************/
