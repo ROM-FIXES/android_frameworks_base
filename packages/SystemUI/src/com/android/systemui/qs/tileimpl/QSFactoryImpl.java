@@ -57,6 +57,7 @@ import com.android.systemui.qs.tiles.WorkModeTile;
 import com.android.systemui.qs.QSTileHost;
 import com.android.systemui.util.leak.GarbageMonitor;
 import com.android.systemui.qs.tiles.OneHandTile;
+import com.android.systemui.qs.tiles.GestureAnywhereTile;
 
 public class QSFactoryImpl implements QSFactory {
 
@@ -137,6 +138,8 @@ public class QSFactoryImpl implements QSFactory {
                 return new OneHandTile(mHost);
             case "screenshot":
                 return new ScreenShotTile(mHost);
+	    case "gesture_anywhere":
+		return new GestureAnywhereTile(mHost);
         }
 
         // Intent tiles.
