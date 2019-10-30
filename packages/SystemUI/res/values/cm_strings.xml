@@ -192,7 +192,8 @@
     <!-- accessibility label for button to open running apps prefscreen [CHAR LIMIT=NONE] -->
     <string name="accessibility_quick_settings_running_services">Open Running Services screen.</string>
 
+    <string name="screenrecord_low_quality_label">Low quality</string>
     <string name="screenrecord_stopdot_label">Show stop dot</string>
     <!-- Power menu item for taking a screenshot [CHAR LIMIT=20]-->
-    <string name="global_action_screenshot_cust">"Screenshot/Rec"</string>
+    <string name="global_action_screenshot_cust">"Screen/Rec"</string>
 </resources>
