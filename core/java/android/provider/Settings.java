@@ -4668,6 +4668,13 @@ public final class Settings {
         @ChaosLab(name="GestureAnywhere", classification=Classification.NEW_FIELD)
         public static final String GESTURE_ANYWHERE_SHOW_TRIGGER = "gesture_anywhere_show_trigger";
 
+        /** Whether to show ambient or lockscreen if AoD is disabled
+         * and we do a wake gesture like lift to wake or double tap
+         *
+         * @hide
+         */
+        public static final String AMBIENT_WAKE_GESTURES = "ambient_wake_gestures";
+
         /**
          * Screenrecord: enable mic
          * @hide
