@@ -291,5 +291,6 @@ public class SecureSettings {
         Settings.Secure.DOZE_HANDWAVE_GESTURE,
         Settings.Secure.DOZE_POCKET_GESTURE,
         Settings.Secure.DOZE_GESTURE_VIBRATE,
+        Settings.Secure.PULSE_ON_NEW_TRACKS,
     };
 }
