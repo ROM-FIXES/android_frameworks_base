@@ -33,4 +33,7 @@
 
     <dimen name="burnin_protection_horizontal_shift">3dp</dimen>
     <dimen name="burnin_protection_vertical_shift">1dp</dimen>
+
+    <!-- Qs visibility -->
+    <dimen name="qs_tile_height_wo_label">64dp</dimen>
 </resources>
