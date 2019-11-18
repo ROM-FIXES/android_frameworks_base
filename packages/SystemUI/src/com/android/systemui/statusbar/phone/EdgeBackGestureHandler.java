@@ -242,6 +242,11 @@ public class EdgeBackGestureHandler implements DisplayListener, TunerService.Tun
                 (systemUiVisibility & SYSTEM_UI_FLAG_IMMERSIVE_STICKY) != 0
                 && (systemUiVisibility & NAVIGATION_BAR_TRANSIENT) != 0;
     }
+    public void setStateForBackArrowGesture() {
+        if (mEdgePanel != null) {
+            mEdgePanel.setBackArrowVisibility();
+        }
+    }
 
     private void disposeInputChannel() {
         if (mInputEventReceiver != null) {
