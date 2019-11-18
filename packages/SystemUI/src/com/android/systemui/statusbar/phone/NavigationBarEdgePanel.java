@@ -25,6 +25,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
+import android.os.UserHandle;
 import android.util.DisplayMetrics;
 import android.util.MathUtils;
 import android.view.ContextThemeWrapper;
@@ -45,6 +46,8 @@ import androidx.dynamicanimation.animation.DynamicAnimation;
 import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
+
+import lineageos.providers.LineageSettings;
 
 public class NavigationBarEdgePanel extends View {
 
@@ -171,6 +174,7 @@ public class NavigationBarEdgePanel extends View {
      * The current translation of the arrow
      */
     private float mCurrentTranslation;
+    private boolean mBackArrowVisibility;
     /**
      * Where the arrow will be in the resting position.
      */
@@ -317,6 +321,7 @@ public class NavigationBarEdgePanel extends View {
 
         loadColors(context);
         updateArrowDirection();
+        setBackArrowVisibility();
 
         mSwipeThreshold = context.getResources()
                 .getDimension(R.dimen.navigation_edge_action_drag_threshold);
@@ -354,6 +359,11 @@ public class NavigationBarEdgePanel extends View {
         mLongSwipeThreshold = longSwipeThreshold;
         mIsLongSwipeEnabled = mLongSwipeThreshold > 0;
         setTriggerLongSwipe(mIsLongSwipeEnabled && mTriggerLongSwipe, false /* animated */);
+    }
+    public void setBackArrowVisibility() {
+        mBackArrowVisibility = LineageSettings.Secure.getIntForUser(mContext.getContentResolver(),
+                LineageSettings.Secure.HIDE_BACK_ARROW_GESTURE, 0,
+                UserHandle.USER_CURRENT) == 1;
     }
 
     /**
@@ -405,7 +415,7 @@ public class NavigationBarEdgePanel extends View {
                 resetOnDown();
                 mStartX = event.getX();
                 mStartY = event.getY();
-                setVisibility(VISIBLE);
+                setVisibility(mBackArrowVisibility ? INVISIBLE : VISIBLE);
                 break;
             }
             case MotionEvent.ACTION_MOVE: {
