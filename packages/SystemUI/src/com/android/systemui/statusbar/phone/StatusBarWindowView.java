@@ -103,6 +103,7 @@ public class StatusBarWindowView extends FrameLayout {
     private StatusBar mService;
     private final Paint mTransparentSrcPaint = new Paint();
     private FalsingManager mFalsingManager;
+    private AmbientDisplayConfiguration mAmbientConfig;
 
     private boolean mDoubleTapToSleepEnabled;
     private int mQuickQsOffsetHeight;
@@ -156,16 +157,15 @@ public class StatusBarWindowView extends FrameLayout {
         }
     };
     private final TunerService.Tunable mTunable = (key, newValue) -> {
-        AmbientDisplayConfiguration configuration = new AmbientDisplayConfiguration(mContext);
         switch (key) {
             case Settings.Secure.DOUBLE_TAP_TO_WAKE:
                 mDoubleTapEnabledNative = TunerService.parseIntegerSwitch(newValue, false);
                 break;
             case Settings.Secure.DOZE_DOUBLE_TAP_GESTURE:
-                mDoubleTapEnabled = configuration.doubleTapGestureEnabled(UserHandle.USER_CURRENT);
+                mDoubleTapEnabled = mAmbientConfig.doubleTapGestureEnabled(UserHandle.USER_CURRENT);
                 break;
             case Settings.Secure.DOZE_TAP_SCREEN_GESTURE:
-                mSingleTapEnabled = configuration.tapGestureEnabled(UserHandle.USER_CURRENT);
+                mSingleTapEnabled = mAmbientConfig.tapGestureEnabled(UserHandle.USER_CURRENT);
                 break;
             case DOUBLE_TAP_SLEEP_GESTURE:
                 mDoubleTapToSleepEnabled = newValue == null || Integer.parseInt(newValue) == 1;
@@ -190,6 +190,7 @@ public class StatusBarWindowView extends FrameLayout {
         mFalsingManager = Dependency.get(FalsingManager.class);  // TODO: inject into a controller.
         mGestureDetector = new GestureDetector(context, mGestureListener);
         mStatusBarStateController = Dependency.get(StatusBarStateController.class);
+        mAmbientConfig = new AmbientDisplayConfiguration(mContext);
         Dependency.get(TunerService.class).addTunable(mTunable,
                 Settings.Secure.DOUBLE_TAP_TO_WAKE,
                 Settings.Secure.DOZE_DOUBLE_TAP_GESTURE,
@@ -455,7 +456,7 @@ public class StatusBarWindowView extends FrameLayout {
         NotificationStackScrollLayout stackScrollLayout = getStackScrollLayout();
         mIsMusicTickerTap = false;
         if (mService.isDozing()) {
-            if (mService.isDoubleTapOnMusicTicker(ev.getX(), ev.getY())) {
+            if (!mAmbientConfig.deviceHasSoli() && mService.isDoubleTapOnMusicTicker(ev.getX(), ev.getY())) {
                 mIsMusicTickerTap = true;
             }
             if (!mService.isPulsing()) {
