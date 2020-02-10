@@ -108,39 +108,10 @@ public class CellularTile extends QSTileImpl<SignalState> {
             return;
         }
         if (mDataController.isMobileDataEnabled()) {
-            maybeShowDisableDialog();
+            mDataController.setMobileDataEnabled(!mDataController.isMobileDataEnabled());
         } else {
             mDataController.setMobileDataEnabled(true);
         }
-    }
-
-    private void maybeShowDisableDialog() {
-        if (Prefs.getBoolean(mContext, QS_HAS_TURNED_OFF_MOBILE_DATA, false)) {
-            // Directly turn off mobile data if the user has seen the dialog before.
-            mDataController.setMobileDataEnabled(false);
-            return;
-        }
-        String carrierName = mController.getMobileDataNetworkName();
-        boolean isInService = mController.isMobileDataNetworkInService();
-        if (TextUtils.isEmpty(carrierName) || !isInService) {
-            carrierName = mContext.getString(R.string.mobile_data_disable_message_default_carrier);
-        }
-        AlertDialog dialog = new Builder(mContext)
-                .setTitle(R.string.mobile_data_disable_title)
-                .setMessage(mContext.getString(R.string.mobile_data_disable_message, carrierName))
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(
-                        com.android.internal.R.string.alert_windows_notification_turn_off_action,
-                        (d, w) -> {
-                            mDataController.setMobileDataEnabled(false);
-                            Prefs.putBoolean(mContext, QS_HAS_TURNED_OFF_MOBILE_DATA, true);
-                        })
-                .create();
-        dialog.getWindow().setType(LayoutParams.TYPE_KEYGUARD_DIALOG);
-        SystemUIDialog.setShowForAllUsers(dialog, true);
-        SystemUIDialog.registerDismissListener(dialog);
-        SystemUIDialog.setWindowOnTop(dialog);
-        dialog.show();
     }
 
     @Override
