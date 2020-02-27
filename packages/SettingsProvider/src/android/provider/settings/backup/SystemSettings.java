@@ -99,5 +99,6 @@ public class SystemSettings {
         Settings.System.SMART_PIXELS_ON_POWER_SAVE,
         Settings.System.ADAPTIVE_PLAYBACK_ENABLED,
         Settings.System.ADAPTIVE_PLAYBACK_TIMEOUT,
+        Settings.System.ALERT_SLIDER_NOTIFICATIONS,
     };
 }

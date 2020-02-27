@@ -5621,6 +5621,12 @@ public final class Settings {
          */
         public static final String ADAPTIVE_PLAYBACK_TIMEOUT = "adaptive_playback_timeout";
 
+        /**
+         * Whether to show or hide alert slider notifications on supported devices
+         * @hide
+         */
+        public static final String ALERT_SLIDER_NOTIFICATIONS = "alert_slider_notifications";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5707,6 +5713,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SMART_PIXELS_ON_POWER_SAVE);
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_ENABLED);
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_TIMEOUT);
+            PUBLIC_SETTINGS.add(ALERT_SLIDER_NOTIFICATIONS);
         }
 
         /**
