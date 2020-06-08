@@ -75,6 +75,7 @@ import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.UserInfo;
+import android.hardware.SystemSensorManager;
 import android.media.audiofx.AudioEffect;
 import android.net.ConnectivityManager;
 import android.net.Proxy;
@@ -152,6 +153,8 @@ class BroadcastController {
     private final ActivityManagerService mService;
     @NonNull
     private BroadcastQueue mBroadcastQueue;
+
+    private SystemSensorManager mSystemSensorManager;
 
     @GuardedBy("mService")
     BroadcastStats mLastBroadcastStats;
@@ -1188,6 +1191,10 @@ class BroadcastController {
                                         mService.mServices.forceStopPackageLocked(ssp, userId);
                                         mService.mAtmInternal.onPackageUninstalled(ssp, userId);
                                         mService.mBatteryStatsService.notePackageUninstalled(ssp);
+                                        mSystemSensorManager = new SystemSensorManager(mContext, mService.mHandler.getLooper());
+                                        if (mSystemSensorManager != null) {
+                                            mSystemSensorManager.notePackageUninstalled(ssp);
+                                        }
                                     }
                                 } else {
                                     if (killProcess) {
