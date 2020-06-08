@@ -5634,6 +5634,13 @@ public final class Settings {
         @Readable
         public static final String SENSOR_BLOCK = "sensor_block";
 
+        /**
+         * Sensor blocked packages
+         * @hide
+         */
+        @Readable
+        public static final String SENSOR_BLOCKED_APP = "sensor_blocked_app";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5722,6 +5729,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_TIMEOUT);
             PUBLIC_SETTINGS.add(ALERT_SLIDER_NOTIFICATIONS);
             PUBLIC_SETTINGS.add(SENSOR_BLOCK);
+            PUBLIC_SETTINGS.add(SENSOR_BLOCKED_APP);
         }
 
         /**

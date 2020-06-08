@@ -255,6 +255,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Rect;
+import android.hardware.SensorManager;
+import android.hardware.SystemSensorManager;
 import android.hardware.display.DisplayManagerInternal;
 import android.media.audiofx.AudioEffect;
 import android.net.ConnectivityManager;
@@ -1558,6 +1560,8 @@ public class ActivityManagerService extends IActivityManager.Stub
 
     private final SwipeToScreenshotObserver mSwipeToScreenshotObserver;
     private boolean mIsSwipeToScreenshotEnabled;
+
+    private SystemSensorManager mSystemSensorManager;
 
     /**
      * Used to notify activity lifecycle events.
@@ -6442,6 +6446,7 @@ public class ActivityManagerService extends IActivityManager.Stub
                     "App requested: " + reason);
         }
     }
+
 
     void startPersistentApps(int matchFlags) {
         if (mFactoryTest == FactoryTest.FACTORY_TEST_LOW_LEVEL) return;
@@ -13901,6 +13906,10 @@ public class ActivityManagerService extends IActivityManager.Stub
                                         mServices.forceStopPackageLocked(ssp, userId);
                                         mAtmInternal.onPackageUninstalled(ssp, userId);
                                         mBatteryStatsService.notePackageUninstalled(ssp);
+                                        mSystemSensorManager = new SystemSensorManager(mContext, mHandler.getLooper());
+                                        if (mSystemSensorManager != null) {
+                                            mSystemSensorManager.notePackageUninstalled(ssp);
+                                        }
                                     }
                                 } else {
                                     if (killProcess) {
