@@ -128,8 +128,4 @@
 
     <!-- Notify use that they are in Lock-to-app (for devices without navbar)-->
     <string name="screen_pinning_toast_no_navbar">To unpin this screen, touch &amp; hold Back button</string>
-
-    <!-- OneHand mode QS tile -->
-    <string name="qs_onehand_label">OneHand mode</string>
-
 </resources>

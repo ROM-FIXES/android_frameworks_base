@@ -259,7 +259,7 @@ class ScreenRotationAnimation {
 
         final SurfaceControl.Transaction t = mService.mTransactionFactory.make();
         try {
-            mSurfaceControl = displayContent.makeScreenRotationAnimationOverlay()
+            mSurfaceControl = displayContent.makeOverlay()
                     .setName("ScreenshotSurface")
                     .setBufferSize(mWidth, mHeight)
                     .setSecure(isSecure)

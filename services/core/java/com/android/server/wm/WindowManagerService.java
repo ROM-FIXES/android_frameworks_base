@@ -262,8 +262,6 @@ import com.android.server.policy.WindowManagerPolicy;
 import com.android.server.policy.WindowManagerPolicy.ScreenOffListener;
 import com.android.server.power.ShutdownThread;
 import com.android.server.utils.PriorityDump;
-import com.android.server.wm.onehand.IOneHandedAnimatorProxy;
-import com.android.internal.onehand.IOneHandedModeListener;
 
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -287,7 +285,7 @@ import java.util.List;
 
 /** {@hide} */
 public class WindowManagerService extends IWindowManager.Stub
-        implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs, IOneHandedAnimatorProxy.IWindowManagerFuncs {
+        implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs {
     private static final String TAG = TAG_WITH_CLASS_NAME ? "WindowManagerService" : TAG_WM;
 
     static final int LAYOUT_REPEAT_THRESHOLD = 4;
@@ -5892,51 +5890,6 @@ public class WindowManagerService extends IWindowManager.Stub
         }
     }
 
-    @Override
-    public boolean isOnehandTurnedON() {
-        if (!checkCallingPermission(android.Manifest.permission.ONE_HANDED_MODE,
-                "isOnehandTurnedON()")) {
-            throw new SecurityException("Requires ONE_HANDED_MODE permission");
-        }
-        return mAnimator.mOneHandAnimator.isOnehandTurnedON();
-    }
-
-    @Override
-    public boolean isOneHandedModeAvailable() {
-        if (!checkCallingPermission(android.Manifest.permission.ONE_HANDED_MODE,
-                "isOneHandedModeAvailable()")) {
-            throw new SecurityException("Requires ONE_HANDED_MODE permission");
-        }
-        return mAnimator.mOneHandAnimator.isOneHandedModeAvailable();
-    }
-
-    @Override
-    public float getOneHandedModeShrinkingScale() {
-        if (!checkCallingPermission(android.Manifest.permission.ONE_HANDED_MODE,
-                "getOneHandedModeShrinkingScale()")) {
-            throw new SecurityException("Requires ONE_HANDED_MODE permission");
-        }
-        return mAnimator.mOneHandAnimator.getShrinkingScale();
-    }
-
-    @Override
-    public void registerOneHandedModeListener(IOneHandedModeListener listener) {
-        if (!checkCallingPermission(android.Manifest.permission.ONE_HANDED_MODE,
-                "registerOneHandedModeListener()")) {
-            throw new SecurityException("Requires ONE_HANDED_MODE permission");
-        }
-        mAnimator.mOneHandAnimator.registerOneHandedModeListener(listener);
-    }
-
-    @Override
-    public void unregisterOneHandedModeListener(IOneHandedModeListener listener) {
-        if (!checkCallingPermission(android.Manifest.permission.ONE_HANDED_MODE,
-                "unregisterOneHandedModeListener()")) {
-            throw new SecurityException("Requires ONE_HANDED_MODE permission");
-        }
-        mAnimator.mOneHandAnimator.unregisterOneHandedModeListener(listener);
-    }
-
     public void notifyAppRelaunching(IBinder token) {
         synchronized (mGlobalLock) {
             final AppWindowToken appWindow = mRoot.getAppWindowToken(token);
@@ -6409,11 +6362,6 @@ public class WindowManagerService extends IWindowManager.Stub
             } else if ("refresh".equals(cmd)) {
                 dumpHighRefreshRateBlacklist(pw);
                 return;
-            } else if ("onehand".equals(cmd)) {
-                synchronized(mWindowMap) {
-                    mAnimator.mOneHandAnimator.dump(pw, args);
-                }
-                return;
             } else {
                 // Dumping a single name?
                 if (!dumpWindows(pw, cmd, args, opti, dumpAll)) {
@@ -6465,11 +6413,9 @@ public class WindowManagerService extends IWindowManager.Stub
                 pw.println(separator);
             }
             dumpWindowsLocked(pw, dumpAll, null);
-	    pw.println(separator);
             if (dumpAll) {
                 pw.println(separator);
             }
-	    mAnimator.mOneHandAnimator.dump(pw, args);
             dumpTraceStatus(pw);
             if (dumpAll) {
                 pw.println(separator);
@@ -7873,18 +7819,6 @@ public class WindowManagerService extends IWindowManager.Stub
             // updateTopResumedActivityIfNeeded().
             displayContent.mAcitvityDisplay.ensureActivitiesVisible(null /* starting */,
                     0 /* configChanges */, !PRESERVE_WINDOWS, true /* notifyClients */);
-        }
-    }
-
-    @Override
-    public Object getSyncRoot() {
-        return mWindowMap;
-    }
-
-    @Override
-    public void scheduleAnimation() {
-        synchronized (mWindowMap) {
-            scheduleAnimationLocked();
         }
     }
 }

@@ -69,7 +69,6 @@ import com.android.systemui.Interpolators;
 import com.android.systemui.R;
 import com.android.systemui.SysUiServiceProvider;
 import com.android.systemui.assist.AssistManager;
-import com.android.systemui.onehand.SlideTouchEvent;
 import com.android.systemui.recents.OverviewProxyService;
 import com.android.systemui.recents.Recents;
 import com.android.systemui.recents.RecentsOnboarding;
@@ -146,8 +145,6 @@ public class NavigationBarView extends FrameLayout implements
     private final ContextualButtonGroup mContextualButtonGroup;
     private Configuration mConfiguration;
     private Configuration mTmpLastConfiguration;
-    private SlideTouchEvent mSlideTouchEvent;
-
 
     private NavigationBarInflaterView mNavigationInflaterView;
     private RecentsOnboarding mRecentsOnboarding;
@@ -307,8 +304,6 @@ public class NavigationBarView extends FrameLayout implements
 
         final ContextualButton backButton = new ContextualButton(R.id.back, 0);
 
-        mSlideTouchEvent = new SlideTouchEvent(context);
-
         mConfiguration = new Configuration();
         mTmpLastConfiguration = new Configuration();
         mConfiguration.updateFrom(context.getResources().getConfiguration());
@@ -362,14 +357,12 @@ public class NavigationBarView extends FrameLayout implements
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-	mSlideTouchEvent.handleTouchEvent(event);
         return shouldDeadZoneConsumeTouchEvents(event) || super.onInterceptTouchEvent(event);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         shouldDeadZoneConsumeTouchEvents(event);
-	mSlideTouchEvent.handleTouchEvent(event);
         return super.onTouchEvent(event);
     }
 

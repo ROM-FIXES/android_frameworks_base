@@ -33,7 +33,6 @@ import android.view.SurfaceControl;
 
 import com.android.server.AnimationThread;
 import com.android.server.policy.WindowManagerPolicy;
-import com.android.server.wm.onehand.IOneHandedAnimatorProxy;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -85,14 +84,11 @@ public class WindowAnimator {
     private boolean mInExecuteAfterPrepareSurfacesRunnables;
 
     private final SurfaceControl.Transaction mTransaction = new SurfaceControl.Transaction();
-    final IOneHandedAnimatorProxy mOneHandAnimator;
 
     WindowAnimator(final WindowManagerService service) {
         mService = service;
         mContext = service.mContext;
         mPolicy = service.mPolicy;
-	mOneHandAnimator = IOneHandedAnimatorProxy.create(mContext, mService);
-
         AnimationThread.getHandler().runWithScissors(
                 () -> mChoreographer = Choreographer.getSfInstance(), 0 /* timeout */);
 
@@ -184,9 +180,6 @@ public class WindowAnimator {
                     // associated with exiting/removed apps
                     dc.updateWindowsForAnimator();
                     dc.updateBackgroundForAnimator();
-
-		    mAnimating |= mOneHandAnimator.stepAnimationInTransaction(mCurrentTime);
-
                     dc.prepareSurfaces();
                 }
 
