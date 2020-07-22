@@ -1415,233 +1415,233 @@ droidstubs {
     write_sdk_values: true,
 }
 
-// droiddoc {
-//     name: "doc-comment-check-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     args: framework_docs_only_args + " -referenceonly -parsecomments",
-//     installable: false,
-// }
+droiddoc {
+    name: "doc-comment-check-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    args: framework_docs_only_args + " -referenceonly -parsecomments",
+    installable: false,
+}
 
-// droiddoc {
-//     name: "offline-sdk-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc offline",
-//     ],
-//     proofread_file: "offline-sdk-docs-proofrerad.txt",
-//     args: framework_docs_only_args + " -offlinemode -title \"Android SDK\"",
-//     static_doc_index_redirect: "docs/docs-preview-index.html",
-// }
+droiddoc {
+    name: "offline-sdk-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    hdf: [
+        "android.whichdoc offline",
+    ],
+    proofread_file: "offline-sdk-docs-proofrerad.txt",
+    args: framework_docs_only_args + " -offlinemode -title \"Android SDK\"",
+    static_doc_index_redirect: "docs/docs-preview-index.html",
+}
 
-// droiddoc {
-//     // Please sync with android-api-council@ before making any changes for the name property below.
-//     // Since there's cron jobs that fetch offline-sdk-referenceonly-docs-docs.zip periodically.
-//     // See b/116221385 for reference.
-//     name: "offline-sdk-referenceonly-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc offline",
-//     ],
-//     proofread_file: "offline-sdk-referenceonly-docs-proofrerad.txt",
-//     args: framework_docs_only_args + " -offlinemode -title \"Android SDK\" -referenceonly",
-//     static_doc_index_redirect: "docs/docs-documentation-redirect.html",
-//     static_doc_properties: "docs/source.properties",
-// }
+droiddoc {
+    // Please sync with android-api-council@ before making any changes for the name property below.
+    // Since there's cron jobs that fetch offline-sdk-referenceonly-docs-docs.zip periodically.
+    // See b/116221385 for reference.
+    name: "offline-sdk-referenceonly-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    hdf: [
+        "android.whichdoc offline",
+    ],
+    proofread_file: "offline-sdk-referenceonly-docs-proofrerad.txt",
+    args: framework_docs_only_args + " -offlinemode -title \"Android SDK\" -referenceonly",
+    static_doc_index_redirect: "docs/docs-documentation-redirect.html",
+    static_doc_properties: "docs/source.properties",
+}
 
-// droiddoc {
-//     // Please sync with android-api-council@ before making any changes for the name property below.
-//     // Since there's cron jobs that fetch offline-system-sdk-referenceonly-docs-docs.zip periodically.
-//     // See b/116221385 for reference.
-//     name: "offline-system-sdk-referenceonly-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-system-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc offline",
-//     ],
-//     proofread_file: "offline-system-sdk-referenceonly-docs-proofrerad.txt",
-//     args: framework_docs_only_args  + " -hide 101 -hide 104 -hide 108" +
-//         " -offlinemode -title \"Android System SDK\" -referenceonly",
-//     static_doc_index_redirect: "docs/docs-documentation-redirect.html",
-//     static_doc_properties: "docs/source.properties",
-// }
+droiddoc {
+    // Please sync with android-api-council@ before making any changes for the name property below.
+    // Since there's cron jobs that fetch offline-system-sdk-referenceonly-docs-docs.zip periodically.
+    // See b/116221385 for reference.
+    name: "offline-system-sdk-referenceonly-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-system-stubs",
+    ],
+    hdf: [
+        "android.whichdoc offline",
+    ],
+    proofread_file: "offline-system-sdk-referenceonly-docs-proofrerad.txt",
+    args: framework_docs_only_args  + " -hide 101 -hide 104 -hide 108" +
+        " -offlinemode -title \"Android System SDK\" -referenceonly",
+    static_doc_index_redirect: "docs/docs-documentation-redirect.html",
+    static_doc_properties: "docs/source.properties",
+}
 
-// droiddoc {
-//     name: "online-sdk-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc online",
-//         "android.hasSamples true",
-//     ],
-//     proofread_file: "online-sdk-docs-proofrerad.txt",
-//     args: framework_docs_only_args  +
-//         " -toroot / -samplegroup Admin " +
-//         " -samplegroup Background " +
-//         " -samplegroup Connectivity " +
-//         " -samplegroup Content " +
-//         " -samplegroup Input " +
-//         " -samplegroup Media " +
-//         " -samplegroup Notification " +
-//         " -samplegroup RenderScript " +
-//         " -samplegroup Security " +
-//         " -samplegroup Sensors " +
-//         " -samplegroup System " +
-//         " -samplegroup Testing " +
-//         " -samplegroup UI " +
-//         " -samplegroup Views " +
-//         " -samplegroup Wearable -samplesdir development/samples/browseable ",
-// }
+droiddoc {
+    name: "online-sdk-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    hdf: [
+        "android.whichdoc online",
+        "android.hasSamples true",
+    ],
+    proofread_file: "online-sdk-docs-proofrerad.txt",
+    args: framework_docs_only_args  +
+        " -toroot / -samplegroup Admin " +
+        " -samplegroup Background " +
+        " -samplegroup Connectivity " +
+        " -samplegroup Content " +
+        " -samplegroup Input " +
+        " -samplegroup Media " +
+        " -samplegroup Notification " +
+        " -samplegroup RenderScript " +
+        " -samplegroup Security " +
+        " -samplegroup Sensors " +
+        " -samplegroup System " +
+        " -samplegroup Testing " +
+        " -samplegroup UI " +
+        " -samplegroup Views " +
+        " -samplegroup Wearable -samplesdir development/samples/browseable ",
+}
 
-// droiddoc {
-//     name: "online-system-api-sdk-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-system-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc online",
-//         "android.hasSamples true",
-//     ],
-//     proofread_file: "online-system-api-sdk-docs-proofrerad.txt",
-//     args: framework_docs_only_args +
-//         " -referenceonly " +
-//         " -title \"Android SDK - Including system APIs.\" " +
-//         " -hide 101 " +
-//         " -hide 104 " +
-//         " -hide 108 " +
-//         " -toroot / -samplegroup Admin " +
-//         " -samplegroup Background " +
-//         " -samplegroup Connectivity " +
-//         " -samplegroup Content " +
-//         " -samplegroup Input " +
-//         " -samplegroup Media " +
-//         " -samplegroup Notification " +
-//         " -samplegroup RenderScript " +
-//         " -samplegroup Security " +
-//         " -samplegroup Sensors " +
-//         " -samplegroup System " +
-//         " -samplegroup Testing " +
-//         " -samplegroup UI " +
-//         " -samplegroup Views " +
-//         " -samplegroup Wearable -samplesdir development/samples/browseable ",
-//     installable: false,
-// }
+droiddoc {
+    name: "online-system-api-sdk-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-system-stubs",
+    ],
+    hdf: [
+        "android.whichdoc online",
+        "android.hasSamples true",
+    ],
+    proofread_file: "online-system-api-sdk-docs-proofrerad.txt",
+    args: framework_docs_only_args +
+        " -referenceonly " +
+        " -title \"Android SDK - Including system APIs.\" " +
+        " -hide 101 " +
+        " -hide 104 " +
+        " -hide 108 " +
+        " -toroot / -samplegroup Admin " +
+        " -samplegroup Background " +
+        " -samplegroup Connectivity " +
+        " -samplegroup Content " +
+        " -samplegroup Input " +
+        " -samplegroup Media " +
+        " -samplegroup Notification " +
+        " -samplegroup RenderScript " +
+        " -samplegroup Security " +
+        " -samplegroup Sensors " +
+        " -samplegroup System " +
+        " -samplegroup Testing " +
+        " -samplegroup UI " +
+        " -samplegroup Views " +
+        " -samplegroup Wearable -samplesdir development/samples/browseable ",
+    installable: false,
+}
 
-// droiddoc {
-//     name: "ds-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc online",
-//         "android.hasSamples true",
-//     ],
-//     proofread_file: "ds-docs-proofrerad.txt",
-//     args: framework_docs_only_args +
-//         " -toroot / -yamlV2 -metalavaApiSince -samplegroup Admin " +
-//         " -samplegroup Background " +
-//         " -samplegroup Connectivity " +
-//         " -samplegroup Content " +
-//         " -samplegroup Input " +
-//         " -samplegroup Media " +
-//         " -samplegroup Notification " +
-//         " -samplegroup RenderScript " +
-//         " -samplegroup Security " +
-//         " -samplegroup Sensors " +
-//         " -samplegroup System " +
-//         " -samplegroup Testing " +
-//         " -samplegroup UI " +
-//         " -samplegroup Views " +
-//         " -samplegroup Wearable -devsite -samplesdir development/samples/browseable ",
-// }
+droiddoc {
+    name: "ds-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    hdf: [
+        "android.whichdoc online",
+        "android.hasSamples true",
+    ],
+    proofread_file: "ds-docs-proofrerad.txt",
+    args: framework_docs_only_args +
+        " -toroot / -yamlV2 -metalavaApiSince -samplegroup Admin " +
+        " -samplegroup Background " +
+        " -samplegroup Connectivity " +
+        " -samplegroup Content " +
+        " -samplegroup Input " +
+        " -samplegroup Media " +
+        " -samplegroup Notification " +
+        " -samplegroup RenderScript " +
+        " -samplegroup Security " +
+        " -samplegroup Sensors " +
+        " -samplegroup System " +
+        " -samplegroup Testing " +
+        " -samplegroup UI " +
+        " -samplegroup Views " +
+        " -samplegroup Wearable -devsite -samplesdir development/samples/browseable ",
+}
 
-// droiddoc {
-//     name: "ds-static-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc online",
-//     ],
-//     proofread_file: "ds-static-docs-proofrerad.txt",
-//     args: framework_docs_only_args +
-//           " -staticonly " +
-//           " -toroot / " +
-//           " -devsite " +
-//           " -ignoreJdLinks ",
-// }
+droiddoc {
+    name: "ds-static-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    hdf: [
+        "android.whichdoc online",
+    ],
+    proofread_file: "ds-static-docs-proofrerad.txt",
+    args: framework_docs_only_args +
+          " -staticonly " +
+          " -toroot / " +
+          " -devsite " +
+          " -ignoreJdLinks ",
+}
 
-// droiddoc {
-//     name: "ds-ref-navtree-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc online",
-//     ],
-//     proofread_file: "ds-ref-navtree-docs-proofrerad.txt",
-//     args: framework_docs_only_args +
-//           " -toroot / " +
-//           " -atLinksNavtree " +
-//           " -navtreeonly ",
-// }
+droiddoc {
+    name: "ds-ref-navtree-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    hdf: [
+        "android.whichdoc online",
+    ],
+    proofread_file: "ds-ref-navtree-docs-proofrerad.txt",
+    args: framework_docs_only_args +
+          " -toroot / " +
+          " -atLinksNavtree " +
+          " -navtreeonly ",
+}
 
-// droiddoc {
-//     name: "online-sdk-dev-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     hdf: [
-//         "android.whichdoc online",
-//         "android.hasSamples true",
-//     ],
-//     proofread_file: "online-sdk-dev-docs-proofrerad.txt",
-//     args: framework_docs_only_args +
-//         " -toroot / -samplegroup Admin " +
-//         " -samplegroup Background " +
-//         " -samplegroup Connectivity " +
-//         " -samplegroup Content " +
-//         " -samplegroup Input " +
-//         " -samplegroup Media " +
-//         " -samplegroup Notification " +
-//         " -samplegroup RenderScript " +
-//         " -samplegroup Security " +
-//         " -samplegroup Sensors " +
-//         " -samplegroup System " +
-//         " -samplegroup Testing " +
-//         " -samplegroup UI " +
-//         " -samplegroup Views " +
-//         " -samplegroup Wearable -samplesdir development/samples/browseable ",
-// }
+droiddoc {
+    name: "online-sdk-dev-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    hdf: [
+        "android.whichdoc online",
+        "android.hasSamples true",
+    ],
+    proofread_file: "online-sdk-dev-docs-proofrerad.txt",
+    args: framework_docs_only_args +
+        " -toroot / -samplegroup Admin " +
+        " -samplegroup Background " +
+        " -samplegroup Connectivity " +
+        " -samplegroup Content " +
+        " -samplegroup Input " +
+        " -samplegroup Media " +
+        " -samplegroup Notification " +
+        " -samplegroup RenderScript " +
+        " -samplegroup Security " +
+        " -samplegroup Sensors " +
+        " -samplegroup System " +
+        " -samplegroup Testing " +
+        " -samplegroup UI " +
+        " -samplegroup Views " +
+        " -samplegroup Wearable -samplesdir development/samples/browseable ",
+}
 
-// droiddoc {
-//     name: "hidden-docs",
-//     defaults: ["framework-docs-default"],
-//     srcs: [
-//         ":framework-doc-stubs",
-//     ],
-//     proofread_file: "hidden-docs-proofrerad.txt",
-//     args: framework_docs_only_args +
-//           " -referenceonly " +
-//           " -title \"Android SDK - Including hidden APIs.\"",
-// }
+droiddoc {
+    name: "hidden-docs",
+    defaults: ["framework-docs-default"],
+    srcs: [
+        ":framework-doc-stubs",
+    ],
+    proofread_file: "hidden-docs-proofrerad.txt",
+    args: framework_docs_only_args +
+          " -referenceonly " +
+          " -title \"Android SDK - Including hidden APIs.\"",
+}
 
 droidstubs {
     name: "hwbinder-stubs-docs",
