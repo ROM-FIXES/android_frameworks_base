@@ -1928,8 +1928,8 @@ public class StatusBar extends SystemUI implements DemoMode,
             resolver.registerContentObserver(LineageSettings.Secure.getUriFor(
                     LineageSettings.Secure.HIDE_BACK_ARROW_GESTURE),
                     false, this, UserHandle.USER_ALL);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PULSE_ON_NEW_TRACKS),
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                    LineageSettings.System.PULSE_ON_NEW_TRACKS),
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.LOCKSCREEN_MEDIA_BLUR),
@@ -1944,7 +1944,8 @@ public class StatusBar extends SystemUI implements DemoMode,
             } else if (uri.equals(LineageSettings.Secure.getUriFor(
                     LineageSettings.Secure.HIDE_BACK_ARROW_GESTURE))) {
                 setHideArrowForBackGesture();
-            } else if (uri.equals(Settings.System.getUriFor(Settings.System.PULSE_ON_NEW_TRACKS))) {
+            } else if (uri.equals(LineageSettings.System.getUriFor(
+		    LineageSettings.System.PULSE_ON_NEW_TRACKS))) {
                 setPulseOnNewTracks();
             } else if (uri.equals(Settings.System.getUriFor(Settings.System.LOCKSCREEN_MEDIA_BLUR))) {
                 setLockScreenMediaBlurLevel();
@@ -1986,8 +1987,8 @@ public class StatusBar extends SystemUI implements DemoMode,
     private void setPulseOnNewTracks() {
         final KeyguardSliceProvider sliceProvider = KeyguardSliceProvider.getAttachedInstance();
         if (sliceProvider != null) {
-            sliceProvider.setPulseOnNewTracks(Settings.System.getIntForUser(mContext.getContentResolver(),
-                    Settings.System.PULSE_ON_NEW_TRACKS, 1,
+            sliceProvider.setPulseOnNewTracks(LineageSettings.System.getIntForUser(mContext.getContentResolver(),
+                    LineageSettings.System.PULSE_ON_NEW_TRACKS, 1,
                     UserHandle.USER_CURRENT) == 1);
         }
     }
