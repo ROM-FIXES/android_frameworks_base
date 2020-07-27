@@ -29,6 +29,6 @@
             android:layout_height="@dimen/floating_action_button_height"
             android:id="@+id/cancel_gesturing"
             android:background="@drawable/ga_floating_action_button"
-            android:tint="@color/ga_fab_icon_color"
+            android:tint="?android:attr/colorAccent"
             android:src="@drawable/ga_close"/>
 </FrameLayout>

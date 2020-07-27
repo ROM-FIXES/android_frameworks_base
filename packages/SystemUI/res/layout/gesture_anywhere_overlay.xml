@@ -17,7 +17,7 @@
         android:id="@+id/gesture_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gestureColor="@color/ga_gesture_color"
+        android:gestureColor="?android:attr/colorAccent"
         android:gestureStrokeType="single"
         android:gestureStrokeWidth="16.0"
         android:visibility="gone" />       
