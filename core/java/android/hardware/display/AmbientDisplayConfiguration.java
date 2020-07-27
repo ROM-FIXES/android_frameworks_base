@@ -25,6 +25,8 @@ import android.text.TextUtils;
 
 import com.android.internal.R;
 
+//import lineageos.providers.LineageSettings;
+
 /**
  * AmbientDisplayConfiguration encapsulates reading access to the configuration of ambient display.
  *
@@ -54,8 +56,8 @@ public class AmbientDisplayConfiguration {
                 || wakeDisplayGestureEnabled(user)
                 || pickupGestureEnabled(user)
                 || tapGestureEnabled(user)
-                || doubleTapGestureEnabled(user)
-                || isAmbientTickerEnabled(user);
+                || doubleTapGestureEnabled(user);
+//                || isAmbientTickerEnabled(user);
     }
 
     /** {@hide} */
@@ -222,10 +224,10 @@ public class AmbientDisplayConfiguration {
                 Settings.System.AMBIENT_WAKE_GESTURES, 1, user) != 0;
     }
 
-    public boolean isAmbientTickerEnabled(int user) {
-        return Settings.System.getIntForUser(mContext.getContentResolver(),
-                Settings.System.PULSE_ON_NEW_TRACKS, 1, user) != 0;
-    }
+//    public boolean isAmbientTickerEnabled(int user) {
+//        return LineageSettings.System.getIntForUser(mContext.getContentResolver(),
+//                LineageSettings.System.PULSE_ON_NEW_TRACKS, 1, user) != 0;
+//    }
 
     public boolean deviceHasSoli() {
         return mDeviceHasSoli;
