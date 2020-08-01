@@ -22,7 +22,6 @@ import android.content.ComponentName;
 import android.database.ContentObserver;
 import android.os.Handler;
 import android.os.UserHandle;
-import android.provider.Settings;
 import android.service.quicksettings.Tile;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.lineageos.internal.logging.LineageMetricsLogger;
+import lineageos.providers.LineageSettings;
 
 import javax.inject.Inject;
 
@@ -54,7 +54,7 @@ public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
     private GestureObserver mObserver;
 
     private static final Intent GESTURE_ANYWHERE_SETTINGS =
-	    new Intent("org.lineageos.lineageparts.GESTURE_ANYWHERE_SETTINGS")
+	    new Intent("org.lineageos.lineageparts.GESTURE_ANYWHERE_SETTINGS");
 
     @Inject
     public GestureAnywhereTile (QSHost host) {
