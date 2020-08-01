@@ -20,8 +20,6 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import android.annotation.ChaosLab;
-import android.annotation.ChaosLab.Classification;
 import android.app.StatusBarManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
