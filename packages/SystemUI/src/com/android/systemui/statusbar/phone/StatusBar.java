@@ -150,6 +150,7 @@ import com.android.keyguard.ViewMediatorCallback;
 import com.android.systemui.ActivityIntentHelper;
 import com.android.systemui.AutoReinflateContainer;
 import com.android.systemui.DejankUtils;
+import com.android.systemui.Dependency;
 import com.android.systemui.DemoMode;
 import com.android.systemui.Dumpable;
 import com.android.systemui.EventLogTags;
@@ -212,6 +213,7 @@ import com.android.systemui.statusbar.StatusBarState;
 import com.android.systemui.statusbar.SuperStatusBarViewFactory;
 import com.android.systemui.statusbar.SysuiStatusBarStateController;
 import com.android.systemui.statusbar.VibratorHelper;
+import com.android.systemui.navigation.pulse.VisualizerView;
 import com.android.systemui.statusbar.notification.ActivityLaunchAnimator;
 import com.android.systemui.statusbar.notification.DynamicPrivacyController;
 import com.android.systemui.statusbar.notification.NotificationActivityStarter;
@@ -239,6 +241,7 @@ import com.android.systemui.statusbar.policy.FlashlightController;
 import com.android.systemui.statusbar.policy.KeyguardUserSwitcher;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.OnHeadsUpChangedListener;
+import com.android.systemui.statusbar.policy.PulseController;
 import com.android.systemui.statusbar.policy.RemoteInputQuickSettingsDisabler;
 import com.android.systemui.statusbar.policy.UserInfoControllerImpl;
 import com.android.systemui.statusbar.policy.UserSwitcherController;
@@ -582,6 +585,9 @@ public class StatusBar extends SystemUI implements DemoMode,
     private final NotificationLockscreenUserManager mLockscreenUserManager;
     private final NotificationRemoteInputManager mRemoteInputManager;
     private boolean mWallpaperSupported;
+
+    private PulseController mPulseController;
+    private VisualizerView mVisualizerView;
 
     private final BroadcastReceiver mWallpaperChangedReceiver = new BroadcastReceiver() {
         @Override
@@ -972,6 +978,10 @@ public class StatusBar extends SystemUI implements DemoMode,
         // Connect in to the status bar manager service
         mCommandQueue.addCallback(this);
 
+        // this will initialize Pulse and begin listening for media events
+        mPulseController = Dependency.get(PulseController.class);
+        mMediaManager.addCallback(mPulseController);
+
         RegisterStatusBarResult result = null;
         try {
             result = mBarService.registerStatusBar(mCommandQueue);
@@ -1317,6 +1327,8 @@ public class StatusBar extends SystemUI implements DemoMode,
                 }
             });
         }
+
+        mVisualizerView = (VisualizerView) mNotificationShadeWindowView.findViewById(R.id.visualizerview);
 
         mReportRejectedTouch = mNotificationShadeWindowView
                 .findViewById(R.id.report_rejected_touch);
@@ -2097,14 +2109,22 @@ public class StatusBar extends SystemUI implements DemoMode,
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
                     LineageSettings.System.GESTURE_ANYWHERE_ENABLED),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.Secure.getUriFor(
+                    Settings.Secure.LOCKSCREEN_MEDIA_BLUR),
+                    false, this, UserHandle.USER_ALL);
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
+            if (uri.equals(Settings.Secure.getUriFor(
+                    Settings.Secure.LOCKSCREEN_MEDIA_BLUR))) {
+                setLockScreenMediaBlurLevel();
+            }
         }
 
         public void update() {
 	    refreshGA();
+            setLockScreenMediaBlurLevel();
         }
     }
 
@@ -2122,6 +2142,12 @@ public class StatusBar extends SystemUI implements DemoMode,
     /*private void doXXX() {
 
     }*/
+
+    private void setLockScreenMediaBlurLevel() {
+        if (mMediaManager != null) {
+            mMediaManager.setLockScreenMediaBlurLevel();
+        }
+    }
 
     /**
      * All changes to the status bar and notifications funnel through here and are batched.
@@ -3711,6 +3737,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         // bar.
         mKeyguardStateController.notifyKeyguardGoingAway(true);
         mCommandQueue.appTransitionPending(mDisplayId, true /* forced */);
+        mPulseController.notifyKeyguardGoingAway();
     }
 
     /**
@@ -3767,6 +3794,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 || (mDozing && mDozeServiceHost.shouldAnimateScreenOff() && visibleNotOccluded);
 
         mNotificationPanelViewController.setDozing(mDozing, animate, mWakeUpTouchLocation);
+        mPulseController.setDozing(mDozing);
         updateQsExpansionEnabled();
         Trace.endSection();
     }
@@ -3902,8 +3930,13 @@ public class StatusBar extends SystemUI implements DemoMode,
         checkBarModes();
         updateScrimController();
         mPresenter.updateMediaMetaData(false, mState != StatusBarState.KEYGUARD);
+        mPulseController.setKeyguardShowing(mState == StatusBarState.KEYGUARD);
         updateKeyguardState();
         Trace.endSection();
+    }
+
+    public VisualizerView getLsVisualizer() {
+        return mVisualizerView;
     }
 
     @Override
@@ -4093,6 +4126,7 @@ public class StatusBar extends SystemUI implements DemoMode,
             updateNotificationPanelTouchState();
             notifyHeadsUpGoingToSleep();
             dismissVolumeDialog();
+            mPulseController.onStartedGoingToSleep();
             mWakeUpCoordinator.setFullyAwake(false);
             mBypassHeadsUpNotifier.setFullyAwake(false);
             mKeyguardBypassController.onStartedGoingToSleep();
