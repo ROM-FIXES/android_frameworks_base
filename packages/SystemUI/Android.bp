@@ -122,6 +122,7 @@ android_library {
         "src/**/*.java",
         "src/**/I*.aidl",
         ":ReleaseJavaFiles",
+        "pulse/src/**/*.java",
     ],
     product_variables: {
         debuggable: {
@@ -130,6 +131,7 @@ android_library {
         },
     },
     resource_dirs: [
+        "pulse/res",
         "res-product",
         "res-keyguard",
         "res",
