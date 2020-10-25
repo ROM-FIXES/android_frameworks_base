@@ -170,6 +170,8 @@ import com.android.systemui.keyguard.ScreenLifecycle;
 import com.android.systemui.keyguard.WakefulnessLifecycle;
 import com.android.systemui.keyguard.ui.binder.LightRevealScrimViewBinder;
 import com.android.systemui.keyguard.ui.viewmodel.LightRevealScrimViewModel;
+import com.android.systemui.navigation.pulse.PulseControllerImpl;
+import com.android.systemui.navigation.pulse.VisualizerView;
 import com.android.systemui.navigationbar.NavigationBarController;
 import com.android.systemui.navigationbar.NavigationBarView;
 import com.android.systemui.notetask.NoteTaskController;
@@ -490,6 +492,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private final StatusBarSignalPolicy mStatusBarSignalPolicy;
     private final StatusBarHideIconsForBouncerManager mStatusBarHideIconsForBouncerManager;
     private final Lazy<LightRevealScrimViewModel> mLightRevealScrimViewModelLazy;
+
+    private final PulseControllerImpl mPulseController;
+    private VisualizerView mVisualizerView;
 
     /** Controller for the Shade. */
     private final ShadeSurface mShadeSurface;
@@ -897,6 +902,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mUserTracker = userTracker;
         mFingerprintManager = fingerprintManager;
         mActivityStarter = activityStarter;
+
+        // TODO: DF32: Use Tuner Service like above fingerprintManager
+        mPulseController = new PulseControllerImpl(mContext, this, mCommandQueue, mUiBgExecutor);
 
         mLockscreenShadeTransitionController = lockscreenShadeTransitionController;
         mStartingSurfaceOptional = startingSurfaceOptional;
@@ -1470,6 +1478,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             });
         }
 
+        mVisualizerView = (VisualizerView)
+                getNotificationShadeWindowView().findViewById(R.id.visualizerview);
+
         mReportRejectedTouch = getNotificationShadeWindowView()
                 .findViewById(R.id.report_rejected_touch);
         if (mReportRejectedTouch != null) {
@@ -1700,6 +1711,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 mCentralSurfacesComponent.getCentralSurfacesCommandQueueCallbacks();
         // Connect in to the status bar manager service
         mCommandQueue.addCallback(mCommandQueueCallbacks);
+
+        // this will initialize Pulse and begin listening for media events
+        mMediaManager.addCallback(mPulseController);
     }
 
     protected NotificationShadeWindowViewController getNotificationShadeWindowViewController() {
@@ -2679,6 +2693,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         // bar.
         mKeyguardStateController.notifyKeyguardGoingAway(true);
         mCommandQueue.appTransitionPending(mDisplayId, true /* forced */);
+        mPulseController.notifyKeyguardGoingAway();
         updateScrimController();
     }
 
@@ -2764,6 +2779,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                 || (mDozing && mDozeParameters.shouldControlScreenOff() && keyguardVisibleOrWillBe);
 
         mShadeSurface.setDozing(mDozing, animate);
+        mPulseController.setDozing(mDozing);
         Trace.endSection();
     }
 
@@ -3714,6 +3730,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     updateScrimController();
                     mPresenterLazy.get()
                             .updateMediaMetaData(false, mState != StatusBarState.KEYGUARD);
+                    mPulseController.setKeyguardShowing(mState == StatusBarState.KEYGUARD);
                     Trace.endSection();
                 }
 
@@ -3758,6 +3775,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
                     maybeUpdateBarMode();
                 }
             };
+
+    public VisualizerView getLsVisualizer() {
+        return mVisualizerView;
+    }
 
     private final BatteryController.BatteryStateChangeCallback mBatteryStateChangeCallback =
             new BatteryController.BatteryStateChangeCallback() {
