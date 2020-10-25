@@ -96,6 +96,7 @@ android_library {
         ":ReleaseJavaFiles",
         "compose/features/src/**/*.kt",
         "compose/facade/enabled/src/**/*.kt",
+        "pulse/src/**/*.java",
     ],
     product_variables: {
         debuggable: {
@@ -104,6 +105,9 @@ android_library {
         },
     },
     use_resource_processor: true,
+    resource_dirs: [
+        "pulse/res",
+    ],
     static_libs: [
         "SystemUI-res",
         "WifiTrackerLib",
