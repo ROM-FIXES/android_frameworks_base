@@ -151,6 +151,7 @@ import com.android.systemui.ActivityIntentHelper;
 import com.android.systemui.AutoReinflateContainer;
 import com.android.systemui.DejankUtils;
 import com.android.systemui.DemoMode;
+import com.android.systemui.Dependency;
 import com.android.systemui.Dumpable;
 import com.android.systemui.EventLogTags;
 import com.android.systemui.InitController;
@@ -212,7 +213,8 @@ import com.android.systemui.statusbar.StatusBarState;
 import com.android.systemui.statusbar.SuperStatusBarViewFactory;
 import com.android.systemui.statusbar.SysuiStatusBarStateController;
 import com.android.systemui.statusbar.VibratorHelper;
-import com.android.systemui.statusbar.VisualizerView;
+//import com.android.systemui.statusbar.VisualizerView;
+import com.android.systemui.navigation.pulse.VisualizerView;
 import com.android.systemui.statusbar.notification.ActivityLaunchAnimator;
 import com.android.systemui.statusbar.notification.DynamicPrivacyController;
 import com.android.systemui.statusbar.notification.NotificationActivityStarter;
@@ -239,6 +241,7 @@ import com.android.systemui.statusbar.policy.KeyguardStateController;
 import com.android.systemui.statusbar.policy.KeyguardUserSwitcher;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.OnHeadsUpChangedListener;
+import com.android.systemui.statusbar.policy.PulseController;
 import com.android.systemui.statusbar.policy.RemoteInputQuickSettingsDisabler;
 import com.android.systemui.statusbar.policy.UserInfoControllerImpl;
 import com.android.systemui.statusbar.policy.UserSwitcherController;
@@ -972,6 +975,9 @@ public class StatusBar extends SystemUI implements DemoMode,
         // Connect in to the status bar manager service
         mCommandQueue.addCallback(this);
 
+        // this will initialize Pulse and begin listening for media events
+        mMediaManager.addCallback(Dependency.get(PulseController.class));
+
         RegisterStatusBarResult result = null;
         try {
             result = mBarService.registerStatusBar(mCommandQueue);
@@ -1255,7 +1261,7 @@ public class StatusBar extends SystemUI implements DemoMode,
             }
         });
 
-        mVisualizerView = mNotificationShadeWindowView.findViewById(R.id.visualizerview);
+        mVisualizerView = (VisualizerView) mNotificationShadeWindowView.findViewById(R.id.visualizerview);
 
         ScrimView scrimBehind = mNotificationShadeWindowView.findViewById(R.id.scrim_behind);
         ScrimView scrimInFront = mNotificationShadeWindowView.findViewById(R.id.scrim_in_front);
@@ -1608,7 +1614,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         return mNotificationShadeWindowView;
     }
 
-    public VisualizerView getVisualizerView() {
+    public VisualizerView getLsVisualizer() {
         return mVisualizerView;
     }
 
@@ -3692,6 +3698,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         // bar.
         mKeyguardStateController.notifyKeyguardGoingAway(true);
         mCommandQueue.appTransitionPending(mDisplayId, true /* forced */);
+        Dependency.get(PulseController.class).notifyKeyguardGoingAway();
     }
 
     /**
@@ -3748,7 +3755,7 @@ public class StatusBar extends SystemUI implements DemoMode,
                 || (mDozing && mDozeServiceHost.shouldAnimateScreenOff() && visibleNotOccluded);
 
         mNotificationPanelViewController.setDozing(mDozing, animate, mWakeUpTouchLocation);
-        mVisualizerView.setDozing(mDozing);
+        Dependency.get(PulseController.class).setDozing(mDozing);
         updateQsExpansionEnabled();
         Trace.endSection();
     }
@@ -3884,7 +3891,7 @@ public class StatusBar extends SystemUI implements DemoMode,
         checkBarModes();
         updateScrimController();
         mPresenter.updateMediaMetaData(false, mState != StatusBarState.KEYGUARD);
-        mVisualizerView.setStatusBarState(newState);
+        Dependency.get(PulseController.class).setKeyguardShowing(mState == StatusBarState.KEYGUARD);
         updateKeyguardState();
         Trace.endSection();
     }
@@ -4141,14 +4148,12 @@ public class StatusBar extends SystemUI implements DemoMode,
         @Override
         public void onScreenTurnedOn() {
             mScrimController.onScreenTurnedOn();
-            mVisualizerView.setVisible(true);
         }
 
         @Override
         public void onScreenTurnedOff() {
             mFalsingManager.onScreenOff();
             mScrimController.onScreenTurnedOff();
-            mVisualizerView.setVisible(false);
             updateIsKeyguard();
         }
     };
