@@ -233,6 +233,12 @@ final class DefaultPermissionGrantPolicy {
         NOTIFICATION_PERMISSIONS.add(Manifest.permission.POST_NOTIFICATIONS);
     }
 
+    private static final Set<String> PULSE_EQ_PERMISSIONS = new ArraySet<>();
+    static {
+        PULSE_EQ_PERMISSIONS.add(Manifest.permission.MODIFY_AUDIO_SETTINGS);
+        PULSE_EQ_PERMISSIONS.add(Manifest.permission.RECORD_AUDIO);
+    }
+
     private static final int MSG_READ_DEFAULT_PERMISSION_EXCEPTIONS = 1;
 
     private static final String ACTION_TRACK = "com.android.fitness.TRACK";
@@ -930,6 +936,9 @@ final class DefaultPermissionGrantPolicy {
         String commonServiceAction = "android.adservices.AD_SERVICES_COMMON_SERVICE";
         grantPermissionsToSystemPackage(pm, getDefaultSystemHandlerServicePackage(pm,
                         commonServiceAction, userId), userId, NOTIFICATION_PERMISSIONS);
+
+       // SystemUI Pulse EQ
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.android.systemui", userId, PULSE_EQ_PERMISSIONS);
     }
 
     private String getDefaultSystemHandlerActivityPackageForCategory(PackageManagerWrapper pm,
