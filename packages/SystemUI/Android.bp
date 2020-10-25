@@ -485,6 +485,7 @@ android_library {
     name: "SystemUI-res",
     use_resource_processor: true,
     resource_dirs: [
+        "pulse/res",
         "res-product",
         "res-keyguard",
         "res",
@@ -509,6 +510,7 @@ android_library {
         ":ReleaseJavaFiles",
         "compose/features/src/**/*.kt",
         "compose/facade/enabled/src/**/*.kt",
+        "pulse/src/**/*.java",
     ],
     product_variables: {
         debuggable: {
