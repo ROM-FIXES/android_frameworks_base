@@ -5827,6 +5827,22 @@ public final class Settings {
          */
         public static final String SMART_PIXELS_ON_POWER_SAVE = "smart_pixels_on_power_save";
 
+        /**
+         * Adaptive playback
+         * Automatically pause media when the volume is muted and
+         * will resume automatically when volume is restored.
+         *   0 = disabled
+         *   1 = enabled
+         * @hide
+         */
+        public static final String ADAPTIVE_PLAYBACK_ENABLED = "adaptive_playback_enabled";
+
+        /**
+         * Adaptive playback's timeout in ms
+         * @hide
+         */
+        public static final String ADAPTIVE_PLAYBACK_TIMEOUT = "adaptive_playback_timeout";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5943,6 +5959,8 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SMART_PIXELS_PATTERN);
             PUBLIC_SETTINGS.add(SMART_PIXELS_SHIFT_TIMEOUT);
             PUBLIC_SETTINGS.add(SMART_PIXELS_ON_POWER_SAVE);
+            PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_ENABLED);
+            PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_TIMEOUT);
         }
 
         /**
