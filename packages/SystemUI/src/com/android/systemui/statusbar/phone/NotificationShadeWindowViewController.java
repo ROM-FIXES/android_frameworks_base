@@ -57,6 +57,7 @@ import com.android.systemui.tuner.TunerService;
 import com.android.systemui.util.InjectionInflationController;
 
 import lineageos.providers.LineageSettings;
+import org.lineageos.internal.buttons.LineageButtons;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -85,6 +86,7 @@ public class NotificationShadeWindowViewController {
     private final NotificationShadeWindowView mView;
     private final ShadeController mShadeController;
     private final NotificationShadeDepthController mDepthController;
+    private AmbientDisplayConfiguration mAmbientConfig;
 
     private GestureDetector mGestureDetector;
     private View mBrightnessMirror;
@@ -110,6 +112,8 @@ public class NotificationShadeWindowViewController {
     private int[] mTempLocation = new int[2];
     private RectF mTempRect = new RectF();
     private boolean mIsTrackingBarGesture = false;
+
+    private boolean mIsMusicTickerTap;
 
     private static final String DOUBLE_TAP_SLEEP_GESTURE =
             "lineagesystem:" + LineageSettings.System.DOUBLE_TAP_SLEEP_GESTURE;
@@ -166,6 +170,7 @@ public class NotificationShadeWindowViewController {
 
         // This view is not part of the newly inflated expanded status bar.
         mBrightnessMirror = mView.findViewById(R.id.brightness_mirror);
+        mAmbientConfig = new AmbientDisplayConfiguration(mView.getContext());
     }
 
     /** Inflates the {@link R.layout#status_bar_expanded} layout and sets it up. */
@@ -173,18 +178,16 @@ public class NotificationShadeWindowViewController {
         mStackScrollLayout = mView.findViewById(R.id.notification_stack_scroller);
 
         TunerService.Tunable tunable = (key, newValue) -> {
-            AmbientDisplayConfiguration configuration =
-                    new AmbientDisplayConfiguration(mView.getContext());
             switch (key) {
                 case Settings.Secure.DOUBLE_TAP_TO_WAKE:
                     mDoubleTapEnabledNative = TunerService.parseIntegerSwitch(newValue, false);
                     break;
                 case Settings.Secure.DOZE_DOUBLE_TAP_GESTURE:
-                    mDoubleTapEnabled = configuration.doubleTapGestureEnabled(
+                    mDoubleTapEnabled = mAmbientConfig.doubleTapGestureEnabled(
                             UserHandle.USER_CURRENT);
                     break;
                 case Settings.Secure.DOZE_TAP_SCREEN_GESTURE:
-                    mSingleTapEnabled = configuration.tapGestureEnabled(UserHandle.USER_CURRENT);
+                    mSingleTapEnabled = mAmbientConfig.tapGestureEnabled(UserHandle.USER_CURRENT);
                     break;
                 case DOUBLE_TAP_SLEEP_GESTURE:
                     mDoubleTapToSleepEnabled = TunerService.parseIntegerSwitch(newValue, true);
@@ -213,6 +216,12 @@ public class NotificationShadeWindowViewController {
 
                     @Override
                     public boolean onDoubleTap(MotionEvent e) {
+                        if (mIsMusicTickerTap) {
+                            /* this gets called in pulsing Ambient screen,
+                            for double taps on screen OFF or AoD check DozeTriggers onSlpiTap*/
+                            LineageButtons.getAttachedInstance(mView.getContext()).skipTrack();
+                            return true;
+                        }
                         if (!mStatusBarStateController.isDozing() && mDoubleTapToSleepEnabled
                                 && e.getY() < mQuickQsOffsetHeight) {
                             mPowerManager.goToSleep(e.getEventTime());
@@ -315,10 +324,16 @@ public class NotificationShadeWindowViewController {
 
             @Override
             public boolean shouldInterceptTouchEvent(MotionEvent ev) {
-                if (mStatusBarStateController.isDozing() && !mService.isPulsing()
+                mIsMusicTickerTap = false;
+                if (mStatusBarStateController.isDozing()) {
+                    if (!mAmbientConfig.deviceHasSoli() && mService.isDoubleTapOnMusicTicker(ev.getX(), ev.getY())) {
+                        mIsMusicTickerTap = true;
+                    }
+                    if (!mService.isPulsing()
                         && !mDockManager.isDocked()) {
-                    // Capture all touch events in always-on.
-                    return true;
+                        // Capture all touch events in always-on.
+                        return true;
+                    }
                 }
                 boolean intercept = false;
                 if (mNotificationPanelViewController.isFullyExpanded()
