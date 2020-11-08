@@ -52,6 +52,8 @@ import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.lineageos.internal.buttons.LineageButtons;
+
 /**
  * Handles triggers for ambient state changes.
  */
@@ -264,10 +266,17 @@ public class DozeTriggers implements DozeMachine.Part {
                     return;
                 }
                 if (isDoubleTap || isTap) {
-                    if (screenX != -1 && screenY != -1) {
-                        mDozeHost.onSlpiTap(screenX, screenY);
+                    /* if in AoD try to trigger the double tap to skip Track otherwise just wake up gently.
+                    Without this check, when screen is OFF and AoD disabled, we could trigger the skip track action
+                    by mistake if tapping in the area where track infos are supposed to show up, even before
+                    waking up to lockscreen or ambient*/
+                    if (!mConfig.deviceHasSoli() && screenX != -1 && screenY != -1
+                            && mConfig.alwaysOnEnabled(UserHandle.USER_CURRENT)
+                            /*|| mMachine.getState() == DozeMachine.State.DOZE_PULSING*/) {
+                        mDozeHost.onSlpiTap(screenX, screenY, pulseReason);
+                    } else {
+                        gentleWakeUp(pulseReason);
                     }
-                    gentleWakeUp(pulseReason);
                 } else if (isPickup) {
                     gentleWakeUp(pulseReason);
                 } else {
@@ -593,6 +602,16 @@ public class DozeTriggers implements DozeMachine.Part {
                 nextState = DozeMachine.State.DOZE;
             }
             mMachine.requestState(nextState);
+        }
+
+        @Override
+        public void wakeUpFromDoubleTap(int pulseReason) {
+            gentleWakeUp(pulseReason);
+        }
+
+        @Override
+        public void skipTrack() {
+            LineageButtons.getAttachedInstance(mContext).skipTrack();
         }
     };
 }
