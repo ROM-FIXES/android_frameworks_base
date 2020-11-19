@@ -22,4 +22,7 @@
 
     <!-- Whether doze feature is enabled by default in settings -->
     <java-symbol type="bool" name="config_doze_enabled_by_default" />
+
+    <!-- Whether Pixel props is enabled -->
+    <java-symbol type="bool" name="config_enablePixelProps" />
 </resources>
