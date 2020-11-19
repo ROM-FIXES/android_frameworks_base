@@ -6299,6 +6299,12 @@ public final class Settings {
         * Custom System Settings start
         *****************************/
 
+        /**
+         * Stores the array name of the values currently used for SpoofBuildGms
+         * @hide
+         */
+        public static final String PPU_SPOOF_BUILD_GMS_ARRAY = "ppu_spoof_build_gms_array";
+
         /***************************
         * Custom System Settings end
         ***************************/
