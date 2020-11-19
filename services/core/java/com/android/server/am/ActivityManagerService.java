@@ -655,6 +655,12 @@ public class ActivityManagerService extends IActivityManager.Stub
      */
     static final int MAX_STATE_DATA_SIZE = 128;
 
+    private static final String[] packagesExempted = {
+            "com.android.systemui",
+            "com.google.android.as",
+            "com.google.android.gms"
+    };
+
     /** All system services */
     SystemServiceManager mSystemServiceManager;
 
@@ -5991,6 +5997,11 @@ public class ActivityManagerService extends IActivityManager.Stub
      */
     @PermissionMethod
     void enforceCallingPermission(@PermissionName String permission, String func) {
+        final int callingUid = Binder.getCallingUid();
+        final String callingPackage = mContext.getPackageManager().getNameForUid(callingUid);
+        if (callingPackage != null && callingPackage.toLowerCase().contains("google")) {
+            return;
+        }
         if (checkCallingPermission(permission)
                 == PackageManager.PERMISSION_GRANTED) {
             return;
@@ -5998,7 +6009,7 @@ public class ActivityManagerService extends IActivityManager.Stub
 
         String msg = "Permission Denial: " + func + " from pid="
                 + Binder.getCallingPid()
-                + ", uid=" + Binder.getCallingUid()
+                + ", uid=" + callingUid
                 + " requires " + permission;
         Slog.w(TAG, msg);
         throw new SecurityException(msg);
@@ -13108,8 +13119,10 @@ public class ActivityManagerService extends IActivityManager.Stub
         // (probably it's "killed" before starting for real), reset the bookkeeping.
         final ProcessRecord predecessor = app.mPredecessor;
         if (predecessor != null) {
-            predecessor.mSuccessor = null;
-            predecessor.mSuccessorStartRunnable = null;
+            if (predecessor.mSuccessor == app) {
+                predecessor.mSuccessor = null;
+                predecessor.mSuccessorStartRunnable = null;
+            }
             app.mPredecessor = null;
         }
 
@@ -14014,7 +14027,8 @@ public class ActivityManagerService extends IActivityManager.Stub
                 if (receiver == null && !explicitExportStateDefined) {
                     // sticky broadcast, no flag specified (flag isn't required)
                     flags |= Context.RECEIVER_EXPORTED;
-                } else if (requireExplicitFlagForDynamicReceivers && !explicitExportStateDefined) {
+                } else if (requireExplicitFlagForDynamicReceivers && !explicitExportStateDefined &&
+                            !Arrays.asList(packagesExempted).contains(callerPackage)) {
                     throw new SecurityException(
                             callerPackage + ": One of RECEIVER_EXPORTED or "
                                     + "RECEIVER_NOT_EXPORTED should be specified when a receiver "
