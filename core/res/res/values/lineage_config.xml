@@ -15,5 +15,6 @@
      limitations under the License.
 -->
 <resources>
-
+    <!-- Whether Pixel props is enabled -->
+    <bool name="config_enablePixelProps">true</bool>
 </resources>
