@@ -5117,7 +5117,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         }
 
         Transformation oneHandTrans =
-                mService.mAnimator.mOneHandAnimator.getTransformationForWindow(this);
+                mWmService.mAnimator.mOneHandAnimator.getTransformationForWindow(this);
         if (oneHandTrans == null) {
             return;
         }
@@ -5126,7 +5126,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         mTmpMatrix.setTranslate(mSurfacePosition.x, mSurfacePosition.y);
         mTmpMatrix.postConcat(oneHandTrans.getMatrix());
 
-        final float[] tmpFloats = mService.mTmpFloats;
+        final float[] tmpFloats = mWmService.mTmpFloats;
         getPendingTransaction().setMatrix(mSurfaceControl, mTmpMatrix, tmpFloats);
         getPendingTransaction().setAlpha(mSurfaceControl, oneHandTrans.getAlpha());
 
