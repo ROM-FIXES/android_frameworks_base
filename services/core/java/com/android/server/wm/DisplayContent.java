@@ -535,6 +535,14 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
     private SurfaceControl mWindowingLayer;
 
     /**
+     * Specifies the size of the surfaces in {@link #mOverlayLayer} and {@link #mWindowingLayer}.
+     * <p>
+     * For these surfaces currently we use a surface based on the larger of width or height so we
+     * don't have to resize when rotating the display.
+     */
+    private int mSurfaceSize;
+
+    /**
      * This contains surfaces of one handed mode UI which are always on bottom of others.
      * See {@link #mOverlayLayer}
      */
@@ -964,6 +972,15 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
         mWindowCornerRadius = mDisplayPolicy.getWindowCornerRadius();
         mDividerControllerLocked = new DockedStackDividerController(service, this);
         mPinnedStackControllerLocked = new PinnedStackController(service, this);
+
+        // We use this as our arbitrary surface size for buffer-less parents
+        // that don't impose cropping on their children. It may need to be larger
+        // than the display size because fullscreen windows can be shifted offscreen
+        // due to surfaceInsets. 2 times the largest display dimension feels like an
+        // appropriately arbitrary number. Eventually we would like to give SurfaceFlinger
+        // layers the ability to match their parent sizes and be able to skip
+        // such arbitrary size settings.
+        mSurfaceSize = Math.max(mBaseDisplayHeight, mBaseDisplayWidth) * 2;
 
         final SurfaceControl.Builder b = mWmService.makeSurfaceBuilder(mSession)
                 .setOpaque(true)
@@ -3936,7 +3953,7 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
 
         // When One Handed feature is enabled, screen shot region should also be scaled.
         if (isOneHandedModeSupported()) {
-            mService.mAnimator.mOneHandAnimator.applyTransformationForRect(frame);
+            mWmService.mAnimator.mOneHandAnimator.applyTransformationForRect(frame);
         }
 
         // The screenshot API does not apply the current screen rotation.
@@ -4818,7 +4835,7 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
 
     SurfaceControl.Builder makeScreenRotationAnimationOverlay() {
         if(isInOneHandedMode()) {
-            return mService.makeSurfaceBuilder(mSession); // no parent is expected.
+            return mWmService.makeSurfaceBuilder(mSession); // no parent is expected.
         } else {
             return makeOverlay();
         }
@@ -4832,7 +4849,7 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
     }
 
     void reparentToOneHandOverlay(Transaction transaction, SurfaceControl surface) {
-        transaction.reparent(surface, mOneHandOverlayLayer.getHandle());
+        transaction.reparent(surface, mOneHandOverlayLayer);
     }
 
     void applyMagnificationSpec(MagnificationSpec spec) {
@@ -4932,12 +4949,12 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
 
     private boolean isInOneHandedMode() {
         return isOneHandedModeSupported()
-                && mService.mAnimator.mOneHandAnimator.getTransformation() != null;
+                && mWmService.mAnimator.mOneHandAnimator.getTransformation() != null;
     }
 
     private Transformation getOneHandTransformation() {
         return isOneHandedModeSupported()?
-                mService.mAnimator.mOneHandAnimator.getTransformation() : null;
+                mWmService.mAnimator.mOneHandAnimator.getTransformation() : null;
     }
 
     @Override
@@ -4956,18 +4973,18 @@ class DisplayContent extends WindowContainer<DisplayContent.DisplayChildWindowCo
                 mTmpMatrix.reset();
 
                 if (oneHandTrans != null) {
-                    // setSize prevents children from being drawn outside of shrunk display.
+                    // setBufferSize prevents children from being drawn outside of shrunk display.
                     mTmpMatrix.postConcat(oneHandTrans.getMatrix());
                     transaction.setMatrix(mWindowingLayer, mTmpMatrix, mTmpFloats);
-                    transaction.setSize(mWindowingLayer, mBaseDisplayWidth, mBaseDisplayHeight);
+                    transaction.setBufferSize(mWindowingLayer, mBaseDisplayWidth, mBaseDisplayHeight);
                     transaction.setMatrix(mOverlayLayer, mTmpMatrix, mTmpFloats);
-                    transaction.setSize(mOverlayLayer, mBaseDisplayWidth, mBaseDisplayHeight);
+                    transaction.setBufferSize(mOverlayLayer, mBaseDisplayWidth, mBaseDisplayHeight);
                 } else if (mWasInOneHandMode) {
                     // Remove the effects of oneHandTrans which was applied previously.
                     transaction.setMatrix(mWindowingLayer, mTmpMatrix, mTmpFloats);
-                    transaction.setSize(mWindowingLayer, mSurfaceSize, mSurfaceSize);
+                    transaction.setBufferSize(mWindowingLayer, mSurfaceSize, mSurfaceSize);
                     transaction.setMatrix(mOverlayLayer, mTmpMatrix, mTmpFloats);
-                    transaction.setSize(mOverlayLayer, mSurfaceSize, mSurfaceSize);
+                    transaction.setBufferSize(mOverlayLayer, mSurfaceSize, mSurfaceSize);
                 }
                 mWasInOneHandMode = (oneHandTrans != null);
 

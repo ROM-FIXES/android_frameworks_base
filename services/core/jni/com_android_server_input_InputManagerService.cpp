@@ -1916,10 +1916,6 @@ static const JNINativeMethod gInputManagerMethods[] = {
         var = env->GetFieldID(clazz, fieldName, fieldDescriptor); \
         LOG_FATAL_IF(! (var), "Unable to find field " fieldName);
 
-#define GET_STATIC_METHOD_ID(var, clazz, fieldName, fieldDescriptor) \
-    var = env->GetStaticMethodID(clazz, fieldName, fieldDescriptor); \
-    LOG_FATAL_IF(! var, "Unable to find static method " fieldName);
-
 int register_android_server_InputManager(JNIEnv* env) {
     int res = jniRegisterNativeMethods(env, "com/android/server/input/InputManagerService",
             gInputManagerMethods, NELEM(gInputManagerMethods));
