@@ -103,7 +103,8 @@ public class OneHandTile extends QSTileImpl<BooleanState> {
         state.value = isOneHandTurnedOn();
         state.icon = mIcon;
         state.label = mContext.getString(R.string.qs_onehand_label);
-        state.state = Tile.STATE_INACTIVE;
+	state.state = state.value ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE;
+	refreshState();
     }
 
     private static void toggleOneHandedMode(Context context, int direction) {
