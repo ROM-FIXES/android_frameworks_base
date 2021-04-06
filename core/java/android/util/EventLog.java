@@ -343,7 +343,12 @@ public class EventLog {
      * @return The number of bytes written
      */
     @RavenwoodRedirect
-    public static native int writeEvent(int tag, int value);
+    public static native int writeEvent(int tag, int value) {
+        if (!Build.IS_ENG) {
+            return 0;
+        }
+        return nativeWriteEvent(tag, value);
+    }
 
     /**
      * Record an event log message.
@@ -352,7 +357,12 @@ public class EventLog {
      * @return The number of bytes written
      */
     @RavenwoodRedirect
-    public static native int writeEvent(int tag, long value);
+    public static int writeEvent(int tag, long value) {
+        if (!Build.IS_ENG) {
+            return 0;
+        }
+        return nativeWriteEvent(tag, value);
+    }
 
     /**
      * Record an event log message.
@@ -361,7 +371,12 @@ public class EventLog {
      * @return The number of bytes written
      */
     @RavenwoodRedirect
-    public static native int writeEvent(int tag, float value);
+    public static int writeEvent(int tag, float value) {
+        if (!Build.IS_ENG) {
+            return 0;
+        }
+        return nativeWriteEvent(tag, value);
+    }
 
     /**
      * Record an event log message.
@@ -370,7 +385,12 @@ public class EventLog {
      * @return The number of bytes written
      */
     @RavenwoodRedirect
-    public static native int writeEvent(int tag, String str);
+    public static int writeEvent(int tag, String str) {
+        if (!Build.IS_ENG) {
+            return 0;
+        }
+        return nativeWriteEvent(tag, value);
+    }
 
     /**
      * Record an event log message.
@@ -379,7 +399,12 @@ public class EventLog {
      * @return The number of bytes written
      */
     @RavenwoodRedirect
-    public static native int writeEvent(int tag, Object... list);
+    public static int writeEvent(int tag, Object... list) {
+        if (!Build.IS_ENG) {
+            return 0;
+        }
+        return nativeWriteEvent(tag, value);
+    }
 
     /**
      * Read events from the log, filtered by type.
@@ -388,8 +413,13 @@ public class EventLog {
      * @throws IOException if something goes wrong reading events
      */
     @RavenwoodThrow
-    public static native void readEvents(int[] tags, Collection<Event> output)
-            throws IOException;
+    public static void readEvents(int[] tags, Collection<Event> output)
+            throws IOException {
+        if (!Build.IS_ENG) {
+            return 0;
+        }
+        return nativeWriteEvent(tag, value);
+    }
 
     /**
      * Read events from the log, filtered by type, blocking until logs are about to be overwritten.
@@ -401,7 +431,26 @@ public class EventLog {
      */
     @SystemApi
     @RavenwoodThrow
-    public static native void readEventsOnWrapping(int[] tags, long timestamp,
+    public static void readEventsOnWrapping(int[] tags, long timestamp,
+            Collection<Event> output)
+            throws IOException {
+        if (!Build.IS_ENG) {
+            return;
+        }
+        nativeReadEventsOnWrapping(tags, timestamp, output);
+    }
+
+    // We assume that the native methods deal with any concurrency issues.
+
+    private static native int nativeWriteEvent(int tag, int value);
+    private static native int nativeWriteEvent(int tag, long value);
+    private static native int nativeWriteEvent(int tag, float value);
+    private static native int nativeWriteEvent(int tag, String str);
+    private static native int nativeWriteEvent(int tag, Object... list);
+
+    private static native void nativeReadEvents(int[] tags, Collection<Event> output)
+            throws IOException;
+    private static native void nativeReadEventsOnWrapping(int[] tags, long timestamp,
             Collection<Event> output)
             throws IOException;
 
