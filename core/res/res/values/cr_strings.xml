@@ -39,4 +39,9 @@
     <string name="aerr_copy">Copy crash log URL</string>
     <string name="url_copy_success">URL copied successfully</string>
     <string name="url_copy_failed">An error occured while uploading the log to Pasty</string>
+
+    <!-- Optimized charge notification -->
+    <string name="optimized_charge_notification_channel_label">Optimized charge</string>
+    <string name="optimized_charge_notification_title">Charging suspended</string>
+    <string name="optimized_charge_notification_text">Charging suspended because of optimized charging policy</string>
 </resources>
