@@ -88,7 +88,7 @@ public class GestureOverlayView extends FrameLayout {
     private final Rect mInvalidRect = new Rect();
     private final Path mPath = new Path();
     private boolean mGestureVisible = true;
-    protected boolean mClearPerformedGesture = true;
+    private boolean mClearPerformedGesture = true;
 
     private float mX;
     private float mY;
@@ -138,6 +138,7 @@ public class GestureOverlayView extends FrameLayout {
 
     public GestureOverlayView(Context context, AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
+	mClearPerformedGesture = false;
     }
 
     public GestureOverlayView(
