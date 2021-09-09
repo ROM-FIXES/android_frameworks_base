@@ -2120,9 +2120,9 @@ public class StatusBar extends SystemUI implements DemoMode,
         mGaEnabled = LineageSettings.System.getInt(
                     mContext.getContentResolver(), LineageSettings.System.GESTURE_ANYWHERE_ENABLED, 0) == 1;
         if (mGaEnabled) {
-            Settings.System.putInt(mContext.getContentResolver(),
+            LineageSettings.System.putInt(mContext.getContentResolver(),
                 LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER, 1);
-            Settings.System.putInt(mContext.getContentResolver(),
+            LineageSettings.System.putInt(mContext.getContentResolver(),
                 LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER, 0);
         }
     }
