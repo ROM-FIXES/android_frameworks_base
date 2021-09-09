@@ -22,7 +22,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.service.quicksettings.Tile;
 
-import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.systemui.Dependency;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.plugins.qs.QSTile.BooleanState;
@@ -30,6 +29,8 @@ import com.android.systemui.qs.tileimpl.QSTileImpl;
 import com.android.systemui.R;
 
 import javax.inject.Inject;
+
+import org.lineageos.internal.logging.LineageMetricsLogger;
 
 public class SoundSearchTile extends QSTileImpl<BooleanState> {
 
@@ -42,7 +43,7 @@ public class SoundSearchTile extends QSTileImpl<BooleanState> {
 
     @Override
     public int getMetricsCategory() {
-        return MetricsEvent.ABC;
+        return LineageMetricsLogger.SOUND_SEARCH_TILE;
     }
 
     @Override
