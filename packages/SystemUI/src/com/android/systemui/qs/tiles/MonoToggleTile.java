@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.service.quicksettings.Tile;
-import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.plugins.qs.QSTile.BooleanState;
 import com.android.systemui.qs.tileimpl.QSTileImpl;
@@ -52,7 +51,7 @@ public class MonoToggleTile extends QSTileImpl<BooleanState> {
 
     @Override
     public int getMetricsCategory() {
-        return MetricsEvent.ABC;
+        return LineageMetricsLogger.MONO_TILE;
     }
 
     @Override
