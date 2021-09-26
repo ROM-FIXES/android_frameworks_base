@@ -36,6 +36,7 @@ import android.gesture.GestureOverlayView;
 import android.gesture.Prediction;
 import android.os.Handler;
 import android.os.Environment;
+import android.os.UserHandle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -66,6 +67,7 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
     private SettingsObserver mSettingsObserver;
     private long mGestureLoadedTime = 0;
     private boolean mTriggerVisible = false;
+    private boolean isUnlocked = false;
     private TranslateAnimation mSlideIn;
     private TranslateAnimation mSlideOut;
 
@@ -80,19 +82,26 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_ENABLED), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_ENABLED), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_POSITION), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_POSITION), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_CHANGED), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_CHANGED), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_WIDTH), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_WIDTH), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_TOP), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_TOP), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_HEIGHT), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_HEIGHT), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER), false, this,
+                    UserHandle.USER_ALL);
             update();
         }
 
@@ -364,6 +373,11 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
     @Override
     public void onGestureStarted(GestureOverlayView overlay, MotionEvent event) {
         if (mState == State.Expanded) {
+            if (!isUnlocked) {
+                LineageSettings.System.putInt(mContext.getContentResolver(),
+                    LineageSettings.System.GESTURE_ANYWHERE_ENABLED, 1);
+                isUnlocked = true;
+            }
             switchToState(State.Gesturing);
         }
     }
