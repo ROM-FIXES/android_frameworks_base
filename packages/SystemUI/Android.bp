@@ -125,6 +125,8 @@ android_library {
         "vendor.lineage.powershare-V1.0-java",
         "pallete",
         "tensorflowlite_java",
+        "colorkt",
+        "themelib",
     ],
     manifest: "AndroidManifest.xml",
     additional_manifests: ["LineageManifest.xml"],
