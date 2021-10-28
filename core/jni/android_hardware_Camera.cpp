@@ -470,6 +470,56 @@ void JNICameraContext::setCallbackMode(JNIEnv *env, bool installed, bool manualM
     }
 }
 
+static void android_hardware_Camera_setLongshot(JNIEnv *env, jobject thiz, jboolean enable)
+{
+    ALOGV("setLongshot");
+    JNICameraContext* context;
+    status_t rc;
+    sp<Camera> camera = get_native_camera(env, thiz, &context);
+    if (camera == 0) return;
+
+    if ( enable ) {
+        rc = camera->sendCommand(CAMERA_CMD_LONGSHOT_ON, 0, 0);
+    } else {
+        rc = camera->sendCommand(CAMERA_CMD_LONGSHOT_OFF, 0, 0);
+    }
+
+    if (rc != NO_ERROR) {
+       jniThrowException(env, "java/lang/RuntimeException", "enabling longshot mode failed");
+    }
+}
+
+static void android_hardware_Camera_sendHistogramData(JNIEnv *env, jobject thiz)
+ {
+   ALOGV("sendHistogramData" );
+   JNICameraContext* context;
+   status_t rc;
+   sp<Camera> camera = get_native_camera(env, thiz, &context);
+   if (camera == 0) return;
+
+   rc = camera->sendCommand(CAMERA_CMD_HISTOGRAM_SEND_DATA, 0, 0);
+
+   if (rc != NO_ERROR) {
+      jniThrowException(env, "java/lang/RuntimeException", "send histogram data failed");
+    }
+ }
+ static void android_hardware_Camera_setHistogramMode(JNIEnv *env, jobject thiz, jboolean mode)
+ {
+   ALOGV("setHistogramMode: mode:%d", (int)mode);
+   JNICameraContext* context;
+   status_t rc;
+   sp<Camera> camera = get_native_camera(env, thiz, &context);
+   if (camera == 0) return;
+
+   if(mode == true)
+      rc = camera->sendCommand(CAMERA_CMD_HISTOGRAM_ON, 0, 0);
+   else
+      rc = camera->sendCommand(CAMERA_CMD_HISTOGRAM_OFF, 0, 0);
+
+   if (rc != NO_ERROR) {
+      jniThrowException(env, "java/lang/RuntimeException", "set histogram mode failed");
+     }
+ }
 void JNICameraContext::addCallbackBuffer(
         JNIEnv *env, jbyteArray cbb, int msgType)
 {
@@ -556,7 +606,7 @@ static void android_hardware_Camera_getCameraInfo(JNIEnv *env, jobject thiz,
 
 // connect to camera service
 static jint android_hardware_Camera_native_setup(JNIEnv *env, jobject thiz,
-    jobject weak_this, jint cameraId, jstring clientPackageName)
+    jobject weak_this, jint cameraId, jint halVersion, jstring clientPackageName)
 {
     // Convert jstring to String16
     const char16_t *rawClientName = reinterpret_cast<const char16_t*>(
@@ -567,8 +617,19 @@ static jint android_hardware_Camera_native_setup(JNIEnv *env, jobject thiz,
                             reinterpret_cast<const jchar*>(rawClientName));
 
     int targetSdkVersion = android_get_application_target_sdk_version();
-    sp<Camera> camera = Camera::connect(cameraId, clientName, Camera::USE_CALLING_UID,
+    sp<Camera> camera;
+    if (halVersion == CAMERA_HAL_API_VERSION_NORMAL_CONNECT) {
+        // Default path: hal version is don't care, do normal camera connect.
+        camera = Camera::connect(cameraId, clientName, Camera::USE_CALLING_UID,
                                         Camera::USE_CALLING_PID, targetSdkVersion);
+    } else {
+        jint status = Camera::connectLegacy(cameraId, halVersion, clientName,
+                Camera::USE_CALLING_UID, Camera::USE_CALLING_PID, camera);
+        if (status != NO_ERROR) {
+            return status;
+        }
+    }
+
     if (camera == NULL) {
         return -EACCES;
     }
@@ -783,7 +844,25 @@ static void android_hardware_Camera_setHasPreviewCallback(JNIEnv *env, jobject t
     context->setCallbackMode(env, installed, manualBuffer);
 }
 
-static void android_hardware_Camera_addCallbackBuffer(JNIEnv *env, jobject thiz, jbyteArray bytes, jint msgType) {
+static void android_hardware_Camera_setMetadataCb(JNIEnv *env, jobject thiz, jboolean mode)
+{
+    ALOGV("setMetadataCb: mode:%d", (int)mode);
+    JNICameraContext* context;
+    status_t rc;
+    sp<Camera> camera = get_native_camera(env, thiz, &context);
+    if (camera == 0) return;
+
+    if(mode == true)
+        rc = camera->sendCommand(CAMERA_CMD_METADATA_ON, 0, 0);
+    else
+        rc = camera->sendCommand(CAMERA_CMD_METADATA_OFF, 0, 0);
+
+    if (rc != NO_ERROR) {
+        jniThrowException(env, "java/lang/RuntimeException", "set metadata mode failed");
+    }
+}
+
+static void android_hardware_Camera_addCallbackBuffer(JNIEnv *env, jobject thiz, jbyteArray bytes, int msgType) {
     ALOGV("addCallbackBuffer: 0x%x", msgType);
 
     JNICameraContext* context = reinterpret_cast<JNICameraContext*>(env->GetLongField(thiz, fields.context));
@@ -1058,7 +1137,7 @@ static const JNINativeMethod camMethods[] = {
     "(ILandroid/hardware/Camera$CameraInfo;)V",
     (void*)android_hardware_Camera_getCameraInfo },
   { "native_setup",
-    "(Ljava/lang/Object;ILjava/lang/String;)I",
+    "(Ljava/lang/Object;IILjava/lang/String;)I",
     (void*)android_hardware_Camera_native_setup },
   { "native_release",
     "()V",
@@ -1096,6 +1175,18 @@ static const JNINativeMethod camMethods[] = {
   { "native_takePicture",
     "(I)V",
     (void *)android_hardware_Camera_takePicture },
+  { "native_setHistogramMode",
+    "(Z)V",
+     (void *)android_hardware_Camera_setHistogramMode },
+  { "native_setMetadataCb",
+    "(Z)V",
+    (void *)android_hardware_Camera_setMetadataCb },
+  { "native_sendHistogramData",
+    "()V",
+     (void *)android_hardware_Camera_sendHistogramData },
+ { "native_setLongshot",
+     "(Z)V",
+      (void *)android_hardware_Camera_setLongshot },
   { "native_setParameters",
     "(Ljava/lang/String;)V",
     (void *)android_hardware_Camera_setParameters },
