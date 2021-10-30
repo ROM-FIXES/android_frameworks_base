@@ -249,5 +249,11 @@ public class SecureSettings {
         Settings.Secure.PULSE_SOLID_UNITS_ROUNDED,
         Settings.Secure.PULSE_VERTICAL_MIRROR,
         Settings.Secure.WINDOW_IGNORE_SECURE,
+        Settings.Secure.MONET_ENGINE_ACCURATE_SHADES,
+        Settings.Secure.MONET_ENGINE_COLOR_OVERRIDE,
+        Settings.Secure.MONET_ENGINE_CUSTOM_COLOR,
+        Settings.Secure.MONET_ENGINE_CHROMA_FACTOR,
+        Settings.Secure.MONET_ENGINE_LINEAR_LIGHTNESS,
+        Settings.Secure.MONET_ENGINE_WHITE_LUMINANCE,
     };
 }
