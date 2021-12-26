@@ -16392,6 +16392,14 @@ public final class Settings {
         * Custom Global Settings start
         *****************************/
 
+        /**
+         * A list of uids that is allowed to use restricted networks.
+         *
+         * @hide
+         */
+        public static final String UIDS_ALLOWED_ON_RESTRICTED_NETWORKS =
+                "uids_allowed_on_restricted_networks";
+
         /*****************************
         * Custom Global Settings end
         *****************************/
