@@ -85,5 +85,6 @@ public class SystemSettings {
         Settings.System.ALARM_ALERT,
         Settings.System.NOTIFICATION_LIGHT_PULSE,
         Settings.System.SENSOR_BLOCK,
+        Settings.System.GAMESPACE_SUPPRESS_FULLSCREEN_INTENT,
     };
 }
