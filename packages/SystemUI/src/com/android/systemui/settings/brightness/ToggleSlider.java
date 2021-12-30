@@ -42,4 +42,6 @@ public interface ToggleSlider {
     boolean isVisible();
 
     ImageView getIcon();
+    
+    void updateThumb(int value);
 }
