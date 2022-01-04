@@ -5653,6 +5653,12 @@ public final class Settings {
         public static final String NOTIFICATION_GUTS_KILL_APP_BUTTON =
                 "notification_guts_kill_app_button";
 
+        /**
+         * Defines the screen-off animation to display
+         * @hide
+         */
+        public static final String SCREEN_OFF_ANIMATION = "screen_off_animation";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5743,6 +5749,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(NOTIFICATION_SOUND_VIB_SCREEN_ON);
             PUBLIC_SETTINGS.add(HEADS_UP_TIMEOUT);
             PUBLIC_SETTINGS.add(NOTIFICATION_GUTS_KILL_APP_BUTTON);
+            PUBLIC_SETTINGS.add(SCREEN_OFF_ANIMATION);
         }
 
         /**
