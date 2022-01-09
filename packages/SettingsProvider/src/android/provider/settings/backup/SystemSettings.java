@@ -117,7 +117,12 @@ public class SystemSettings {
                 Settings.System.NOTIFICATION_COOLDOWN_ENABLED,
                 Settings.System.NOTIFICATION_COOLDOWN_ALL,
                 Settings.System.NOTIFICATION_COOLDOWN_VIBRATE_UNLOCKED,
-                Settings.System.SCREENSHOT_SHUTTER_SOUND
+                Settings.System.SCREENSHOT_SHUTTER_SOUND,
+                Settings.System.EDGE_LIGHT_ENABLED,
+                Settings.System.EDGE_LIGHT_ALWAYS_TRIGGER_ON_PULSE,
+                Settings.System.EDGE_LIGHT_REPEAT_ANIMATION,
+                Settings.System.EDGE_LIGHT_COLOR_MODE,
+                Settings.System.EDGE_LIGHT_CUSTOM_COLOR
         ));
         if (Flags.backUpSmoothDisplayAndForcePeakRefreshRate()) {
             settings.add(Settings.System.PEAK_REFRESH_RATE);
