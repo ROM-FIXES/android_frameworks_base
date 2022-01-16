@@ -102,5 +102,6 @@ public class SystemSettings {
         Settings.System.ALERT_SLIDER_NOTIFICATIONS,
         Settings.System.SENSOR_BLOCK,
         Settings.System.LESS_BORING_HEADS_UP,
+        Settings.System.NOTIFICATION_SOUND_VIB_SCREEN_ON,
     };
 }
