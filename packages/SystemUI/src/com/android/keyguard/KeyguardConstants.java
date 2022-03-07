@@ -27,5 +27,5 @@ public class KeyguardConstants {
      * Turns on debugging information for the whole Keyguard. This is very verbose and should only
      * be used temporarily for debugging.
      */
-    public static final boolean DEBUG = Log.isLoggable("Keyguard", Log.DEBUG);
+    public static final boolean DEBUG = false;
 }

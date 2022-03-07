@@ -710,7 +710,7 @@ public class GraphicsEnvironment {
         final boolean hasPrereleaseDriver = prereleaseDriver != null && !prereleaseDriver.isEmpty();
 
         if (!hasProductionDriver && !hasPrereleaseDriver) {
-            Log.v(TAG, "Neither updatable production driver nor prerelease driver is supported.");
+            if (DEBUG) Log.v(TAG, "Neither updatable production driver nor prerelease driver is supported.");
             return null;
         }
 
