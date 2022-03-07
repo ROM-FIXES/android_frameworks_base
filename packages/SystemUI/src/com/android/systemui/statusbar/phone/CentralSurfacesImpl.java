@@ -1781,7 +1781,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces, Tune
                 && ((mDisabled2 & StatusBarManager.DISABLE2_QUICK_SETTINGS) == 0)
                 && !mDozing;
         mQsController.setExpansionEnabledPolicy(expandEnabled);
-        Log.d(TAG, "updateQsExpansionEnabled - QS Expand enabled: " + expandEnabled);
+        if (DEBUG) Log.d(TAG, "updateQsExpansionEnabled - QS Expand enabled: " + expandEnabled);
     }
 
     @Override
