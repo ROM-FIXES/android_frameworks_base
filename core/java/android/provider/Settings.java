@@ -6342,6 +6342,12 @@ public final class Settings {
         }
 
         /**
+         * Control whether FLAG_SECURE is ignored for all windows.
+         * @hide
+         */
+        public static final String WINDOW_IGNORE_SECURE = "window_ignore_secure";
+
+        /**
          * Control whether to enable adaptive sleep mode.
          * @hide
          */
