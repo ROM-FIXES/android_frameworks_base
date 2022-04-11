@@ -34,17 +34,12 @@ public class PixelPropsUtils {
 
     private static final Map<String, Object> propsToChange;
     private static final Map<String, Object> propsToChangePixel5;
-    private static final Map<String, Object> propsToChangePixel6;
     private static final Map<String, Object> propsToChangePixelXL;
     private static final Map<String, ArrayList<String>> propsToKeep;
 
     private static final String[] extraPackagesToChange = {
             "com.android.chrome",
             "com.breel.wallpapers20"
-    };
-
-    private static final String[] packagesToChangePixel6 = {
-            "com.google.android.gms"
     };
 
     private static final String[] packagesToChangePixelXL = {
@@ -118,13 +113,6 @@ public class PixelPropsUtils {
         propsToKeep = new HashMap<>();
         propsToChange = new HashMap<>();
         propsToKeep.put("com.google.android.settings.intelligence", new ArrayList<>(Collections.singletonList("FINGERPRINT")));
-        propsToChangePixel6 = new HashMap<>();
-        propsToChangePixel6.put("BRAND", "google");
-        propsToChangePixel6.put("MANUFACTURER", "Google");
-        propsToChangePixel6.put("DEVICE", "raven");
-        propsToChangePixel6.put("PRODUCT", "raven");
-        propsToChangePixel6.put("MODEL", "Pixel 6 Pro");
-        propsToChangePixel6.put("FINGERPRINT", "google/raven/raven:12/SP2A.220405.004/8233519:user/release-keys");
         propsToChangePixel5 = new HashMap<>();
         propsToChangePixel5.put("BRAND", "google");
         propsToChangePixel5.put("MANUFACTURER", "Google");
@@ -159,9 +147,7 @@ public class PixelPropsUtils {
         if (packageName.startsWith("com.google.")
                 || Arrays.asList(extraPackagesToChange).contains(packageName)) {
 
-            if (Arrays.asList(packagesToChangePixel6).contains(packageName)) {
-                propsToChange.putAll(propsToChangePixel6);
-            } else if (Arrays.asList(packagesToChangePixelXL).contains(packageName)) {
+            if (Arrays.asList(packagesToChangePixelXL).contains(packageName)) {
                 propsToChange.putAll(propsToChangePixelXL);
             } else {
                 propsToChange.putAll(propsToChangePixel5);
