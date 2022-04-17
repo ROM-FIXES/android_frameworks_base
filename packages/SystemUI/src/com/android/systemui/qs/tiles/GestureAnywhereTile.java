@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ComponentName;
 import android.database.ContentObserver;
+import android.os.Looper;
+
 import android.os.Handler;
 import android.os.UserHandle;
 import android.service.quicksettings.Tile;
@@ -38,6 +40,14 @@ import com.android.systemui.plugins.qs.QSTile.BooleanState;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.qs.tileimpl.QSTileImpl;
 import com.android.systemui.R;
+import com.android.systemui.dagger.qualifiers.Background;
+import com.android.systemui.plugins.statusbar.StatusBarStateController;
+
+import com.android.systemui.dagger.qualifiers.Main;
+import com.android.systemui.plugins.ActivityStarter;
+import com.android.systemui.plugins.FalsingManager;
+import com.android.internal.logging.MetricsLogger;
+import com.android.systemui.qs.logging.QSLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +57,7 @@ import org.lineageos.internal.logging.LineageMetricsLogger;
 import lineageos.providers.LineageSettings;
 
 import javax.inject.Inject;
+import androidx.annotation.Nullable;
 
 
 public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
@@ -57,8 +68,18 @@ public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
 	    new Intent("org.lineageos.lineageparts.GESTURE_ANYWHERE_SETTINGS");
 
     @Inject
-    public GestureAnywhereTile (QSHost host) {
-        super(host);
+    public GestureAnywhereTile (
+            QSHost host,
+            @Background Looper backgroundLooper,
+            @Main Handler mainHandler,
+            FalsingManager falsingManager,
+            MetricsLogger metricsLogger,
+            StatusBarStateController statusBarStateController,
+            ActivityStarter activityStarter,
+            QSLogger qsLogger
+    ) {
+        super(host, backgroundLooper, mainHandler, falsingManager, metricsLogger,
+                statusBarStateController, activityStarter, qsLogger);
         mObserver = new GestureObserver(mHandler);
     }
 
@@ -74,7 +95,7 @@ public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
     }
 
     @Override
-    protected void handleClick() {
+    protected void handleClick(@Nullable View view) {
         toggleState();
         refreshState();
     }
