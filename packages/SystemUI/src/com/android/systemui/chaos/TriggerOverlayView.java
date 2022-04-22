@@ -25,8 +25,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import com.android.systemui.R;
 
-import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
-
 public abstract class TriggerOverlayView extends FrameLayout {
     final protected WindowManager mWM;
 
@@ -135,7 +133,6 @@ public abstract class TriggerOverlayView extends FrameLayout {
         mLayoutParams.y = mTriggerTop;
         mLayoutParams.height = mTriggerBottom;
         mLayoutParams.width = mTriggerWidth;
-        mLayoutParams.privateFlags |= PRIVATE_FLAG_TRUSTED_OVERLAY;
         mLayoutParams.flags = disableKeyEvents();
         mWM.updateViewLayout(this, mLayoutParams);
     }
