@@ -1,18 +1,18 @@
 /*
-* Copyright (C) 2010 The Android Open Source Project
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (C) 2010 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.systemui.statusbar.phone;
 
@@ -267,332 +267,332 @@ import javax.inject.Provider;
 import dagger.Lazy;
 
 public class StatusBar extends SystemUI implements DemoMode,
-ActivityStarter, KeyguardStateController.Callback,
-OnHeadsUpChangedListener, CommandQueue.Callbacks,
-ColorExtractor.OnColorsChangedListener, ConfigurationListener,
-StatusBarStateController.StateListener, ActivityLaunchAnimator.Callback,
-LifecycleOwner, BatteryController.BatteryStateChangeCallback,
-TunerService.Tunable {
-public static final boolean MULTIUSER_DEBUG = false;
+        ActivityStarter, KeyguardStateController.Callback,
+        OnHeadsUpChangedListener, CommandQueue.Callbacks,
+        ColorExtractor.OnColorsChangedListener, ConfigurationListener,
+        StatusBarStateController.StateListener, ActivityLaunchAnimator.Callback,
+        LifecycleOwner, BatteryController.BatteryStateChangeCallback,
+        TunerService.Tunable {
+    public static final boolean MULTIUSER_DEBUG = false;
 
-protected static final int MSG_HIDE_RECENT_APPS = 1020;
-protected static final int MSG_PRELOAD_RECENT_APPS = 1022;
-protected static final int MSG_CANCEL_PRELOAD_RECENT_APPS = 1023;
-protected static final int MSG_TOGGLE_KEYBOARD_SHORTCUTS_MENU = 1026;
-protected static final int MSG_DISMISS_KEYBOARD_SHORTCUTS_MENU = 1027;
+    protected static final int MSG_HIDE_RECENT_APPS = 1020;
+    protected static final int MSG_PRELOAD_RECENT_APPS = 1022;
+    protected static final int MSG_CANCEL_PRELOAD_RECENT_APPS = 1023;
+    protected static final int MSG_TOGGLE_KEYBOARD_SHORTCUTS_MENU = 1026;
+    protected static final int MSG_DISMISS_KEYBOARD_SHORTCUTS_MENU = 1027;
 
-// Should match the values in PhoneWindowManager
-public static final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
-public static final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
-static public final String SYSTEM_DIALOG_REASON_SCREENSHOT = "screenshot";
+    // Should match the values in PhoneWindowManager
+    public static final String SYSTEM_DIALOG_REASON_HOME_KEY = "homekey";
+    public static final String SYSTEM_DIALOG_REASON_RECENT_APPS = "recentapps";
+    static public final String SYSTEM_DIALOG_REASON_SCREENSHOT = "screenshot";
 
-private static final String FORCE_SHOW_NAVBAR =
-    "lineagesystem:" + LineageSettings.System.FORCE_SHOW_NAVBAR;
-public static final String SYSTEMUI_BURNIN_PROTECTION =
-    "lineagesystem:" + LineageSettings.System.SYSTEMUI_BURNIN_PROTECTION;
-public static final String SCREEN_BRIGHTNESS_MODE =
-    "system:" + Settings.System.SCREEN_BRIGHTNESS_MODE;
-private static final String STATUS_BAR_BRIGHTNESS_CONTROL =
-    "lineagesystem:" + LineageSettings.System.STATUS_BAR_BRIGHTNESS_CONTROL;
+    private static final String FORCE_SHOW_NAVBAR =
+            "lineagesystem:" + LineageSettings.System.FORCE_SHOW_NAVBAR;
+    public static final String SYSTEMUI_BURNIN_PROTECTION =
+            "lineagesystem:" + LineageSettings.System.SYSTEMUI_BURNIN_PROTECTION;
+    public static final String SCREEN_BRIGHTNESS_MODE =
+            "system:" + Settings.System.SCREEN_BRIGHTNESS_MODE;
+    private static final String STATUS_BAR_BRIGHTNESS_CONTROL =
+            "lineagesystem:" + LineageSettings.System.STATUS_BAR_BRIGHTNESS_CONTROL;
 
-private static final String BANNER_ACTION_CANCEL =
-    "com.android.systemui.statusbar.banner_action_cancel";
-private static final String BANNER_ACTION_SETUP =
-    "com.android.systemui.statusbar.banner_action_setup";
-public static final String TAG = "StatusBar";
-public static final boolean DEBUG = false;
-public static final boolean SPEW = false;
-public static final boolean DUMPTRUCK = true; // extra dumpsys info
-public static final boolean DEBUG_GESTURES = false;
-public static final boolean DEBUG_MEDIA_FAKE_ARTWORK = false;
-public static final boolean DEBUG_CAMERA_LIFT = false;
+    private static final String BANNER_ACTION_CANCEL =
+            "com.android.systemui.statusbar.banner_action_cancel";
+    private static final String BANNER_ACTION_SETUP =
+            "com.android.systemui.statusbar.banner_action_setup";
+    public static final String TAG = "StatusBar";
+    public static final boolean DEBUG = false;
+    public static final boolean SPEW = false;
+    public static final boolean DUMPTRUCK = true; // extra dumpsys info
+    public static final boolean DEBUG_GESTURES = false;
+    public static final boolean DEBUG_MEDIA_FAKE_ARTWORK = false;
+    public static final boolean DEBUG_CAMERA_LIFT = false;
 
-public static final boolean DEBUG_WINDOW_STATE = false;
+    public static final boolean DEBUG_WINDOW_STATE = false;
 
-// additional instrumentation for testing purposes; intended to be left on during development
-public static final boolean CHATTY = DEBUG;
+    // additional instrumentation for testing purposes; intended to be left on during development
+    public static final boolean CHATTY = DEBUG;
 
-public static final boolean SHOW_LOCKSCREEN_MEDIA_ARTWORK = true;
+    public static final boolean SHOW_LOCKSCREEN_MEDIA_ARTWORK = true;
 
-public static final String ACTION_FAKE_ARTWORK = "fake_artwork";
+    public static final String ACTION_FAKE_ARTWORK = "fake_artwork";
 
-private static final int MSG_OPEN_NOTIFICATION_PANEL = 1000;
-private static final int MSG_CLOSE_PANELS = 1001;
-private static final int MSG_OPEN_SETTINGS_PANEL = 1002;
-private static final int MSG_LAUNCH_TRANSITION_TIMEOUT = 1003;
-// 1020-1040 reserved for BaseStatusBar
+    private static final int MSG_OPEN_NOTIFICATION_PANEL = 1000;
+    private static final int MSG_CLOSE_PANELS = 1001;
+    private static final int MSG_OPEN_SETTINGS_PANEL = 1002;
+    private static final int MSG_LAUNCH_TRANSITION_TIMEOUT = 1003;
+    // 1020-1040 reserved for BaseStatusBar
 
-// Time after we abort the launch transition.
-private static final long LAUNCH_TRANSITION_TIMEOUT_MS = 5000;
+    // Time after we abort the launch transition.
+    private static final long LAUNCH_TRANSITION_TIMEOUT_MS = 5000;
 
-protected static final boolean CLOSE_PANEL_WHEN_EMPTIED = true;
+    protected static final boolean CLOSE_PANEL_WHEN_EMPTIED = true;
 
-/**
-* The delay to reset the hint text when the hint animation is finished running.
-*/
-private static final int HINT_RESET_DELAY_MS = 1200;
+    /**
+     * The delay to reset the hint text when the hint animation is finished running.
+     */
+    private static final int HINT_RESET_DELAY_MS = 1200;
 
-private static final AudioAttributes VIBRATION_ATTRIBUTES = new AudioAttributes.Builder()
-    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-    .build();
+    private static final AudioAttributes VIBRATION_ATTRIBUTES = new AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .build();
 
-private static final float BRIGHTNESS_CONTROL_PADDING = 0.15f;
-private static final int BRIGHTNESS_CONTROL_LONG_PRESS_TIMEOUT = 750; // ms
-private static final int BRIGHTNESS_CONTROL_LINGER_THRESHOLD = 20;
+    private static final float BRIGHTNESS_CONTROL_PADDING = 0.15f;
+    private static final int BRIGHTNESS_CONTROL_LONG_PRESS_TIMEOUT = 750; // ms
+    private static final int BRIGHTNESS_CONTROL_LINGER_THRESHOLD = 20;
 
-public static final int FADE_KEYGUARD_START_DELAY = 100;
-public static final int FADE_KEYGUARD_DURATION = 300;
-public static final int FADE_KEYGUARD_DURATION_PULSING = 96;
+    public static final int FADE_KEYGUARD_START_DELAY = 100;
+    public static final int FADE_KEYGUARD_DURATION = 300;
+    public static final int FADE_KEYGUARD_DURATION_PULSING = 96;
 
-/** If true, the system is in the half-boot-to-decryption-screen state.
-* Prudently disable QS and notifications.  */
-public static final boolean ONLY_CORE_APPS;
+    /** If true, the system is in the half-boot-to-decryption-screen state.
+     * Prudently disable QS and notifications.  */
+    public static final boolean ONLY_CORE_APPS;
 
-/** If true, the lockscreen will show a distinct wallpaper */
-public static final boolean ENABLE_LOCKSCREEN_WALLPAPER = true;
+    /** If true, the lockscreen will show a distinct wallpaper */
+    public static final boolean ENABLE_LOCKSCREEN_WALLPAPER = true;
 
-private static final UiEventLogger sUiEventLogger = new UiEventLoggerImpl();
+    private static final UiEventLogger sUiEventLogger = new UiEventLoggerImpl();
 
-static {
-boolean onlyCoreApps;
-try {
-    IPackageManager packageManager =
-	    IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
-    onlyCoreApps = packageManager.isOnlyCoreApps();
-} catch (RemoteException e) {
-    onlyCoreApps = false;
-}
-ONLY_CORE_APPS = onlyCoreApps;
-}
-
-/**
-* The {@link StatusBarState} of the status bar.
-*/
-protected int mState; // TODO: remove this. Just use StatusBarStateController
-protected boolean mBouncerShowing;
-
-private PhoneStatusBarPolicy mIconPolicy;
-private StatusBarSignalPolicy mSignalPolicy;
-
-private final VolumeComponent mVolumeComponent;
-private BrightnessMirrorController mBrightnessMirrorController;
-private boolean mBrightnessMirrorVisible;
-private BiometricUnlockController mBiometricUnlockController;
-private final LightBarController mLightBarController;
-private final Lazy<LockscreenWallpaper> mLockscreenWallpaperLazy;
-@Nullable
-protected LockscreenWallpaper mLockscreenWallpaper;
-private final AutoHideController mAutoHideController;
-
-private BurnInProtectionController mBurnInProtectionController;
-
-@Nullable
-private final KeyguardLiftController mKeyguardLiftController;
-
-private final Point mCurrentDisplaySize = new Point();
-
-protected NotificationShadeWindowView mNotificationShadeWindowView;
-protected StatusBarWindowView mPhoneStatusBarWindow;
-protected PhoneStatusBarView mStatusBarView;
-private int mStatusBarWindowState = WINDOW_STATE_SHOWING;
-protected NotificationShadeWindowController mNotificationShadeWindowController;
-protected StatusBarWindowController mStatusBarWindowController;
-private final KeyguardUpdateMonitor mKeyguardUpdateMonitor;
-private final LockscreenLockIconController mLockscreenLockIconController;
-@VisibleForTesting
-DozeServiceHost mDozeServiceHost;
-private boolean mWakeUpComingFromTouch;
-private PointF mWakeUpTouchLocation;
-
-private final Object mQueueLock = new Object();
-
-private final StatusBarIconController mIconController;
-private final PulseExpansionHandler mPulseExpansionHandler;
-private final NotificationWakeUpCoordinator mWakeUpCoordinator;
-private final KeyguardBypassController mKeyguardBypassController;
-private final KeyguardStateController mKeyguardStateController;
-private final HeadsUpManagerPhone mHeadsUpManager;
-private final StatusBarTouchableRegionManager mStatusBarTouchableRegionManager;
-private final DynamicPrivacyController mDynamicPrivacyController;
-private final BypassHeadsUpNotifier mBypassHeadsUpNotifier;
-private final FalsingManager mFalsingManager;
-private final BroadcastDispatcher mBroadcastDispatcher;
-private final ConfigurationController mConfigurationController;
-protected NotificationShadeWindowViewController mNotificationShadeWindowViewController;
-private final DozeParameters mDozeParameters;
-private final Lazy<BiometricUnlockController> mBiometricUnlockControllerLazy;
-private final Provider<StatusBarComponent.Builder> mStatusBarComponentBuilder;
-private final PluginManager mPluginManager;
-private final Optional<Divider> mDividerOptional;
-private final StatusBarNotificationActivityStarter.Builder
-    mStatusBarNotificationActivityStarterBuilder;
-private final ShadeController mShadeController;
-private final SuperStatusBarViewFactory mSuperStatusBarViewFactory;
-private final LightsOutNotifController mLightsOutNotifController;
-private final InitController mInitController;
-private final DarkIconDispatcher mDarkIconDispatcher;
-private final PluginDependencyProvider mPluginDependencyProvider;
-private final KeyguardDismissUtil mKeyguardDismissUtil;
-private final ExtensionController mExtensionController;
-private final UserInfoControllerImpl mUserInfoControllerImpl;
-private final DismissCallbackRegistry mDismissCallbackRegistry;
-private final TunerService mTunerService;
-private NotificationsController mNotificationsController;
-
-// expanded notifications
-// the sliding/resizing panel within the notification window
-protected NotificationPanelViewController mNotificationPanelViewController;
-
-// settings
-private QSPanel mQSPanel;
-
-KeyguardIndicationController mKeyguardIndicationController;
-
-// RemoteInputView to be activated after unlock
-private View mPendingRemoteInputView;
-
-private final RemoteInputQuickSettingsDisabler mRemoteInputQuickSettingsDisabler;
-
-private View mReportRejectedTouch;
-
-private boolean mExpandedVisible;
-
-private boolean mGaEnabled;
-
-private final int[] mAbsPos = new int[2];
-
-private final NotificationGutsManager mGutsManager;
-private final NotificationLogger mNotificationLogger;
-private final NotificationViewHierarchyManager mViewHierarchyManager;
-private final KeyguardViewMediator mKeyguardViewMediator;
-protected final NotificationInterruptStateProvider mNotificationInterruptStateProvider;
-
-private DisplayManager mDisplayManager;
-
-private int mMinBrightness;
-private int mInitialTouchX;
-private int mInitialTouchY;
-private int mLinger;
-private int mQuickQsTotalHeight;
-private boolean mAutomaticBrightness;
-private boolean mBrightnessControl;
-private boolean mBrightnessChanged;
-private boolean mJustPeeked;
-
-// for disabling the status bar
-private int mDisabled1 = 0;
-private int mDisabled2 = 0;
-
-/** @see android.view.WindowInsetsController#setSystemBarsAppearance(int) */
-private @Appearance int mAppearance;
-
-private boolean mTransientShown;
-
-private boolean mAppFullscreen;
-private boolean mAppImmersive;
-
-private final DisplayMetrics mDisplayMetrics;
-
-// XXX: gesture research
-private final GestureRecorder mGestureRec = DEBUG_GESTURES
-? new GestureRecorder("/sdcard/statusbar_gestures.dat")
-: null;
-
-private final ScreenPinningRequest mScreenPinningRequest;
-
-private final MetricsLogger mMetricsLogger;
-
-private final Runnable mLongPressBrightnessChange = new Runnable() {
-@Override
-public void run() {
-    mStatusBarView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-    adjustBrightness(mInitialTouchX);
-    mLinger = BRIGHTNESS_CONTROL_LINGER_THRESHOLD + 1;
-}
-};
-
-// ensure quick settings is disabled until the current user makes it through the setup wizard
-@VisibleForTesting
-protected boolean mUserSetup = false;
-private final DeviceProvisionedListener mUserSetupObserver = new DeviceProvisionedListener() {
-@Override
-public void onUserSetupChanged() {
-    final boolean userSetup = mDeviceProvisionedController.isUserSetup(
-	    mDeviceProvisionedController.getCurrentUser());
-    Log.d(TAG, "mUserSetupObserver - DeviceProvisionedListener called for user "
-	    + mDeviceProvisionedController.getCurrentUser());
-    if (MULTIUSER_DEBUG) {
-	Log.d(TAG, String.format("User setup changed: userSetup=%s mUserSetup=%s",
-		userSetup, mUserSetup));
+    static {
+        boolean onlyCoreApps;
+        try {
+            IPackageManager packageManager =
+                    IPackageManager.Stub.asInterface(ServiceManager.getService("package"));
+            onlyCoreApps = packageManager.isOnlyCoreApps();
+        } catch (RemoteException e) {
+            onlyCoreApps = false;
+        }
+        ONLY_CORE_APPS = onlyCoreApps;
     }
 
-    if (userSetup != mUserSetup) {
-	mUserSetup = userSetup;
-	if (!mUserSetup && mStatusBarView != null)
-	    animateCollapseQuickSettings();
-	if (mNotificationPanelViewController != null) {
-	    mNotificationPanelViewController.setUserSetupComplete(mUserSetup);
-	}
-	updateQsExpansionEnabled();
+    /**
+     * The {@link StatusBarState} of the status bar.
+     */
+    protected int mState; // TODO: remove this. Just use StatusBarStateController
+    protected boolean mBouncerShowing;
+
+    private PhoneStatusBarPolicy mIconPolicy;
+    private StatusBarSignalPolicy mSignalPolicy;
+
+    private final VolumeComponent mVolumeComponent;
+    private BrightnessMirrorController mBrightnessMirrorController;
+    private boolean mBrightnessMirrorVisible;
+    private BiometricUnlockController mBiometricUnlockController;
+    private final LightBarController mLightBarController;
+    private final Lazy<LockscreenWallpaper> mLockscreenWallpaperLazy;
+    @Nullable
+    protected LockscreenWallpaper mLockscreenWallpaper;
+    private final AutoHideController mAutoHideController;
+
+    private BurnInProtectionController mBurnInProtectionController;
+
+    @Nullable
+    private final KeyguardLiftController mKeyguardLiftController;
+
+    private final Point mCurrentDisplaySize = new Point();
+
+    protected NotificationShadeWindowView mNotificationShadeWindowView;
+    protected StatusBarWindowView mPhoneStatusBarWindow;
+    protected PhoneStatusBarView mStatusBarView;
+    private int mStatusBarWindowState = WINDOW_STATE_SHOWING;
+    protected NotificationShadeWindowController mNotificationShadeWindowController;
+    protected StatusBarWindowController mStatusBarWindowController;
+    private final KeyguardUpdateMonitor mKeyguardUpdateMonitor;
+    private final LockscreenLockIconController mLockscreenLockIconController;
+    @VisibleForTesting
+    DozeServiceHost mDozeServiceHost;
+    private boolean mWakeUpComingFromTouch;
+    private PointF mWakeUpTouchLocation;
+
+    private final Object mQueueLock = new Object();
+
+    private final StatusBarIconController mIconController;
+    private final PulseExpansionHandler mPulseExpansionHandler;
+    private final NotificationWakeUpCoordinator mWakeUpCoordinator;
+    private final KeyguardBypassController mKeyguardBypassController;
+    private final KeyguardStateController mKeyguardStateController;
+    private final HeadsUpManagerPhone mHeadsUpManager;
+    private final StatusBarTouchableRegionManager mStatusBarTouchableRegionManager;
+    private final DynamicPrivacyController mDynamicPrivacyController;
+    private final BypassHeadsUpNotifier mBypassHeadsUpNotifier;
+    private final FalsingManager mFalsingManager;
+    private final BroadcastDispatcher mBroadcastDispatcher;
+    private final ConfigurationController mConfigurationController;
+    protected NotificationShadeWindowViewController mNotificationShadeWindowViewController;
+    private final DozeParameters mDozeParameters;
+    private final Lazy<BiometricUnlockController> mBiometricUnlockControllerLazy;
+    private final Provider<StatusBarComponent.Builder> mStatusBarComponentBuilder;
+    private final PluginManager mPluginManager;
+    private final Optional<Divider> mDividerOptional;
+    private final StatusBarNotificationActivityStarter.Builder
+            mStatusBarNotificationActivityStarterBuilder;
+    private final ShadeController mShadeController;
+    private final SuperStatusBarViewFactory mSuperStatusBarViewFactory;
+    private final LightsOutNotifController mLightsOutNotifController;
+    private final InitController mInitController;
+    private final DarkIconDispatcher mDarkIconDispatcher;
+    private final PluginDependencyProvider mPluginDependencyProvider;
+    private final KeyguardDismissUtil mKeyguardDismissUtil;
+    private final ExtensionController mExtensionController;
+    private final UserInfoControllerImpl mUserInfoControllerImpl;
+    private final DismissCallbackRegistry mDismissCallbackRegistry;
+    private final TunerService mTunerService;
+    private NotificationsController mNotificationsController;
+
+    // expanded notifications
+    // the sliding/resizing panel within the notification window
+    protected NotificationPanelViewController mNotificationPanelViewController;
+
+    // settings
+    private QSPanel mQSPanel;
+
+    KeyguardIndicationController mKeyguardIndicationController;
+
+    // RemoteInputView to be activated after unlock
+    private View mPendingRemoteInputView;
+
+    private final RemoteInputQuickSettingsDisabler mRemoteInputQuickSettingsDisabler;
+
+    private View mReportRejectedTouch;
+
+    private boolean mExpandedVisible;
+
+    private boolean mGaEnabled;
+
+    private final int[] mAbsPos = new int[2];
+
+    private final NotificationGutsManager mGutsManager;
+    private final NotificationLogger mNotificationLogger;
+    private final NotificationViewHierarchyManager mViewHierarchyManager;
+    private final KeyguardViewMediator mKeyguardViewMediator;
+    protected final NotificationInterruptStateProvider mNotificationInterruptStateProvider;
+
+    private DisplayManager mDisplayManager;
+
+    private int mMinBrightness;
+    private int mInitialTouchX;
+    private int mInitialTouchY;
+    private int mLinger;
+    private int mQuickQsTotalHeight;
+    private boolean mAutomaticBrightness;
+    private boolean mBrightnessControl;
+    private boolean mBrightnessChanged;
+    private boolean mJustPeeked;
+
+    // for disabling the status bar
+    private int mDisabled1 = 0;
+    private int mDisabled2 = 0;
+
+    /** @see android.view.WindowInsetsController#setSystemBarsAppearance(int) */
+    private @Appearance int mAppearance;
+
+    private boolean mTransientShown;
+
+    private boolean mAppFullscreen;
+    private boolean mAppImmersive;
+
+    private final DisplayMetrics mDisplayMetrics;
+
+    // XXX: gesture research
+    private final GestureRecorder mGestureRec = DEBUG_GESTURES
+        ? new GestureRecorder("/sdcard/statusbar_gestures.dat")
+        : null;
+
+    private final ScreenPinningRequest mScreenPinningRequest;
+
+    private final MetricsLogger mMetricsLogger;
+
+    private final Runnable mLongPressBrightnessChange = new Runnable() {
+        @Override
+        public void run() {
+            mStatusBarView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            adjustBrightness(mInitialTouchX);
+            mLinger = BRIGHTNESS_CONTROL_LINGER_THRESHOLD + 1;
+        }
+    };
+
+    // ensure quick settings is disabled until the current user makes it through the setup wizard
+    @VisibleForTesting
+    protected boolean mUserSetup = false;
+    private final DeviceProvisionedListener mUserSetupObserver = new DeviceProvisionedListener() {
+        @Override
+        public void onUserSetupChanged() {
+            final boolean userSetup = mDeviceProvisionedController.isUserSetup(
+                    mDeviceProvisionedController.getCurrentUser());
+            Log.d(TAG, "mUserSetupObserver - DeviceProvisionedListener called for user "
+                    + mDeviceProvisionedController.getCurrentUser());
+            if (MULTIUSER_DEBUG) {
+                Log.d(TAG, String.format("User setup changed: userSetup=%s mUserSetup=%s",
+                        userSetup, mUserSetup));
+            }
+
+            if (userSetup != mUserSetup) {
+                mUserSetup = userSetup;
+                if (!mUserSetup && mStatusBarView != null)
+                    animateCollapseQuickSettings();
+                if (mNotificationPanelViewController != null) {
+                    mNotificationPanelViewController.setUserSetupComplete(mUserSetup);
+                }
+                updateQsExpansionEnabled();
+            }
+        }
+    };
+
+    @VisibleForTesting
+    public enum StatusBarUiEvent implements UiEventLogger.UiEventEnum {
+        @UiEvent(doc = "Secured lockscreen is opened.")
+        LOCKSCREEN_OPEN_SECURE(405),
+
+        @UiEvent(doc = "Lockscreen without security is opened.")
+        LOCKSCREEN_OPEN_INSECURE(406),
+
+        @UiEvent(doc = "Secured lockscreen is closed.")
+        LOCKSCREEN_CLOSE_SECURE(407),
+
+        @UiEvent(doc = "Lockscreen without security is closed.")
+        LOCKSCREEN_CLOSE_INSECURE(408),
+
+        @UiEvent(doc = "Secured bouncer is opened.")
+        BOUNCER_OPEN_SECURE(409),
+
+        @UiEvent(doc = "Bouncer without security is opened.")
+        BOUNCER_OPEN_INSECURE(410),
+
+        @UiEvent(doc = "Secured bouncer is closed.")
+        BOUNCER_CLOSE_SECURE(411),
+
+        @UiEvent(doc = "Bouncer without security is closed.")
+        BOUNCER_CLOSE_INSECURE(412);
+
+        private final int mId;
+
+        StatusBarUiEvent(int id) {
+            mId = id;
+        }
+
+        @Override
+        public int getId() {
+            return mId;
+        }
     }
-}
-};
 
-@VisibleForTesting
-public enum StatusBarUiEvent implements UiEventLogger.UiEventEnum {
-@UiEvent(doc = "Secured lockscreen is opened.")
-LOCKSCREEN_OPEN_SECURE(405),
+    protected final H mHandler = createHandler();
 
-@UiEvent(doc = "Lockscreen without security is opened.")
-LOCKSCREEN_OPEN_INSECURE(406),
+    private int mInteractingWindows;
+    private @TransitionMode int mStatusBarMode;
 
-@UiEvent(doc = "Secured lockscreen is closed.")
-LOCKSCREEN_CLOSE_SECURE(407),
+    private ViewMediatorCallback mKeyguardViewMediatorCallback;
+    private final ScrimController mScrimController;
+    protected DozeScrimController mDozeScrimController;
+    private final Executor mUiBgExecutor;
 
-@UiEvent(doc = "Lockscreen without security is closed.")
-LOCKSCREEN_CLOSE_INSECURE(408),
+    protected boolean mDozing;
 
-@UiEvent(doc = "Secured bouncer is opened.")
-BOUNCER_OPEN_SECURE(409),
-
-@UiEvent(doc = "Bouncer without security is opened.")
-BOUNCER_OPEN_INSECURE(410),
-
-@UiEvent(doc = "Secured bouncer is closed.")
-BOUNCER_CLOSE_SECURE(411),
-
-@UiEvent(doc = "Bouncer without security is closed.")
-BOUNCER_CLOSE_INSECURE(412);
-
-private final int mId;
-
-StatusBarUiEvent(int id) {
-    mId = id;
-}
-
-@Override
-public int getId() {
-    return mId;
-}
-}
-
-protected final H mHandler = createHandler();
-
-private int mInteractingWindows;
-private @TransitionMode int mStatusBarMode;
-
-private ViewMediatorCallback mKeyguardViewMediatorCallback;
-private final ScrimController mScrimController;
-protected DozeScrimController mDozeScrimController;
-private final Executor mUiBgExecutor;
-
-protected boolean mDozing;
-
-private final NotificationMediaManager mMediaManager;
-private final NotificationLockscreenUserManager mLockscreenUserManager;
-private final NotificationRemoteInputManager mRemoteInputManager;
-private boolean mWallpaperSupported;
+    private final NotificationMediaManager mMediaManager;
+    private final NotificationLockscreenUserManager mLockscreenUserManager;
+    private final NotificationRemoteInputManager mRemoteInputManager;
+    private boolean mWallpaperSupported;
 
     private boolean mBurnInProtectionEnabled;
 
