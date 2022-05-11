@@ -115,8 +115,6 @@ import com.android.systemui.util.RingerModeTracker;
 
 import com.google.android.collect.Lists;
 
-import com.android.internal.util.custom.faceunlock.FaceUnlockUtils;
-
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
@@ -445,9 +443,6 @@ public class KeyguardUpdateMonitor implements TrustManager.TrustListener, Dumpab
     private static final int FACE_UNLOCK_BEHAVIOR_SWIPE = 1;
     private int mFaceUnlockBehavior = FACE_UNLOCK_BEHAVIOR_DEFAULT;
     private boolean mBouncerFullyShown;
-
-    // Face unlock
-    private static final boolean mCustomFaceUnlockSupported = FaceUnlockUtils.isFaceUnlockSupported();
 
     public synchronized static void setCurrentUser(int currentUser) {
         sCurrentUser = currentUser;
