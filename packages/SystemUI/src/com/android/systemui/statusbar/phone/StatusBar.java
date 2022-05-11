@@ -212,7 +212,6 @@ import com.android.systemui.statusbar.PowerButtonReveal;
 import com.android.systemui.statusbar.PulseExpansionHandler;
 import com.android.systemui.statusbar.StatusBarState;
 import com.android.systemui.statusbar.SysuiStatusBarStateController;
-import com.android.systemui.statusbar.VisualizerView;
 import com.android.systemui.statusbar.charging.WiredChargingRippleController;
 import com.android.systemui.statusbar.connectivity.NetworkController;
 import com.android.systemui.statusbar.events.SystemStatusAnimationScheduler;
@@ -498,7 +497,6 @@ public class StatusBar extends SystemUI implements
     protected PhoneStatusBarView mStatusBarView;
     private PhoneStatusBarViewController mPhoneStatusBarViewController;
     private AuthRippleController mAuthRippleController;
-    private VisualizerView mVisualizerView;
     private int mStatusBarWindowState = WINDOW_STATE_SHOWING;
     protected NotificationShadeWindowController mNotificationShadeWindowController;
     private final StatusBarWindowController mStatusBarWindowController;
@@ -1608,7 +1606,6 @@ public class StatusBar extends SystemUI implements
         mFragmentService.addFragmentInstantiationProvider(mStatusBarComponent);
 
         mNotificationShadeWindowView = mStatusBarComponent.getNotificationShadeWindowView();
-        mVisualizerView = mStatusBarComponent.getVisualizerView();
         mNotificationShadeWindowViewController = mStatusBarComponent
                 .getNotificationShadeWindowViewController();
         mNotificationShadeWindowController.setNotificationShadeView(mNotificationShadeWindowView);
@@ -1705,10 +1702,6 @@ public class StatusBar extends SystemUI implements
 
     public ViewGroup getBouncerContainer() {
         return mNotificationShadeWindowViewController.getBouncerContainer();
-    }
-
-    public VisualizerView getVisualizerView() {
-        return mVisualizerView;
     }
 
     public int getStatusBarHeight() {
@@ -3435,7 +3428,6 @@ public class StatusBar extends SystemUI implements
                 && visibleNotOccludedOrWillBe);
 
         mNotificationPanelViewController.setDozing(mDozing, animate, mWakeUpTouchLocation);
-        mVisualizerView.setDozing(mDozing);
         updateQsExpansionEnabled();
         Trace.endSection();
     }
@@ -3869,14 +3861,12 @@ public class StatusBar extends SystemUI implements
         @Override
         public void onScreenTurnedOn() {
             mScrimController.onScreenTurnedOn();
-            mVisualizerView.setVisible(true);
         }
 
         @Override
         public void onScreenTurnedOff() {
             mFalsingCollector.onScreenOff();
             mScrimController.onScreenTurnedOff();
-            mVisualizerView.setVisible(false);
             updateIsKeyguard();
         }
     };
@@ -4634,7 +4624,6 @@ public class StatusBar extends SystemUI implements
                     checkBarModes();
                     updateScrimController();
                     mPresenter.updateMediaMetaData(false, mState != StatusBarState.KEYGUARD);
-                    mVisualizerView.setStatusBarState(newState);
                     updateKeyguardState();
                     Trace.endSection();
                 }
