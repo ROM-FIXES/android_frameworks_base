@@ -134,7 +134,6 @@ import com.android.internal.logging.UiEventLoggerImpl;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.RegisterStatusBarResult;
-import com.android.internal.util.crdroid.Utils;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
 import com.android.keyguard.ViewMediatorCallback;
@@ -985,6 +984,17 @@ public class StatusBar extends SystemUI implements
         mColorExtractor.addOnColorsChangedListener(mOnColorsChangedListener);
         mStatusBarStateController.addCallback(mStateListener,
                 SysuiStatusBarStateController.RANK_STATUS_BAR);
+
+        mNeedsNavigationBar = mContext.getResources().getBoolean(
+                com.android.internal.R.bool.config_showNavigationBar);
+        // Allow a system property to override this. Used by the emulator.
+        // See also hasNavigationBar().
+        String navBarOverride = SystemProperties.get("qemu.hw.mainkeys");
+        if ("1".equals(navBarOverride)) {
+            mNeedsNavigationBar = false;
+        } else if ("0".equals(navBarOverride)) {
+            mNeedsNavigationBar = true;
+        }
 
         mTunerService.addTunable(this, FORCE_SHOW_NAVBAR);
         mTunerService.addTunable(this, SCREEN_BRIGHTNESS_MODE);
@@ -4067,6 +4077,7 @@ public class StatusBar extends SystemUI implements
 
     private final NavigationBarController mNavigationBarController;
     private final AccessibilityFloatingMenuController mAccessibilityFloatingMenuController;
+    private boolean mNeedsNavigationBar;
 
     // UI-specific methods
 
@@ -4395,7 +4406,7 @@ public class StatusBar extends SystemUI implements
                         mWindowManagerService == null)
                     return;
                 boolean mNavbarVisible =
-                        TunerService.parseIntegerSwitch(newValue, Utils.hasNavbarByDefault(mContext));
+                        TunerService.parseIntegerSwitch(newValue, false);
                 boolean hasNavbar = getNavigationBarView() != null;
                 if (mNavbarVisible) {
                     if (!hasNavbar) {
