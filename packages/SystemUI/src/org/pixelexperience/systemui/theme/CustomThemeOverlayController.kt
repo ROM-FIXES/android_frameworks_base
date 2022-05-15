@@ -101,6 +101,7 @@ class CustomThemeOverlayController @Inject constructor(
     private var customColor: Boolean = false
     private val mTunerService: TunerService = Dependency.get(TunerService::class.java)
     override fun start() {
+	Log.d(TAG, "Before Adding tunables")
         mTunerService.addTunable(this, PREF_COLOR_OVERRIDE, PREF_WHITE_LUMINANCE,
                 PREF_CHROMA_FACTOR, PREF_ACCURATE_SHADES, PREF_LINEAR_LIGHTNESS, PREF_CUSTOM_COLOR)
         super.start()
@@ -108,14 +109,17 @@ class CustomThemeOverlayController @Inject constructor(
 
     override fun onTuningChanged(key: String?, newValue: String?) {
         key?.let {
+	Log.d(TAG, "TUNING changed")
             if (it.contains(PREF_PREFIX)) {
                 customColor = Settings.Secure.getInt(mContext.contentResolver, PREF_CUSTOM_COLOR, 0) == 1
+		Log.d(TAG, "TUNING PREF_CUSTOM_COLOR changed")
                 colorOverride = Settings.Secure.getInt(mContext.contentResolver,
                         PREF_COLOR_OVERRIDE, -1)
+		Log.d(TAG, "TUNING PREF_COLOR_OVERRIDE changed")
                 chromaFactor = (Settings.Secure.getFloat(mContext.contentResolver,
                         PREF_CHROMA_FACTOR, 100.0f) / 100f).toDouble()
                 accurateShades = Settings.Secure.getInt(mContext.contentResolver, PREF_ACCURATE_SHADES, 1) != 0
-
+		Log.d(TAG, "TUNING shades changed")
                 whiteLuminance = parseWhiteLuminanceUser(
                     Settings.Secure.getInt(mContext.contentResolver,
                             PREF_WHITE_LUMINANCE, WHITE_LUMINANCE_USER_DEFAULT)
