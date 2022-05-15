@@ -25,6 +25,7 @@ import com.android.systemui.dagger.SystemUIModule;
 import dagger.Subcomponent;
 
 import com.google.android.systemui.smartspace.KeyguardSmartspaceController;
+import org.pixelexperience.android.systemui.keyguard.KeyguardSliceProviderGoogle;
 
 @SysUISingleton
 @Subcomponent(modules = {
@@ -42,4 +43,6 @@ public interface SysUIGoogleSysUIComponent extends SysUIComponent {
 
     @SysUISingleton
     KeyguardSmartspaceController createKeyguardSmartspaceController();
+
+    void inject(KeyguardSliceProviderGoogle keyguardSliceProvider);
 }
