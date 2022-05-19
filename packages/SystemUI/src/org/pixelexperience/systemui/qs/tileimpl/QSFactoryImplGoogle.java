@@ -49,6 +49,7 @@ import com.android.systemui.qs.tiles.NfcTile;
 import com.android.systemui.qs.tiles.NightDisplayTile;
 import com.android.systemui.qs.tiles.OnTheGoTile;
 import com.android.systemui.qs.tiles.PowerShareTile;
+import com.android.systemui.qs.tiles.ProfilesTile;
 import com.android.systemui.qs.tiles.QuickAccessWalletTile;
 import com.android.systemui.qs.tiles.ReadingModeTile;
 import com.android.systemui.qs.tiles.ReduceBrightColorsTile;
@@ -114,6 +115,7 @@ public class QSFactoryImplGoogle extends QSFactoryImpl {
             Provider<CaffeineTile> caffeineTileProvider,
             Provider<HeadsUpTile> headsUpTileProvider,
             Provider<PowerShareTile> powerShareTileProvider,
+            Provider<ProfilesTile> profilesTileProvider,
             Provider<ReadingModeTile> readingModeTileProvider,
             Provider<SyncTile> syncTileProvider,
             Provider<UsbTetherTile> usbTetherTileProvider,
@@ -158,6 +160,7 @@ public class QSFactoryImplGoogle extends QSFactoryImpl {
                 caffeineTileProvider,
                 headsUpTileProvider,
                 powerShareTileProvider,
+                profilesTileProvider,
                 readingModeTileProvider,
                 syncTileProvider,
                 usbTetherTileProvider,
