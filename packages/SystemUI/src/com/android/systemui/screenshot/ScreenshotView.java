@@ -76,6 +76,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
 import android.view.accessibility.AccessibilityManager;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
@@ -130,7 +131,6 @@ public class ScreenshotView extends FrameLayout implements
     private final Interpolator mFastOutSlowIn;
     private final DisplayMetrics mDisplayMetrics;
     private final float mFixedSize;
-    private final AccessibilityManager mAccessibilityManager;
     private final GestureDetector mSwipeDetector;
 
     private int mDefaultDisplay = Display.DEFAULT_DISPLAY;
@@ -211,8 +211,6 @@ public class ScreenshotView extends FrameLayout implements
 
         mDisplayMetrics = new DisplayMetrics();
         mContext.getDisplay().getRealMetrics(mDisplayMetrics);
-
-        mAccessibilityManager = AccessibilityManager.getInstance(mContext);
 
         mSwipeDetector = new GestureDetector(mContext,
                 new GestureDetector.SimpleOnGestureListener() {
@@ -558,10 +556,8 @@ public class ScreenshotView extends FrameLayout implements
                 mScreenshotPreview.setScaleX(currentScale);
                 mScreenshotPreview.setScaleY(currentScale);
                 mScreenshotPreview.setVisibility(View.VISIBLE);
-                if (mAccessibilityManager.isEnabled()) {
-                    mDismissButton.setAlpha(0);
-                    mDismissButton.setVisibility(View.VISIBLE);
-                }
+                mDismissButton.setAlpha(0);
+                mDismissButton.setVisibility(View.VISIBLE);
             }
         });
 
@@ -1049,10 +1045,7 @@ public class ScreenshotView extends FrameLayout implements
         mScrollChip.setVisibility(View.GONE);
         mScrollablePreview.setVisibility(View.GONE);
         mScrollingScrim.setVisibility(View.GONE);
-
-        if (mAccessibilityManager.isEnabled()) {
-            mDismissButton.setVisibility(View.VISIBLE);
-        }
+        mDismissButton.setVisibility(View.VISIBLE);
         mActionsContainer.setVisibility(View.VISIBLE);
         mActionsContainerBackground.setVisibility(View.VISIBLE);
         mScreenshotPreviewBorder.setVisibility(View.VISIBLE);
