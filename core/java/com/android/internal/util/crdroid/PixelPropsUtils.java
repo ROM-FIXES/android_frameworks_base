@@ -18,8 +18,10 @@
 package com.android.internal.util.crdroid;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Build;
 import android.os.SystemProperties;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.lang.reflect.Field;
@@ -199,7 +201,7 @@ public class PixelPropsUtils {
         propsToChangeMI11.put("MODEL", "M2102K1G");
     }
 
-    public static void setProps(String packageName)  {
+    public static void setProps(String packageName) {
         if (packageName == null || packageName.isEmpty()) {
             return;
         }
