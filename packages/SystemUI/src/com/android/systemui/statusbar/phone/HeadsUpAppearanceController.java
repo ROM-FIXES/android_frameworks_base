@@ -19,6 +19,7 @@ package com.android.systemui.statusbar.phone;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.widget.ViewClippingUtil;
@@ -61,7 +62,7 @@ public class HeadsUpAppearanceController extends ViewController<HeadsUpStatusBar
     private final NotificationStackScrollLayoutController mStackScrollerController;
     private final View mCenteredView;
     private final View mCenteredIconView;
-    private final ClockController mClockController;
+    private final LinearLayout mCustomIconArea;
     private final View mOperatorNameView;
     private final DarkIconDispatcher mDarkIconDispatcher;
     private final NotificationPanelViewController mNotificationPanelViewController;
@@ -109,7 +110,7 @@ public class HeadsUpAppearanceController extends ViewController<HeadsUpStatusBar
                 //  (which also removes the undesirable @VisibleForTesting).
                 statusBarView.findViewById(R.id.heads_up_status_bar_view),
                 statusBarView.findViewById(R.id.clock),
-                new ClockController(statusBarView.getContext(), statusBarView),
+                statusBarView.findViewById(R.id.left_icon_area),
                 statusBarView.findViewById(R.id.operator_name_frame),
                 statusBarView.findViewById(R.id.centered_area),
                 statusBarView.findViewById(R.id.centered_icon_area));
@@ -128,7 +129,7 @@ public class HeadsUpAppearanceController extends ViewController<HeadsUpStatusBar
             NotificationPanelViewController notificationPanelViewController,
             HeadsUpStatusBarView headsUpStatusBarView,
             View clockView,
-            ClockController clockController,
+            LinearLayout customIconArea,
             View operatorNameView,
             View centeredView,
             View centeredIconView) {
@@ -149,7 +150,7 @@ public class HeadsUpAppearanceController extends ViewController<HeadsUpStatusBar
         mStackScrollerController = stackScrollerController;
         mNotificationPanelViewController = notificationPanelViewController;
         mStackScrollerController.setHeadsUpAppearanceController(this);
-        mClockController = clockController;
+        mCustomIconArea = customIconArea;
         mOperatorNameView = operatorNameView;
         mDarkIconDispatcher = Dependency.get(DarkIconDispatcher.class);
 
@@ -235,15 +236,13 @@ public class HeadsUpAppearanceController extends ViewController<HeadsUpStatusBar
 
     private void setShown(boolean isShown) {
         if (mShown != isShown) {
-            View clockView = mClockController.getClock();
-            boolean isRightClock = clockView.getId() == R.id.clock_right;
             mShown = isShown;
             if (isShown) {
                 updateParentClipping(false /* shouldClip */);
                 mView.setVisibility(View.VISIBLE);
                 show(mView);
-                if (!isRightClock) {
-                    hide(clockView, View.INVISIBLE);
+                if (mCustomIconArea.getVisibility() != View.GONE) {
+                    hide(mCustomIconArea, View.INVISIBLE);
                 }
                 if (mCenteredView.getVisibility() != View.GONE) {
                     hide(mCenteredView, View.INVISIBLE);
@@ -255,8 +254,8 @@ public class HeadsUpAppearanceController extends ViewController<HeadsUpStatusBar
                     hide(mOperatorNameView, View.INVISIBLE);
                 }
             } else {
-                if (!isRightClock) {
-                    show(clockView);
+                if (mCustomIconArea.getVisibility() != View.GONE) {
+                    show(mCustomIconArea);
                 }
                 if (mCenteredView.getVisibility() != View.GONE) {
                     show(mCenteredView);
