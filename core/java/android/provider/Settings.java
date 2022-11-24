@@ -5841,15 +5841,6 @@ public final class Settings {
         public static final String RETICKER_COLORED = "reticker_colored";
 
         /**
-         * Should we listen for fingerprints when the screen is off?  Devices
-         * with a rear-mounted sensor want this, but certain devices have
-         * the sensor embedded in the power key and listening all the time
-         * causes a poor experience.
-         * @hide
-         */
-        public static final String FP_WAKE_UNLOCK = "fp_wake_unlock";
-
-        /**
          * Heads up timeout configuration
          * @hide
          */
