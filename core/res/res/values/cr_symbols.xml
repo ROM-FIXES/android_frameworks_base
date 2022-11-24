@@ -78,4 +78,7 @@
     <java-symbol type="string" name="optimized_charge_notification_text" />
 
     <java-symbol type="array" name="config_blockPackagesSensorDrain" />
+
+    <!-- Rotation sensor -->
+    <java-symbol type="bool" name="config_useSystemClockforRotationSensor" />
 </resources>
