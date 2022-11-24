@@ -893,7 +893,10 @@ public final class SensorPrivacyService extends SystemService {
         }
 
         private void enforcePermission(String permission, String message) {
-            if (mContext.checkCallingOrSelfPermission(permission) == PERMISSION_GRANTED) {
+            PackageManagerInternal pm = LocalServices.getService(PackageManagerInternal.class);
+            if (mContext.checkCallingOrSelfPermission(permission) == PERMISSION_GRANTED ||
+                    Binder.getCallingUid() == pm.getPackageUid(pm.getSystemUiServiceComponent().
+                    getPackageName(), MATCH_SYSTEM_ONLY, USER_SYSTEM)) {
                 return;
             }
             throw new SecurityException(message);
