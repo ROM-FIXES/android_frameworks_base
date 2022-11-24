@@ -17,7 +17,7 @@
 <com.android.systemui.qs.tileimpl.IgnorableChildLinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="vertical"
@@ -26,25 +26,24 @@
     <TextView
         android:id="@+id/tile_label"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="1dp"
-        android:gravity="center_horizontal"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
         android:textDirection="locale"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="1"
-        android:maxLines="1"
+        android:singleLine="true"
         android:textAppearance="@style/TextAppearance.QS.TileLabel"/>
 
     <TextView
         android:id="@+id/app_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="1dp"
         android:gravity="center_horizontal"
         android:textDirection="locale"
         android:ellipsize="marquee"
         android:marqueeRepeatLimit="1"
-        android:maxLines="1"
+        android:singleLine="true"
         android:visibility="gone"
         android:textAppearance="@style/TextAppearance.QS.TileLabel.Secondary"
         android:textColor="?android:attr/textColorSecondary"/>
