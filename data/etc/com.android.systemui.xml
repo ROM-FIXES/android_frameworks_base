@@ -78,7 +78,6 @@
         <permission name="android.permission.USE_BACKGROUND_BLUR" />
         <permission name="android.permission.USE_RESERVED_DISK"/>
         <permission name="android.permission.WATCH_APPOPS"/>
-        <permission name="android.permission.WRITE_APN_SETTINGS" />
         <permission name="android.permission.WRITE_APN_SETTINGS"/>
         <permission name="android.permission.WRITE_DREAM_STATE"/>
         <permission name="android.permission.WRITE_EMBEDDED_SUBSCRIPTIONS"/>
