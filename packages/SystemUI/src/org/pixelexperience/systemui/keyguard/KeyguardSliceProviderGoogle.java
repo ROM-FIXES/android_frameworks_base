@@ -90,9 +90,13 @@ public class KeyguardSliceProviderGoogle extends KeyguardSliceProvider implement
 
     @Override
     public boolean onCreateSliceProvider() {
+	Log.e("CustomKeyguardSliceProvider", "before construction");
         boolean onCreateSliceProvider = super.onCreateSliceProvider();
+	Log.e("CustomKeyguardSliceProvider", "construction complete");
         mSmartSpaceData = new SmartSpaceData();
+	Log.e("CustomKeyguardSliceProvider", "smartspace init");
         mSmartSpaceController.addListener(this);
+	Log.e("CustomKeyguardSliceProvider", "smartspace listener");
         return onCreateSliceProvider;
     }
 
