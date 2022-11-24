@@ -38,8 +38,6 @@ import com.google.android.systemui.elmyra.ServiceConfigurationGoogle;
 import com.google.android.systemui.face.FaceNotificationService;
 import com.google.android.systemui.input.TouchContextService;
 
-import com.android.internal.util.custom.faceunlock.FaceUnlockUtils;
-
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -84,8 +82,7 @@ public class GoogleServices extends VendorServices {
         if (new ColumbusContext(mContext).isAvailable()) {
             addService(mColumbusServiceLazy.get());
         }
-        if (!FaceUnlockUtils.isFaceUnlockSupported() &&
-                mContext.getPackageManager().hasSystemFeature("android.hardware.biometrics.face")) {
+        if (mContext.getPackageManager().hasSystemFeature("android.hardware.biometrics.face")) {
             addService(new FaceNotificationService(mContext));
         }
         if (mContext.getResources().getBoolean(R.bool.config_touch_context_enabled)) {
