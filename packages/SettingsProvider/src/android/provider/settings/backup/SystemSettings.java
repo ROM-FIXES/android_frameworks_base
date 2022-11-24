@@ -87,5 +87,6 @@ public class SystemSettings {
         Settings.System.OPTIMIZED_CHARGE_ENABLED,
         Settings.System.OPTIMIZED_CHARGE_CEILING,
         Settings.System.OPTIMIZED_CHARGE_FLOOR,
+        Settings.System.SENSOR_BLOCK,
     };
 }
