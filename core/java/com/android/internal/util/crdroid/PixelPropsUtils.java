@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2020 The Pixel Experience Project
  *               2021-2022 crDroid Android Project
+ *               2019-2022 Evolution X
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,13 +31,16 @@ import java.util.Map;
 
 public class PixelPropsUtils {
 
-    private static final String TAG = PixelPropsUtils.class.getSimpleName();
+    public static final String PACKAGE_GMS = "com.google.android.gms";
+    public static final String PACKAGE_NETFLIX = "com.netflix.mediaclient";
+    public static final String PACKAGE_SETTINGS_SERVICES = "com.google.android.settings.intelligence";
     private static final String DEVICE = "ro.product.device";
+    private static final String TAG = PixelPropsUtils.class.getSimpleName();
     private static final boolean DEBUG = false;
 
     private static final Map<String, Object> propsToChange;
-    private static final Map<String, Object> propsToChangePixel5;
     private static final Map<String, Object> propsToChangePixel6;
+    private static final Map<String, Object> propsToChangePixel5;
     private static final Map<String, Object> propsToChangePixelXL;
     private static final Map<String, Object> propsToChangeROG1;
     private static final Map<String, Object> propsToChangeXP5;
@@ -45,7 +49,14 @@ public class PixelPropsUtils {
     private static final Map<String, ArrayList<String>> propsToKeep;
 
     private static final String[] packagesToChangePixel6 = {
-            "com.google.android.gms"
+            "com.google.android.apps.customization.pixel",
+            "com.google.android.apps.nexuslauncher",
+            "com.google.android.apps.subscriptions.red",
+            "com.google.android.apps.wallpaper",
+            "com.google.android.apps.wallpaper.pixel",
+            "com.google.pixel.dynamicwallpapers",
+            "com.google.pixel.livewallpaper",
+            PACKAGE_GMS
     };
 
     private static final String[] packagesToChangePixelXL = {
@@ -63,26 +74,36 @@ public class PixelPropsUtils {
 
     private static final String[] extraPackagesToChange = {
             "com.android.chrome",
-            "com.breel.wallpapers20"
+            "com.breel.wallpapers20",
+            "com.nhs.online.nhsonline"
     };
 
     private static final String[] packagesToKeep = {
-        "com.google.android.GoogleCamera",
-        "com.google.android.GoogleCamera.Cameight",
-        "com.google.android.GoogleCamera.Go",
-        "com.google.android.GoogleCamera.Urnyx",
-        "com.google.android.GoogleCameraAsp",
-        "com.google.android.GoogleCameraCVM",
-        "com.google.android.GoogleCameraEng",
-        "com.google.android.GoogleCameraEng2",
-        "com.google.android.MTCL83",
-        "com.google.android.UltraCVM",
-        "com.google.android.apps.cameralite",
-        "com.google.android.dialer",
-        "com.google.ar.core",
-        "com.google.android.youtube",
-        "com.google.android.apps.youtube.kids",
-        "com.google.android.apps.youtube.music"
+            "com.google.android.GoogleCamera",
+            "com.google.android.GoogleCamera.Cameight",
+            "com.google.android.GoogleCamera.Go",
+            "com.google.android.GoogleCamera.Urnyx",
+            "com.google.android.GoogleCameraAsp",
+            "com.google.android.GoogleCameraCVM",
+            "com.google.android.GoogleCameraEng",
+            "com.google.android.GoogleCameraEng2",
+            "com.google.android.GoogleCameraGood",
+            "com.google.android.MTCL83",
+            "com.google.android.UltraCVM",
+            "com.google.android.apps.cameralite",
+            "com.google.android.apps.wearables.maestro.companion",
+            "com.google.android.apps.youtube.kids",
+            "com.google.android.apps.youtube.music",
+            "com.google.android.dialer",
+            "com.google.android.youtube",
+            "com.google.ar.core"
+    };
+
+    private static final String[] streamingPackagesToChange = {
+            "com.amazon.avod.thirdpartyclient",
+            "com.disney.disneyplus",
+            PACKAGE_NETFLIX,
+            "in.startv.hotstar"
     };
 
     private static final String[] packagesToChangeROG1 = {
@@ -102,7 +123,6 @@ public class PixelPropsUtils {
             "com.tencent.ig",
             "com.pubg.imobile",
             "com.pubg.krmobile",
-            "com.pubg.newstate",
             "com.vng.pubgmobile",
             "com.rekoo.pubgm",
             "com.tencent.tmgp.pubgmhd",
@@ -110,13 +130,16 @@ public class PixelPropsUtils {
             "com.riotgames.league.wildrifttw",
             "com.riotgames.league.wildriftvn",
             "com.netease.lztgglobal",
-            "com.epicgames.fortnite",
-            "com.epicgames.portal"
     };
 
     private static final String[] packagesToChangeMI11 = {
             "com.mobile.legends",
             "com.tencent.tmgp.sgame"
+    };
+
+    // Codenames of devices using Star spoofing for apps
+    private static final String[] starSpoofedCodenames = {
+            "venus"
     };
 
     // Codenames for currently supported Pixels by Google
@@ -137,8 +160,8 @@ public class PixelPropsUtils {
 
     static {
         propsToKeep = new HashMap<>();
+        propsToKeep.put(PACKAGE_SETTINGS_SERVICES, new ArrayList<>(Collections.singletonList("FINGERPRINT")));
         propsToChange = new HashMap<>();
-        propsToKeep.put("com.google.android.settings.intelligence", new ArrayList<>(Collections.singletonList("FINGERPRINT")));
         propsToChangePixel6 = new HashMap<>();
         propsToChangePixel6.put("BRAND", "google");
         propsToChangePixel6.put("MANUFACTURER", "Google");
@@ -197,7 +220,8 @@ public class PixelPropsUtils {
                 }
             } else {
                 if (isPixelDevice) return;
-                if (Arrays.asList(packagesToChangePixel6).contains(packageName)) {
+                if ((Arrays.asList(packagesToChangePixel6).contains(packageName))
+                        || Arrays.asList(extraPackagesToChange).contains(packageName)) {
                     propsToChange.putAll(propsToChangePixel6);
                 } else if (Arrays.asList(packagesToChangePixelXL).contains(packageName)) {
                     propsToChange.putAll(propsToChangePixelXL);
@@ -217,15 +241,29 @@ public class PixelPropsUtils {
                 if (DEBUG) Log.d(TAG, "Defining " + key + " prop for: " + packageName);
                 setPropValue(key, value);
             }
-            if (packageName.equals("com.google.android.gms")) {
+            if (packageName.equals(PACKAGE_GMS)) {
                 sIsGms = true;
             }
             // Set proper indexing fingerprint
-            if (packageName.equals("com.google.android.settings.intelligence")) {
-                setPropValue("FINGERPRINT", Build.DATE);
+            if (packageName.equals(PACKAGE_SETTINGS_SERVICES)) {
+                setPropValue("FINGERPRINT", Build.VERSION.INCREMENTAL);
             }
         } else {
+            boolean isStarSpoofedDevice = Arrays.asList(starSpoofedCodenames).contains(SystemProperties.get(DEVICE));
 
+            if (SystemProperties.getBoolean("persist.sys.pixelprops.streaming", true)) {
+                if (Arrays.asList(streamingPackagesToChange).contains(packageName)) {
+                    propsToChange.putAll(propsToChangePixel6);
+                }
+            }
+            if (packageName.equals(PACKAGE_NETFLIX) && (isStarSpoofedDevice)) {
+                if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
+                for (Map.Entry<String, Object> prop : propsToChangeMI11.entrySet()) {
+                    String key = prop.getKey();
+                    Object value = prop.getValue();
+                    setPropValue(key, value);
+                }
+            }
             if (!SystemProperties.getBoolean("persist.sys.pixelprops.games", false))
                 return;
 
