@@ -63,4 +63,6 @@
     <!-- Whether key handler sends intent when changing slider position -->
     <java-symbol type="string" name="config_alertSliderIntent" />
 
+    <!-- Screen off UDFPS -->
+    <java-symbol type="bool" name="config_supportScreenOffUdfps" />
 </resources>
