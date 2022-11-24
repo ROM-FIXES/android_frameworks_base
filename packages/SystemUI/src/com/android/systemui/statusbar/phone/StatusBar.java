@@ -134,6 +134,7 @@ import com.android.internal.logging.UiEventLoggerImpl;
 import com.android.internal.logging.nano.MetricsProto.MetricsEvent;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.RegisterStatusBarResult;
+import com.android.internal.util.crdroid.Utils;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
 import com.android.keyguard.ViewMediatorCallback;
@@ -167,6 +168,7 @@ import com.android.systemui.fragments.ExtensionFragmentListener;
 import com.android.systemui.fragments.FragmentHostManager;
 import com.android.systemui.fragments.FragmentService;
 import com.android.systemui.keyguard.KeyguardService;
+import com.android.systemui.keyguard.KeyguardSliceProvider;
 import com.android.systemui.keyguard.KeyguardUnlockAnimationController;
 import com.android.systemui.keyguard.KeyguardViewMediator;
 import com.android.systemui.keyguard.ScreenLifecycle;
@@ -295,6 +297,8 @@ public class StatusBar extends SystemUI implements
             "system:" + Settings.System.SCREEN_BRIGHTNESS_MODE;
     private static final String STATUS_BAR_BRIGHTNESS_CONTROL =
             "lineagesystem:" + LineageSettings.System.STATUS_BAR_BRIGHTNESS_CONTROL;
+    private static final String PULSE_ON_NEW_TRACKS =
+            Settings.Secure.PULSE_ON_NEW_TRACKS;
 
     private static final String BANNER_ACTION_CANCEL =
             "com.android.systemui.statusbar.banner_action_cancel";
@@ -1000,6 +1004,7 @@ public class StatusBar extends SystemUI implements
         mTunerService.addTunable(this, FORCE_SHOW_NAVBAR);
         mTunerService.addTunable(this, SCREEN_BRIGHTNESS_MODE);
         mTunerService.addTunable(this, STATUS_BAR_BRIGHTNESS_CONTROL);
+        mTunerService.addTunable(this, PULSE_ON_NEW_TRACKS);
 
         mDisplayManager = mContext.getSystemService(DisplayManager.class);
 
@@ -4413,27 +4418,43 @@ public class StatusBar extends SystemUI implements
 
     @Override
     public void onTuningChanged(String key, String newValue) {
-        if (FORCE_SHOW_NAVBAR.equals(key) && mDisplayId == Display.DEFAULT_DISPLAY &&
-                mWindowManagerService != null) {
-            boolean forcedVisibility = mNeedsNavigationBar ||
-                    TunerService.parseIntegerSwitch(newValue, false);
-            boolean hasNavbar = getNavigationBarView() != null;
-            if (forcedVisibility) {
-                if (!hasNavbar) {
-                    mNavigationBarController.onDisplayReady(mDisplayId);
+        switch (key) {
+            case FORCE_SHOW_NAVBAR:
+                if (mDisplayId != Display.DEFAULT_DISPLAY ||
+                        mWindowManagerService == null)
+                    return;
+                boolean mNavbarVisible =
+                        TunerService.parseIntegerSwitch(newValue, Utils.hasNavbarByDefault(mContext));
+                boolean hasNavbar = getNavigationBarView() != null;
+                if (mNavbarVisible) {
+                    if (!hasNavbar) {
+                        mNavigationBarController.onDisplayReady(mDisplayId);
+                    }
+                } else {
+                    if (hasNavbar) {
+                        mNavigationBarController.onDisplayRemoved(mDisplayId);
+                    }
                 }
-            } else {
-                if (hasNavbar) {
-                    mNavigationBarController.onDisplayRemoved(mDisplayId);
-                }
-            }
-        } else if (SCREEN_BRIGHTNESS_MODE.equals(key)) {
-            mAutomaticBrightness = Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC ==
-                    TunerService.parseInteger(newValue,
+                break;
+            case SCREEN_BRIGHTNESS_MODE:
+                mAutomaticBrightness = Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC ==
+                        TunerService.parseInteger(newValue,
                             Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-        } else if (STATUS_BAR_BRIGHTNESS_CONTROL.equals(key)) {
-            mBrightnessControl = TunerService.parseIntegerSwitch(newValue, false);
-        }
+                break;
+            case STATUS_BAR_BRIGHTNESS_CONTROL:
+                mBrightnessControl =
+                        TunerService.parseIntegerSwitch(newValue, false);
+                break;
+            case PULSE_ON_NEW_TRACKS:
+                boolean showPulseOnNewTracks =
+                        TunerService.parseIntegerSwitch(newValue, false);
+                KeyguardSliceProvider sliceProvider = KeyguardSliceProvider.getAttachedInstance();
+                if (sliceProvider != null)
+                    sliceProvider.setPulseOnNewTracks(showPulseOnNewTracks);
+                break;
+            default:
+                break;
+         }
     }
     // End Extra BaseStatusBarMethods.
 

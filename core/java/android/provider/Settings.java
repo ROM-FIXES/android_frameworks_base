@@ -10352,10 +10352,6 @@ public final class Settings {
          */
         public static final String PULSE_SOLID_UNITS_ROUNDED = "pulse_solid_units_rounded";
 
-        /*****************************
-        * Custom Secure Settings end
-        *****************************/
-
         /**
          * Whether to enable Ambient edge light
          * @hide
@@ -10386,6 +10382,12 @@ public final class Settings {
          * @hide
          */
         public static final String PULSE_TRIGGER_REASON = "pulse_trigger_reason";
+
+        /**
+         * Whether to pulse ambient on new music tracks
+         * @hide
+         */
+        public static final String PULSE_ON_NEW_TRACKS = "pulse_on_new_tracks";
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
