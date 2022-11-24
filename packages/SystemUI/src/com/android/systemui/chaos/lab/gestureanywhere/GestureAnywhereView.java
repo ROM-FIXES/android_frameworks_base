@@ -359,6 +359,11 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
     @Override
     public void onGestureEnded(GestureOverlayView overlay, MotionEvent event) {
         Gesture gesture = overlay.getGesture();
+        if (!isUnlocked) {
+            LineageSettings.System.putInt(mContext.getContentResolver(),
+                LineageSettings.System.GESTURE_ANYWHERE_ENABLED, 1);
+            isUnlocked = true;
+        }
         List<Prediction> predictions = mStore.recognize(gesture);
         for (Prediction prediction : predictions) {
             if (prediction.score >= 2.0) {
@@ -373,11 +378,6 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
     @Override
     public void onGestureStarted(GestureOverlayView overlay, MotionEvent event) {
         if (mState == State.Expanded) {
-            if (!isUnlocked) {
-                LineageSettings.System.putInt(mContext.getContentResolver(),
-                    LineageSettings.System.GESTURE_ANYWHERE_ENABLED, 1);
-                isUnlocked = true;
-            }
             switchToState(State.Gesturing);
         }
     }
