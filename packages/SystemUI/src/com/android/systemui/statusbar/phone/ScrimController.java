@@ -1219,6 +1219,7 @@ public class ScrimController implements ViewTreeObserver.OnPreDrawListener, Dump
         int surfaceBackground = Utils.getColorAttr(mScrimBehind.getContext(),
                 com.android.internal.R.attr.colorSurfaceHeader).getDefaultColor();
         int accent = Utils.getColorAccent(mScrimBehind.getContext()).getDefaultColor();
+
         mColors.setMainColor(background);
         mColors.setSecondaryColor(accent);
         mColors.setSupportsDarkText(
