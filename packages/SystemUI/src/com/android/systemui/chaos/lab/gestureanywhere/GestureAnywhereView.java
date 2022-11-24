@@ -36,6 +36,7 @@ import android.gesture.GestureOverlayView;
 import android.gesture.Prediction;
 import android.os.Handler;
 import android.os.Environment;
+import android.os.UserHandle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -72,6 +73,9 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
     // Reference to the status bar
     private StatusBar mBar;
 
+    // HACK: Workaround encrypted /data post reboot
+    private boolean isUnlocked = false;
+
     class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -80,19 +84,26 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_ENABLED), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_ENABLED), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_POSITION), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_POSITION), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_CHANGED), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_CHANGED), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_WIDTH), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_WIDTH), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_TOP), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_TOP), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_HEIGHT), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_TRIGGER_HEIGHT), false, this,
+                    UserHandle.USER_ALL);
             resolver.registerContentObserver(LineageSettings.System.getUriFor(
-                    LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER), false, this);
+                    LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER), false, this,
+                    UserHandle.USER_ALL);
             update();
         }
 
@@ -154,8 +165,11 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
     }
 
     public void reloadGestures() {
+        Log.i(TAG, "Reloading Gestures");
         if (mStore != null) {
             mStore.load();
+        } else {
+            Log.e(TAG, "Gestures file cannot be loaded");
         }
     }
 
@@ -244,6 +258,7 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
     }
 
     private void switchToState(State state) {
+        Log.i(TAG, "Switching to state: " + state.name());
         switch (state) {
             case Collapsed:
                 reduceToTriggerRegion();
@@ -350,6 +365,10 @@ public class GestureAnywhereView extends TriggerOverlayView implements GestureOv
     @Override
     public void onGestureEnded(GestureOverlayView overlay, MotionEvent event) {
         Gesture gesture = overlay.getGesture();
+        if (!isUnlocked) {
+            reloadGestures();
+            isUnlocked = true;
+        }
         List<Prediction> predictions = mStore.recognize(gesture);
         for (Prediction prediction : predictions) {
             if (prediction.score >= 2.0) {
