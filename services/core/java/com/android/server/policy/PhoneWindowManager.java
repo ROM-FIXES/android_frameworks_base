@@ -213,6 +213,7 @@ import com.android.internal.policy.PhoneWindow;
 import com.android.internal.policy.TransitionAnimation;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.util.ArrayUtils;
+import com.android.internal.util.crdroid.Utils;
 import com.android.server.ExtconStateObserver;
 import com.android.server.ExtconUEventObserver;
 import com.android.server.GestureLauncherService;
@@ -1712,6 +1713,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 break;
             case KILL_APP:
                 ActionUtils.killForegroundApp(mContext, mCurrentUserId);
+                break;
+            case TORCH:
+                Utils.toggleCameraFlash();
                 break;
             default:
                 break;
