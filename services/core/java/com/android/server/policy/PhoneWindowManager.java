@@ -570,6 +570,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     // User defined hw key config
     boolean mHardwareKeysDisable = false;
+    private OPGesturesListener mOPGestures;
+    private boolean haveEnableGesture = false;
 
     // Tracks user-customisable behavior for certain key events
     private Action mBackLongPressAction;
@@ -914,6 +916,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.HARDWARE_KEYS_DISABLE), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.THREE_FINGER_GESTURE), false, this,
                     UserHandle.USER_ALL);
 
             updateSettings();
@@ -2565,6 +2570,19 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         Settings.System.HARDWARE_KEYS_DISABLE, 0,
                         UserHandle.USER_CURRENT) == 1;
                 mLineageHardware.set(LineageHardwareManager.FEATURE_KEY_DISABLE, mHardwareKeysDisable);
+            }
+
+            boolean threeFingerGesture = Settings.System.getIntForUser(resolver,
+                    Settings.System.THREE_FINGER_GESTURE, 0, UserHandle.USER_CURRENT) == 1;
+            if (mOPGestures != null) {
+                if (haveEnableGesture != threeFingerGesture) {
+                    haveEnableGesture = threeFingerGesture;
+                    if (haveEnableGesture) {
+                        mWindowManagerFuncs.registerPointerEventListener(mOPGestures, DEFAULT_DISPLAY);
+                    } else {
+                        mWindowManagerFuncs.unregisterPointerEventListener(mOPGestures, DEFAULT_DISPLAY);
+                    }
+                }
             }
 
             updateKeyAssignments();
@@ -5456,6 +5474,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
 
         mLineageHardware = LineageHardwareManager.getInstance(mContext);
+
+        mOPGestures = new OPGesturesListener(mContext, new OPGesturesListener.Callbacks() {
+            @Override
+            public void onSwipeThreeFinger() {
+                mHandler.removeCallbacks(mScreenshotRunnable);
+                mScreenshotRunnable.setScreenshotType(TAKE_SCREENSHOT_FULLSCREEN);
+                mScreenshotRunnable.setScreenshotSource(SCREENSHOT_KEY_OTHER);
+                mHandler.post(mScreenshotRunnable);
+            }
+        });
+
         // Ensure observe happens in systemReady() since we need
         // LineageHardwareService to be up and running
         mSettingsObserver.observe();
