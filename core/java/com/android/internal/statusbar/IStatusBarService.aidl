@@ -162,4 +162,10 @@ interface IStatusBarService
      * Starts the default assistant app.
      */
     void startAssist(in Bundle args);
+
+    /**
+     * Pulse
+     */
+
+    void screenPinningStateChanged(boolean enabled);
 }
