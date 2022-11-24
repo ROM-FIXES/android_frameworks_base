@@ -20,6 +20,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ComponentName;
 import android.database.ContentObserver;
+import android.os.Looper;
+
 import android.os.Handler;
 import android.os.UserHandle;
 import android.service.quicksettings.Tile;
@@ -36,8 +38,19 @@ import android.widget.ListView;
 
 import com.android.systemui.plugins.qs.QSTile.BooleanState;
 import com.android.systemui.qs.QSHost;
+import com.android.systemui.qs.QsEventLogger;
 import com.android.systemui.qs.tileimpl.QSTileImpl;
 import com.android.systemui.R;
+import com.android.systemui.dagger.qualifiers.Background;
+import com.android.systemui.plugins.statusbar.StatusBarStateController;
+
+import com.android.systemui.dagger.qualifiers.Main;
+import com.android.systemui.plugins.ActivityStarter;
+import com.android.systemui.plugins.FalsingManager;
+import com.android.internal.logging.MetricsLogger;
+import com.android.systemui.qs.logging.QSLogger;
+import com.android.systemui.statusbar.policy.KeyguardStateController;
+import com.android.systemui.statusbar.policy.SecurityController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +60,17 @@ import org.lineageos.internal.logging.LineageMetricsLogger;
 import lineageos.providers.LineageSettings;
 
 import javax.inject.Inject;
+import androidx.annotation.Nullable;
 
 
 public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
 
     public static final String TILE_SPEC = "gesture_anywhere";
+
+    private final SecurityController mController;
+    private final KeyguardStateController mKeyguard;
+    private final Callback mCallback = new Callback();
+
 
     private final Icon mIcon = ResourceIcon.get(R.drawable.ic_qs_gestureanywhere);
 
@@ -62,8 +81,23 @@ public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
 	    new Intent("org.lineageos.lineageparts.GESTURE_ANYWHERE_SETTINGS");
 
     @Inject
-    public GestureAnywhereTile (QSHost host) {
-        super(host);
+    public GestureAnywhereTile (
+            QSHost host,
+            QsEventLogger uiEventLogger,
+            @Background Looper backgroundLooper,
+            @Main Handler mainHandler,
+            FalsingManager falsingManager,
+            MetricsLogger metricsLogger,
+            StatusBarStateController statusBarStateController,
+            ActivityStarter activityStarter,
+            QSLogger qsLogger,
+            SecurityController securityController,
+            KeyguardStateController keyguardStateController) {
+        super(host, uiEventLogger, backgroundLooper, mainHandler, falsingManager, metricsLogger,
+                statusBarStateController, activityStarter, qsLogger);
+        mController = securityController;
+        mKeyguard = keyguardStateController;
+
         mObserver = new GestureObserver(mHandler);
     }
 
@@ -79,8 +113,14 @@ public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
     }
 
     @Override
-    protected void handleClick() {
-        toggleState();
+    protected void handleClick(@Nullable View view) {
+        if (mKeyguard.isMethodSecure() && !mKeyguard.canDismissLockScreen()) {
+            mActivityStarter.postQSRunnableDismissingKeyguard(() -> {
+                toggleState();
+            });
+        } else {
+            toggleState();
+        }
         refreshState();
     }
 
@@ -133,8 +173,12 @@ public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
         if (mListening == listening) return;
             mListening = listening;
         if (listening) {
+            mController.addCallback(mCallback);
+            mKeyguard.addCallback(mCallback);
             mObserver.startObserving();
         } else {
+            mController.removeCallback(mCallback);
+            mKeyguard.removeCallback(mCallback);
             mObserver.endObserving();
         }
     }
@@ -159,5 +203,17 @@ public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
             mContext.getContentResolver().unregisterContentObserver(this);
         }
     }
+
+    private final class Callback implements
+            SecurityController.SecurityControllerCallback, KeyguardStateController.Callback {
+        @Override
+        public void onStateChanged() {
+            refreshState();
+        }
+        @Override
+        public void onKeyguardShowingChanged() {
+            refreshState();
+        }
+    };
 }
 
