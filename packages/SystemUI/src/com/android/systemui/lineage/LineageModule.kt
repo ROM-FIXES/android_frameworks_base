@@ -30,6 +30,7 @@ import com.android.systemui.qs.tiles.UsbTetherTile
 import com.android.systemui.qs.tiles.VpnTile
 import com.android.systemui.qs.tiles.WifiTile
 import com.android.systemui.qs.tiles.GestureAnywhereTile
+import com.android.systemui.qs.tiles.SmartPixelsTile;
 
 import dagger.Binds
 import dagger.Module
@@ -115,4 +116,10 @@ interface LineageModule {
     @IntoMap
     @StringKey(GestureAnywhereTile.TILE_SPEC)
     fun bindGestureAnywhereTile(gestureAnywhereTile: GestureAnywhereTile): QSTileImpl<*>
+
+    /** Inject SmartPixelsTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(SmartPixelsTile.TILE_SPEC)
+    fun bindSmartPixelsTile(smartPixelsTile: SmartPixelsTile): QSTileImpl<*>
 }
