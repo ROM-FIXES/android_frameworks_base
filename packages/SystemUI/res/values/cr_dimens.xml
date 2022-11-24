@@ -31,4 +31,10 @@
 
     <dimen name="volume_seekbar_progress_width">8dp</dimen>
     <dimen name="volume_seekbar_progress_corner_radius">4dp</dimen>
+
+    <!-- Height of the landscape battery icon in the status bar. -->
+    <dimen name="status_bar_battery_icon_height_landscape">12.5dp</dimen>
+
+    <!-- Width of the landscape battery icon in the status bar. -->
+    <dimen name="status_bar_battery_icon_width_landscape">24dp</dimen>
 </resources>
