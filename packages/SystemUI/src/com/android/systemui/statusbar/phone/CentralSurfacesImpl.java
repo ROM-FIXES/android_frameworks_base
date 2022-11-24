@@ -49,10 +49,12 @@ import android.app.TaskInfo;
 import android.app.UiModeManager;
 import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Point;
 import android.hardware.devicestate.DeviceStateManager;
@@ -515,6 +517,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         }
     }
 
+    private Handler mMainHandler;
     private final DelayableExecutor mMainExecutor;
 
     private int mInteractingWindows;
@@ -697,6 +700,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             LockscreenShadeTransitionController lockscreenShadeTransitionController,
             FeatureFlags featureFlags,
             KeyguardUnlockAnimationController keyguardUnlockAnimationController,
+            @Main Handler mainHandler,
             @Main DelayableExecutor delayableExecutor,
             @Main MessageRouter messageRouter,
             WallpaperManager wallpaperManager,
@@ -800,6 +804,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mStatusBarHideIconsForBouncerManager = statusBarHideIconsForBouncerManager;
         mFeatureFlags = featureFlags;
         mKeyguardUnlockAnimationController = keyguardUnlockAnimationController;
+        mMainHandler = mainHandler;
         mMainExecutor = delayableExecutor;
         mMessageRouter = messageRouter;
         mWallpaperManager = wallpaperManager;
@@ -953,6 +958,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         // Set up the initial notification state. This needs to happen before CommandQueue.disable()
         setUpPresenter();
+
+        mCustomSettingsObserver.observe();
+        mCustomSettingsObserver.update();
 
         if ((result.mTransientBarTypes & WindowInsets.Type.statusBars()) != 0) {
             mStatusBarModeRepository.getDefaultDisplay().showTransient();
@@ -1661,6 +1669,36 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             mSubpanel = subpanel;
         }
     }
+
+    private CustomSettingsObserver mCustomSettingsObserver = new CustomSettingsObserver(mMainHandler);
+    private class CustomSettingsObserver extends ContentObserver {
+
+        CustomSettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+            /*resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.XXX),
+                    false, this, UserHandle.USER_ALL);*/
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            /*if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.XXX))) {
+                doXXX();
+            }*/
+        }
+
+        public void update() {
+            //doXXX();
+        }
+    }
+
+    /*private void doXXX() {
+    }*/
 
     private void maybeEscalateHeadsUp() {
         mHeadsUpManager.getAllEntries().forEach(entry -> {
