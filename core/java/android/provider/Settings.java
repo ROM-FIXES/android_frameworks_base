@@ -5227,6 +5227,12 @@ public final class Settings {
         /*****************************
         * Custom System Settings start
         *****************************/
+        
+        /**
+         * Switch between filters for lockscreen album art
+         * @hide
+         */
+        public static final String LOCKSCREEN_ALBUMART_FILTER = "lockscreen_albumart_filter";
 
         /***************************
         * Custom System Settings end
