@@ -89,6 +89,7 @@ import lineageos.providers.LineageSettings;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.lang.NullPointerException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -102,7 +103,7 @@ import dagger.Lazy;
  * Handles tasks and state related to media notifications. For example, there is a 'current' media
  * notification, which this class keeps track of.
  */
-public class NotificationMediaManager implements Dumpable, TunerService.Tunable , MediaDataManager.Listener {
+public class NotificationMediaManager implements Dumpable, TunerService.Tunable {
     private static final String TAG = "NotificationMediaManager";
     public static final boolean DEBUG_MEDIA = false;
 
@@ -170,6 +171,10 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
     private boolean mShowMediaMetadata;
     private int mAlbumArtFilter;
 
+    private Palette pulse_palette;
+    private int albumArtVibrantColor;
+    private MediaData oldData;
+
     private final MediaController.Callback mMediaListener = new MediaController.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackState state) {
@@ -226,7 +231,6 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         mMediaDataManager = mediaDataManager;
         mNotifPipeline = notifPipeline;
         mNotifCollection = notifCollection;
-        mMediaDataManager.addListener(this);
         mIsMediaInQS = mediaFeatureFlag.getEnabled();
 
         if (!featureFlags.isNewNotifPipelineRenderingEnabled()) {
@@ -383,12 +387,39 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             public void onMediaDataLoaded(@NonNull String key,
                     @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
                     int receivedSmartspaceCardLatency, boolean isSsReactivated) {
+                boolean match = false;
+                
+                /* for future reference, now this static call is also available:
+                MediaDataManagerKt.isMediaNotification(sbn)*/
+                // TODO: mIsMediaInQS check should be useless here, if so we can remove it
+                if ((mIsMediaInQS || key.equals(mMediaNotificationKey))) {
+                    try {
+                        Icon newIcon = data.getActions().get(0).getIcon();
+                        Icon oldIcon = oldData.getActions().get(0).getIcon();
+                        if (newIcon.getResId() == oldIcon.getResId())
+                            match = true;
+                    } catch (NullPointerException e) {
+                        Log.d(TAG, "onMediaDataLoaded(): " + e);
+                    }
+                    oldData = data;
+
+                    ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
+                    if (match) {
+                        Bitmap artwork = getBitmapFromDrawable(data.getArtwork().loadDrawable(mContext));
+                        pulse_palette = Palette.from(artwork).generate();
+                        albumArtVibrantColor = pulse_palette.getVibrantColor(data.getBackgroundColor());
+                    }
+                    
+                    for (int i = 0; i < callbacks.size(); i++) {
+                        callbacks.get(i).setMediaNotificationColor(
+                                true/*colorized*/, albumArtVibrantColor);
+                    }
+                }
             }
 
             @Override
             public void onSmartspaceMediaDataLoaded(@NonNull String key,
                     @NonNull SmartspaceMediaData data, boolean shouldPrioritize) {
-
             }
 
             @Override
@@ -474,42 +505,6 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         drawable.draw(canvas);
         return bmp;
     }
-
-    // @Override
-    // public void onMediaDataLoaded(String key, String oldKey, MediaData data) {
-
-    @Override
-    public void onMediaDataLoaded(@NonNull String key,
-            @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
-            int receivedSmartspaceCardLatency, boolean isSsReactivated) {
-        /* for future reference, now this static call is also available:
-        MediaDataManagerKt.isMediaNotification(sbn)*/
-        // TODO: mIsMediaInQS check should be useless here, if so we can remove it
-        if (mIsMediaInQS || key.equals(mMediaNotificationKey)) {
-            ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
-            for (int i = 0; i < callbacks.size(); i++) {
-                Log.d(TAG, "onMediaDataLoaded(): Retreiving Vibrant color from Album Art");
-                Bitmap artwork = getBitmapFromDrawable(data.getArtwork().loadDrawable(mContext));
-                Palette p = Palette.from(artwork).generate();
-                callbacks.get(i).setMediaNotificationColor(
-                        true/*colorized*/,
-                        p.getVibrantColor(data.getBackgroundColor()));
-            }
-        }
-    }
-
-    @Override
-    public void onMediaDataRemoved(@NonNull String key) {
-        //
-    }
-
-    @Override
-    public void onSmartspaceMediaDataLoaded(@NonNull String key,
-            @NonNull SmartspaceMediaData data, boolean shouldPrioritize) {
-    }
-
-    @Override
-    public void onSmartspaceMediaDataRemoved(@NonNull String key, boolean immediately) {}
 
     public String getMediaNotificationKey() {
         return mMediaNotificationKey;
