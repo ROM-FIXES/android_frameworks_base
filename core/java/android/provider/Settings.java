@@ -5224,6 +5224,13 @@ public final class Settings {
         @Readable
         public static final String VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
 
+        /*****************************
+        * Custom System Settings start
+        *****************************/
+
+        /***************************
+        * Custom System Settings end
+        ***************************/
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
@@ -10209,6 +10216,14 @@ public final class Settings {
          */
         public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
 
+        /*****************************
+        * Custom Secure Settings start
+        *****************************/
+
+        /*****************************
+        * Custom Secure Settings end
+        *****************************/
+        
         /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
@@ -15191,6 +15206,15 @@ public final class Settings {
          */
         public static final String UIDS_ALLOWED_ON_RESTRICTED_NETWORKS =
                 "uids_allowed_on_restricted_networks";
+
+
+        /*****************************
+        * Custom Global Settings start
+        *****************************/
+
+        /*****************************
+        * Custom Global Settings end
+        *****************************/
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
