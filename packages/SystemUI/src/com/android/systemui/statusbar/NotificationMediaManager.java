@@ -174,6 +174,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
     private Palette pulse_palette;
     private int albumArtVibrantColor;
     private MediaData oldData;
+    private int oldIconID;
 
     private final MediaController.Callback mMediaListener = new MediaController.Callback() {
         @Override
@@ -394,9 +395,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
                 // TODO: mIsMediaInQS check should be useless here, if so we can remove it
                 if ((mIsMediaInQS || key.equals(mMediaNotificationKey))) {
                     try {
-                        Icon newIcon = data.getActions().get(0).getIcon();
-                        Icon oldIcon = oldData.getActions().get(0).getIcon();
-                        if (newIcon.getResId() == oldIcon.getResId())
+                        int newIconID = data.getActions().get(0).getIcon().getResId();
+                        if (newIconID== oldIconID)
                             match = true;
                     } catch (NullPointerException e) {
                         Log.d(TAG, "onMediaDataLoaded(): " + e);
