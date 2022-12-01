@@ -26,6 +26,7 @@ import android.annotation.Nullable;
 import android.app.Notification;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -43,6 +44,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import androidx.palette.graphics.Palette;
 
 import com.android.internal.statusbar.NotificationVisibility;
 import com.android.systemui.Dependency;
@@ -54,6 +56,7 @@ import com.android.systemui.dump.DumpManager;
 import com.android.systemui.flags.FeatureFlags;
 import com.android.systemui.media.MediaData;
 import com.android.systemui.media.MediaDataManager;
+import com.android.systemui.media.MediaFeatureFlag;
 import com.android.systemui.media.SmartspaceMediaData;
 import com.android.systemui.plugins.statusbar.StatusBarStateController;
 import com.android.systemui.statusbar.dagger.StatusBarModule;
@@ -94,7 +97,7 @@ import dagger.Lazy;
  * Handles tasks and state related to media notifications. For example, there is a 'current' media
  * notification, which this class keeps track of.
  */
-public class NotificationMediaManager implements Dumpable, TunerService.Tunable {
+public class NotificationMediaManager implements Dumpable, TunerService.Tunable , MediaDataManager.Listener {
     private static final String TAG = "NotificationMediaManager";
     public static final boolean DEBUG_MEDIA = false;
 
@@ -121,6 +124,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
     private final NotifPipeline mNotifPipeline;
     private final NotifCollection mNotifCollection;
     private final boolean mUsingNotifPipeline;
+    private final boolean mIsMediaInQS;
 
     @Nullable
     private Lazy<NotificationShadeWindowController> mNotificationShadeWindowController;
@@ -193,7 +197,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             FeatureFlags featureFlags,
             @Main DelayableExecutor mainExecutor,
             MediaDataManager mediaDataManager,
-            DumpManager dumpManager) {
+            DumpManager dumpManager,
+            MediaFeatureFlag mediaFeatureFlag) {
         mContext = context;
         mMediaArtworkProcessor = mediaArtworkProcessor;
         mKeyguardBypassController = keyguardBypassController;
@@ -206,6 +211,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         mMediaDataManager = mediaDataManager;
         mNotifPipeline = notifPipeline;
         mNotifCollection = notifCollection;
+        mMediaDataManager.addListener(this);
+        mIsMediaInQS = mediaFeatureFlag.getEnabled();
 
         if (!featureFlags.isNewNotifPipelineRenderingEnabled()) {
             setupNEM();
@@ -244,6 +251,9 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             @Override
             public void onEntryBind(NotificationEntry entry, StatusBarNotification sbn) {
                 findAndUpdateMediaNotifications();
+                if (!mIsMediaInQS) {
+                    checkMediaNotificationColor(entry);
+                }
             }
 
             @Override
@@ -318,6 +328,17 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
                     boolean removedByUser,
                     int reason) {
                 removeEntry(entry);
+            }
+
+            // these get called from NotificationEntryManager.onAsyncInflationFinished
+            // so we are sure the final media notification albumart and colors elaboration
+            // has been completed by the system
+            @Override
+            public void onNotificationAdded(
+                    NotificationEntry entry) {
+                if (!mIsMediaInQS) {
+                    checkMediaNotificationColor(entry);
+                }
             }
         });
 
@@ -403,6 +424,62 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             dispatchUpdateMediaMetaData(true /* changed */, true /* allowEnterAnimation */);
         }
     }
+
+    private void checkMediaNotificationColor(NotificationEntry entry) {
+        if (entry.getSbn().getKey().equals(mMediaNotificationKey)) {
+            ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
+            for (int i = 0; i < callbacks.size(); i++) {
+                callbacks.get(i).setMediaNotificationColor(
+                        entry.getSbn().getNotification().isColorized(),
+                        entry.getRow().getCurrentBackgroundTint());
+            }
+        }
+    }
+
+    @NonNull
+    static private Bitmap getBitmapFromDrawable(@NonNull Drawable drawable) {
+        final Bitmap bmp = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        final Canvas canvas = new Canvas(bmp);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bmp;
+    }
+
+    // @Override
+    // public void onMediaDataLoaded(String key, String oldKey, MediaData data) {
+
+    @Override
+    public void onMediaDataLoaded(@NonNull String key,
+            @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
+            int receivedSmartspaceCardLatency, boolean isSsReactivated) {
+        /* for future reference, now this static call is also available:
+        MediaDataManagerKt.isMediaNotification(sbn)*/
+        // TODO: mIsMediaInQS check should be useless here, if so we can remove it
+        if (mIsMediaInQS || key.equals(mMediaNotificationKey)) {
+            ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
+            for (int i = 0; i < callbacks.size(); i++) {
+                Log.d(TAG, "onMediaDataLoaded(): Retreiving Vibrant color from Album Art");
+                Bitmap artwork = getBitmapFromDrawable(data.getArtwork().loadDrawable(mContext));
+                Palette p = Palette.from(artwork).generate();
+                callbacks.get(i).setMediaNotificationColor(
+                        true/*colorized*/,
+                        p.getVibrantColor(data.getBackgroundColor()));
+            }
+        }
+    }
+
+    @Override
+    public void onMediaDataRemoved(@NonNull String key) {
+        //
+    }
+
+    @Override
+    public void onSmartspaceMediaDataLoaded(@NonNull String key,
+            @NonNull SmartspaceMediaData data, boolean shouldPrioritize) {
+    }
+
+    @Override
+    public void onSmartspaceMediaDataRemoved(@NonNull String key, boolean immediately) {}
 
     public String getMediaNotificationKey() {
         return mMediaNotificationKey;
@@ -889,5 +966,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
          */
         default void onPrimaryMetadataOrStateChanged(MediaMetadata metadata,
                 @PlaybackState.State int state) {}
+
+        default void setMediaNotificationColor(boolean colorizedMedia, int color) {};
     }
 }
