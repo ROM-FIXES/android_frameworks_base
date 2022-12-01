@@ -407,7 +407,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
                     oldData = data;
 
                     ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
-                    if (match) {
+                    if (!match) {
                         Bitmap artwork = getBitmapFromDrawable(data.getArtwork().loadDrawable(mContext));
                         pulse_palette = Palette.from(artwork).generate();
                         albumArtVibrantColor = pulse_palette.getVibrantColor(data.getBackgroundColor());
