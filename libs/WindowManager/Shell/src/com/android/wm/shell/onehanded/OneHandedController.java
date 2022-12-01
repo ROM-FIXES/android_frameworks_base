@@ -563,7 +563,7 @@ public class OneHandedController implements RemoteCallable<OneHandedController>,
 
     @VisibleForTesting
     boolean isShortcutEnabled() {
-        return mIsShortcutEnabled;
+        return true;
     }
 
     @VisibleForTesting
