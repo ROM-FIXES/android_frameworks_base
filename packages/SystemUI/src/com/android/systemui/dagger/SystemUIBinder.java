@@ -137,7 +137,7 @@ public abstract class SystemUIBinder {
     @Binds
     @IntoMap
     @ClassKey(ThemeOverlayController.class)
-    public abstract SystemUI bindThemeOverlayController(ThemeOverlayController sysui);
+    public abstract SystemUI bindThemeOverlayController(CustomThemeOverlayController sysui);
 
     /** Inject into ToastUI. */
     @Binds
