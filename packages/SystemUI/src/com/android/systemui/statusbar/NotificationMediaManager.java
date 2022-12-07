@@ -175,12 +175,18 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
     private boolean mShowMediaMetadata;
     private int mAlbumArtFilter;
     
+    private ContentResolver resolver;
     private boolean customColor;
     private boolean customColorIsSet;
+    private boolean artworkColorUpdated;
+    private boolean accentChanged = false;
+    private boolean noChangeInPlaybackState;
     private int customColorTracker = 0;
     private int colorOverride;
     private int artwork_color;
     private Palette palette;
+    private long current_medatada_update_millis;
+    private long previous_medatada_update_millis = 0;
 
     private final MediaController.Callback mMediaListener = new MediaController.Callback() {
         @Override
@@ -254,9 +260,12 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         final TunerService tunerService = Dependency.get(TunerService.class);
         tunerService.addTunable(this, LOCKSCREEN_MEDIA_METADATA);
         tunerService.addTunable(this, LOCKSCREEN_ALBUMART_FILTER);
+
+        resolver = mContext.getContentResolver();
         Log.d("DroidFreak32", "Class Init");
         customColorTracker =  Settings.Secure.getIntForUser(mContext.getContentResolver(), PREF_CUSTOM_COLOR, 0, UserHandle.USER_CURRENT);
-        Log.d("DroidFreak32", "Currently customColorTracker is " + customColorTracker);
+
+        // Log.d("DroidFreak32", "Currently customColorTracker is " + customColorTracker);
 
         customColorIsSet = (Settings.Secure.getIntForUser(mContext.getContentResolver(), PREF_CUSTOM_COLOR, 0, UserHandle.USER_CURRENT) != 0);
         Log.d("DroidFreak32", "Currently customColorIsSet is " + customColorIsSet);
@@ -317,6 +326,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             public void onMediaDataLoaded(@NonNull String key,
                     @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
                     int receivedSmartspaceCardLatency, boolean isSsReactivated) {
+
+                        Log.d("DroidFreak32", "Early onMediaDataLoaded()");
             }
 
             @Override
@@ -403,6 +414,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             public void onMediaDataLoaded(@NonNull String key,
                     @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
                     int receivedSmartspaceCardLatency, boolean isSsReactivated) {
+                        Log.d("DroidFreak32", "setupNEM()'s onMediaDataLoaded()");
             }
 
             @Override
@@ -504,14 +516,17 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
     public void onMediaDataLoaded(@NonNull String key,
             @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
             int receivedSmartspaceCardLatency, boolean isSsReactivated) {
+        
+        Log.d("DroidFreak32", "inside onMediaDataLoaded():");
         /* for future reference, now this static call is also available:
         MediaDataManagerKt.isMediaNotification(sbn)*/
         // TODO: mIsMediaInQS check should be useless here, if so we can remove it
         if (mIsMediaInQS || key.equals(mMediaNotificationKey)) {
-            Log.d("DroidFreak32", "onMediaDataLoaded(): Retreiving Vibrant color from Album Art");
             Bitmap artwork = getBitmapFromDrawable(data.getArtwork().loadDrawable(mContext));
             palette = Palette.from(artwork).generate();
             artwork_color = palette.getVibrantColor(data.getBackgroundColor());
+            Log.d("DroidFreak32", "onMediaDataLoaded(): Retreived Vibrant color from Album Art: " + artwork_color);
+            artworkColorUpdated = true;
             ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
             for (int i = 0; i < callbacks.size(); i++) {
                 callbacks.get(i).setMediaNotificationColor(
@@ -519,18 +534,20 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
                         artwork_color);
             }
         }
-    customColorTracker += 1;
-    Log.d("DroidFreak32", "After onMediaDataLoaded customColorTracker is " + customColorTracker);
+    // customColorTracker += 1;
+    // Log.d("DroidFreak32", "After onMediaDataLoaded customColorTracker is " + customColorTracker);
     }
 
     @Override
     public void onMediaDataRemoved(@NonNull String key) {
         Log.d("DroidFreak32", "onMediaDataRemoved(): TODO: Maybe try resetting monet here?");
-
-        customColorIsSet = (Settings.Secure.getIntForUser(mContext.getContentResolver(), PREF_CUSTOM_COLOR, 0, UserHandle.USER_CURRENT) != 0);
-        Log.d("DroidFreak32", "Updated customColorIsSet to " + customColorIsSet);
-        customColorTracker += 1;
-        Log.d("DroidFreak32", "After onMediaDataRemoved customColorTracker is " + customColorTracker);
+        // Rescan The Monet setting choice if all media is cleared from notifications
+        if (PlaybackState.STATE_PLAYING != getMediaControllerPlaybackState(mMediaController)){
+            customColorIsSet = (Settings.Secure.getIntForUser(mContext.getContentResolver(), PREF_CUSTOM_COLOR, 0, UserHandle.USER_CURRENT) != 0);
+            Log.d("DroidFreak32", "Updated customColorIsSet to " + customColorIsSet);
+            // customColorTracker += 1;
+            // Log.d("DroidFreak32", "After onMediaDataRemoved customColorTracker is " + customColorTracker);
+        }
     }
 
 
@@ -614,8 +631,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
      */
     private boolean findPlayingMediaNotification(
             @NonNull Collection<NotificationEntry> allNotifications) {
-    customColorTracker += 1;
-    Log.d("DroidFreak32", "before findPlayingMediaNotification customColorTracker is " + customColorTracker);
+    // customColorTracker += 1;
+    // // Log.d("DroidFreak32", "before findPlayingMediaNotification customColorTracker is " + customColorTracker);
         boolean metaDataChanged = false;
         // Promote the media notification with a controller in 'playing' state, if any.
         NotificationEntry mediaNotification = null;
@@ -764,6 +781,20 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
      */
     public void updateMediaMetaData(boolean metaDataChanged, boolean allowEnterAnimation) {
         Log.d("DroidFreak32", "Entering updateMediaMetaData");
+        Log.d("DroidFreak32", "updateMediaMetaData: Current State" + getMediaControllerPlaybackState(mMediaController));
+
+        // Prevent few apps Spamming the state
+        current_medatada_update_millis = System.currentTimeMillis();
+        if (current_medatada_update_millis - previous_medatada_update_millis < 1000){
+            noChangeInPlaybackState = true;
+            previous_medatada_update_millis = current_medatada_update_millis;
+            Log.d("DroidFreak32", "noChangeInPlaybackState");
+        } else {
+            noChangeInPlaybackState = false;
+            previous_medatada_update_millis = current_medatada_update_millis;
+            Log.d("DroidFreak32", "YES ChangeInPlaybackState");
+        }
+
         Trace.beginSection("StatusBar#updateMediaMetaData");
         if (!SHOW_LOCKSCREEN_MEDIA_ARTWORK) {
             Trace.endSection();
@@ -810,10 +841,13 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             mProcessArtworkTasks.clear();
         }
         if (artworkBitmap != null) {
-            mProcessArtworkTasks.add(new ProcessArtworkTask(this, metaDataChanged,
-                    allowEnterAnimation).execute(artworkBitmap));
+            // mProcessArtworkTasks.add(new ProcessArtworkTask(this, metaDataChanged,
+            //         allowEnterAnimation).execute(artworkBitmap));
+            finishUpdateMediaMetaData(metaDataChanged, allowEnterAnimation, artworkBitmap);
+            Log.d("DroidFreak32", "updateMediaMetaData Processing artwork" + artworkBitmap);
         } else {
             finishUpdateMediaMetaData(metaDataChanged, allowEnterAnimation, null);
+            Log.d("DroidFreak32", "artwork is NULL");
         }
 
         Trace.endSection();
@@ -826,11 +860,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         mLockscreenMediaBlur = (float) Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.LOCKSCREEN_MEDIA_BLUR, 25,
                 UserHandle.USER_CURRENT);
-
-        boolean accentChanged = false;
-                
-        ContentResolver resolver = mContext.getContentResolver();
     try {
+        Log.d("DroidFreak32", "finishUpdateMediaMetaData " + bmp);
         // set media artwork as lockscreen wallpaper if player is playing
         if (bmp != null && (mShowMediaMetadata || !ENABLE_LOCKSCREEN_WALLPAPER) &&
                 PlaybackState.STATE_PLAYING == getMediaControllerPlaybackState(mMediaController)) {
@@ -864,11 +895,12 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
                         ImageHelper.getGrayscaleBlurredImage(mContext, bmp, mLockscreenMediaBlur));
                     break;
             }
-            if (!customColorIsSet) {
+            
+            if ((!customColorIsSet) && (colorOverride != artwork_color)) {
                 // Retrieve artwork color from Pulse code
-                Log.d("DroidFreak32", "Temporarily switching to custom color");
+                Log.d("DroidFreak32", "Temporarily switching to custom color " + customColor);
                 Settings.Secure.putIntForUser(resolver, PREF_CUSTOM_COLOR, 1, UserHandle.USER_CURRENT);
-                Log.d("DroidFreak32", "Trying to set Monet color");
+                Log.d("DroidFreak32", "Trying to set Monet color" + colorOverride);
                 // artwork_color = palette.getVibrantColor(colorOverride);
                 Log.d("DroidFreak32", "Retrived artwork_color " + artwork_color);
                 Settings.Secure.putIntForUser(resolver, PREF_COLOR_OVERRIDE, artwork_color, UserHandle.USER_CURRENT);
@@ -889,8 +921,9 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
                 // the lockscreen wallpaper in that mode.
                 allowWhenShade = mStatusBarStateController.getState() == KEYGUARD;
             }
-        if (!(customColorIsSet) && accentChanged) {
+            if (!(customColorIsSet) && accentChanged) {
                 Settings.Secure.putIntForUser(resolver, PREF_CUSTOM_COLOR, 0, UserHandle.USER_CURRENT);
+                Settings.Secure.putIntForUser(resolver, PREF_COLOR_OVERRIDE, 0, UserHandle.USER_CURRENT);
                 Log.d("DroidFreak32", "Reverted temporary color override");
                 accentChanged = false;
             }
@@ -1068,11 +1101,13 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             mManagerRef = new WeakReference<>(manager);
             mMetaDataChanged = changed;
             mAllowEnterAnimation = allowAnimation;
+            Log.d("DroidFreak32", "ProcessArtworkTask constructor with " + mMetaDataChanged + " and " + mAllowEnterAnimation);
         }
 
         @Override
         protected Bitmap doInBackground(Bitmap... bitmaps) {
             NotificationMediaManager manager = mManagerRef.get();
+            Log.d("DroidFreak32", "ProcessArtworkTask doInBackground with blength " + bitmaps.length);
             if (manager == null || bitmaps.length == 0 || isCancelled()) {
                 return null;
             }
@@ -1082,6 +1117,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         @Override
         protected void onPostExecute(@Nullable Bitmap result) {
             NotificationMediaManager manager = mManagerRef.get();
+            Log.d("DroidFreak32", "onPostExecute doInBackground with result " + result);
             if (manager != null && !isCancelled()) {
                 manager.removeTask(this);
                 manager.finishUpdateMediaMetaData(mMetaDataChanged, mAllowEnterAnimation, result);
@@ -1090,6 +1126,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
 
         @Override
         protected void onCancelled(Bitmap result) {
+             Log.d("DroidFreak32", " onCancelled " + result);
             if (result != null) {
                 result.recycle();
             }
