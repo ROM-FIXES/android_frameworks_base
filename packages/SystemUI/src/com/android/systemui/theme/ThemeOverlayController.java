@@ -123,7 +123,7 @@ public class ThemeOverlayController implements CoreStartable, Dumpable {
     protected static final String TAG = "ThemeOverlayController";
     protected static final String OVERLAY_BERRY_BLACK_THEME =
             "org.lineageos.overlay.customization.blacktheme";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final ThemeOverlayApplier mThemeManager;
     private final UserManager mUserManager;
