@@ -51,7 +51,7 @@ import java.util.function.Predicate;
 
 /** An implementation of the {@link IOriginTransitions}. */
 public class IOriginTransitionsImpl extends IOriginTransitions.Stub {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final String TAG = "OriginTransitions";
 
     private final Object mLock = new Object();

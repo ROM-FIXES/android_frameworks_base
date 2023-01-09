@@ -123,7 +123,7 @@ private val ART_URIS =
     )
 
 private const val TAG = "MediaDataProcessor"
-private const val DEBUG = true
+private const val DEBUG = false
 private const val EXTRAS_SMARTSPACE_DISMISS_INTENT_KEY = "dismiss_intent"
 
 /** Processes all media data fields and encapsulates logic for managing media data entries. */

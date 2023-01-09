@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 public final class HearingAidStatsLogUtils {
 
     private static final String TAG = "HearingAidStatsLogUtils";
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     private static final String ACCESSIBILITY_PREFERENCE = "accessibility_prefs";
     private static final String BT_HEARING_AIDS_PAIRED_HISTORY = "bt_hearing_aids_paired_history";
     private static final String BT_HEARING_AIDS_CONNECTED_HISTORY =

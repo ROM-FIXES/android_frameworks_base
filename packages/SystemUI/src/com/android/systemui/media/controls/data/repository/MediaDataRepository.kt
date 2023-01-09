@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 private const val TAG = "MediaDataRepository"
-private const val DEBUG = true
+private const val DEBUG = false
 
 /** A repository that holds the state of all media controls in carousel. */
 @SysUISingleton
