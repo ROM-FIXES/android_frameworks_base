@@ -15,11 +15,16 @@
  */
 package com.android.systemui.screenshot
 
+import com.android.systemui.screenshot.ScreenshotController.SCREENSHOT_URI_ID
+
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.admin.DevicePolicyManager
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.UserHandle
 import android.view.Display
 import com.android.internal.R
@@ -95,6 +100,79 @@ internal constructor(
                 SystemMessageProto.SystemMessage.NOTE_GLOBAL_SCREENSHOT_EXTERNAL_DISPLAY
             }
         notificationManager.notify(id, notification)
+    }
+
+    /**
+     * Shows a notification containing the screenshot and the chip actions
+     * @param imageData for actions, uri. cannot be null
+     * @param bitmap for image preview. can be null
+     */
+    fun showPostActionNotification(imageData: ScreenshotController.SavedImageData, bitmap: Bitmap?) {
+        val uri = imageData.uri
+        val requestCode = uri.toString().hashCode()
+
+        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            setDataAndType(uri, "image/*")
+        }
+        val pendingViewIntent = PendingIntent.getActivity(
+            context,
+            0,
+            viewIntent,
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+            type = "image/*"
+            addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+        }
+        val pendingShareIntent = PendingIntent.getActivity(
+            context,
+            requestCode,
+            shareIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        val actionShare = Notification.Action.Builder(
+            0, // no icon
+            res.getText(com.android.systemui.res.R.string.screenrecord_share_label),
+            pendingShareIntent
+        ).build()
+
+        val deleteIntent = Intent(context, DeleteScreenshotReceiver::class.java).apply {
+            putExtra(SCREENSHOT_URI_ID, uri.toString())
+            addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+        }
+        val pendingDeleteIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            deleteIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        val actionDelete = Notification.Action.Builder(
+            0, // no icon
+            res.getText(com.android.systemui.res.R.string.screenshot_delete_label),
+            pendingDeleteIntent
+        ).build()
+
+        val notificationBuilder = Notification.Builder(context, NotificationChannels.SCREENSHOTS_HEADSUP)
+            .setTicker(res.getString(com.android.systemui.res.R.string.screenshot_saved_title))
+            .setContentTitle(res.getString(com.android.systemui.res.R.string.screenshot_saved_title))
+            .setContentText(res.getString(com.android.systemui.res.R.string.screenrecord_save_text))
+            .setSmallIcon(com.android.systemui.res.R.drawable.screenshot_image)
+            .setWhen(System.currentTimeMillis())
+            .setAutoCancel(true)
+            .setContentIntent(pendingViewIntent)
+            .addAction(actionShare)
+            .addAction(actionDelete)
+            .setColor(context.getColor(com.android.internal.R.color.system_notification_accent_color))
+
+        // Add BigPictureStyle if bitmap is available
+        bitmap?.let {
+            notificationBuilder.setStyle(Notification.BigPictureStyle().bigPicture(it))
+        }
+
+        notificationManager.notify(requestCode, notificationBuilder.build())
     }
 
     private val externalDisplayString: String
