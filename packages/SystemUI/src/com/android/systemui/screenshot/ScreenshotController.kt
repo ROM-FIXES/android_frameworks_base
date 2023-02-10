@@ -531,6 +531,7 @@ internal constructor(
                 try {
                     val result = future.get()
                     Log.d(TAG, "Saved screenshot: $result")
+                    notificationController.showPostActionNotification(screenshot, result.uri)
                     logScreenshotResultStatus(result.uri, screenshot.userHandle!!)
                     onResult.accept(result)
                     if (LogConfig.DEBUG_CALLBACK) {
