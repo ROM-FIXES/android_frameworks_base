@@ -405,18 +405,22 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
                         Log.d(TAG, "onMediaDataLoaded(): " + e);
                     }
                     oldData = data;
+                    try{
+                        if (!match) {
+                            Bitmap artwork = getBitmapFromDrawable(data.getArtwork().loadDrawable(mContext));
+                            pulse_palette = Palette.from(artwork).generate();
+                            albumArtVibrantColor = pulse_palette.getVibrantColor(data.getBackgroundColor());
+                        }
 
-                    ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
-                    if (!match) {
-                        Bitmap artwork = getBitmapFromDrawable(data.getArtwork().loadDrawable(mContext));
-                        pulse_palette = Palette.from(artwork).generate();
-                        albumArtVibrantColor = pulse_palette.getVibrantColor(data.getBackgroundColor());
+                        ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
+                        for (int i = 0; i < callbacks.size(); i++) {
+                            callbacks.get(i).setMediaNotificationColor(
+                                    true/*colorized*/, albumArtVibrantColor);
+                        }
+                    } catch (NullPointerException e) {
+                        Log.d(TAG, "onMediaDataLoaded(): " + e);
                     }
-                    
-                    for (int i = 0; i < callbacks.size(); i++) {
-                        callbacks.get(i).setMediaNotificationColor(
-                                true/*colorized*/, albumArtVibrantColor);
-                    }
+
                 }
             }
 
