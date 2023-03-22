@@ -151,6 +151,8 @@ public class PixelPropsUtils {
     static {
         propsToKeep = new HashMap<>();
         propsToChange = new HashMap<>();
+        propsToChange.put("TYPE", "user");
+        propsToChange.put("TAGS", "release-keys");
         propsToKeep.put("com.google.android.settings.intelligence", new ArrayList<>(Collections.singletonList("FINGERPRINT")));
         propsToChangePixel7Pro = new HashMap<>();
         propsToChangePixel7Pro.put("BRAND", "google");
@@ -201,6 +203,7 @@ public class PixelPropsUtils {
     }
 
     public static void setProps(String packageName) {
+        propsToChange.forEach((k, v) -> setPropValue(k, v));
         if (packageName == null || packageName.isEmpty()) {
             return;
         }
