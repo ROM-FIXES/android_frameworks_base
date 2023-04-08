@@ -143,6 +143,7 @@ import dalvik.annotation.optimization.NeverCompile;
 
 import lineageos.providers.LineageSettings;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -851,7 +852,7 @@ public final class PowerManagerService extends SystemService
 
     // Smart charging
     private boolean mSmartChargingEnabled;
-    private boolean mPowerInputSuspended = false;
+    private boolean mSmartChargingResetStats;
     private int mSmartChargingLevel;
     private int mSmartChargingResumeLevel;
     private int mSmartChargingLevelDefaultConfig;
@@ -2712,21 +2713,37 @@ public final class PowerManagerService extends SystemService
     }
 
     private void updateSmartChargingStatus() {
-        if (mPowerInputSuspended && (mBatteryLevel <= mSmartChargingResumeLevel) ||
-            (mPowerInputSuspended && !mSmartChargingEnabled)) {
+        if (!mSmartChargingAvailable) return;
+
+        String readValue = "";
+        try {
+            readValue= FileUtils.readTextFile(new File(mPowerInputSuspendSysfsNode), 100, "");
+        } catch (IOException e) {
+            Slog.e(TAG, "failed to write to " + mPowerInputSuspendSysfsNode);
+        }
+
+        boolean powerInputSuspended = readValue.contains(mPowerInputSuspendValue)? true: false;
+
+        if (powerInputSuspended && ((mSmartChargingResumeLevel < mSmartChargingLevel &&
+            mBatteryLevel <= mSmartChargingResumeLevel) || !mSmartChargingEnabled)) {
             try {
                 FileUtils.stringToFile(mPowerInputSuspendSysfsNode, mPowerInputResumeValue);
-                mPowerInputSuspended = false;
             } catch (IOException e) {
                 Slog.e(TAG, "failed to write to " + mPowerInputSuspendSysfsNode);
             }
-            return;
         }
+        else if (mSmartChargingEnabled && !powerInputSuspended && (mBatteryLevel >= mSmartChargingLevel)) {
+            Slog.i(TAG, "Smart charging reset stats: " + mSmartChargingResetStats);
+            if (mSmartChargingResetStats) {
+                try {
+                     mBatteryStats.resetStatistics();
+                } catch (RemoteException e) {
+                         Slog.e(TAG, "failed to reset battery statistics");
+                }
+            }
 
-        if (mSmartChargingEnabled && !mPowerInputSuspended && (mBatteryLevel >= mSmartChargingLevel)) {
             try {
                 FileUtils.stringToFile(mPowerInputSuspendSysfsNode, mPowerInputSuspendValue);
-                mPowerInputSuspended = true;
             } catch (IOException e) {
                     Slog.e(TAG, "failed to write to " + mPowerInputSuspendSysfsNode);
             }
