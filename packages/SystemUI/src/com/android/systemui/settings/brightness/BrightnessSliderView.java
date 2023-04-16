@@ -153,13 +153,6 @@ public class BrightnessSliderView extends LinearLayout {
         mSlider.setProgress(value);
     }
 
-    public void updateThumb(int value) {
-        if (mSlider.getThumb() != null) {
-            final int level = (int) (((float)value / getMax()) * /*ProgressBar.MAX_LEVEL*/ 10000);
-            mSlider.getThumb().setLevel(level);
-        }
-    }
-
     /**
      * @return the current value of the {@link ToggleSeekBar}
      */
@@ -201,11 +194,10 @@ public class BrightnessSliderView extends LinearLayout {
 
     private void applySliderScale() {
         if (mProgressDrawable != null) {
-            // TODO
-            /*final Rect r = mProgressDrawable.getBounds();
+            final Rect r = mProgressDrawable.getBounds();
             int height = (int) (mProgressDrawable.getIntrinsicHeight() * mScale);
             int inset = (mProgressDrawable.getIntrinsicHeight() - height) / 2;
-            mProgressDrawable.setBounds(r.left, inset, r.right, inset + height);*/
+            mProgressDrawable.setBounds(r.left, inset, r.right, inset + height);
         }
     }
 

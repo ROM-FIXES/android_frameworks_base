@@ -29,10 +29,10 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:minHeight="48dp"
-            android:thumb="@drawable/brightness_progress_thumb"
+            android:thumb="@null"
             android:background="@null"
-            android:paddingStart="@dimen/brightness_progress_padding"
-            android:paddingEnd="@dimen/brightness_progress_padding"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
             android:progressDrawable="@drawable/brightness_progress_drawable"
             android:splitTrack="false"
         />
