@@ -382,7 +382,6 @@ cc_library_shared {
                 // (e.g. gDefaultServiceManager)
                 "libbinder",
                 "libhidlbase", // libhwbinder is in here
-                "libvintf",
             ],
         },
     },
