@@ -11184,6 +11184,12 @@ public final class Settings {
          */
         public static final String PULSE_VERTICAL_MIRROR = "pulse_vertical_mirror";
 
+        /**
+         * Boolean value whether to link ringtone and notification volume
+         * @hide
+         */
+        public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
+
         /*****************************
         * Custom Secure Settings end
         *****************************/
