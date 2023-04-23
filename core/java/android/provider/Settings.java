@@ -6392,6 +6392,13 @@ public final class Settings {
          */
         public static final String ADAPTIVE_PLAYBACK_TIMEOUT = "adaptive_playback_timeout";
 
+        /**
+         * Sensor block per-package
+         * @hide
+         */
+        @Readable
+        public static final String SENSOR_BLOCK = "sensor_block";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -6506,6 +6513,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SMART_PIXELS_ON_POWER_SAVE);
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_ENABLED);
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_TIMEOUT);
+            PUBLIC_SETTINGS.add(SENSOR_BLOCK);
         }
 
         /**

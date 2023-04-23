@@ -128,7 +128,8 @@ public class SystemSettings {
                 Settings.System.SMART_PIXELS_SHIFT_TIMEOUT,
                 Settings.System.SMART_PIXELS_ON_POWER_SAVE,
                 Settings.System.ADAPTIVE_PLAYBACK_ENABLED,
-                Settings.System.ADAPTIVE_PLAYBACK_TIMEOUT
+                Settings.System.ADAPTIVE_PLAYBACK_TIMEOUT,
+                Settings.System.SENSOR_BLOCK
         ));
         if (Flags.backUpSmoothDisplayAndForcePeakRefreshRate()) {
             settings.add(Settings.System.PEAK_REFRESH_RATE);
