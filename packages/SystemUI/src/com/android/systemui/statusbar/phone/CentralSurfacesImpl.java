@@ -163,6 +163,7 @@ import com.android.systemui.flags.Flags;
 import com.android.systemui.fragments.ExtensionFragmentListener;
 import com.android.systemui.fragments.FragmentHostManager;
 import com.android.systemui.fragments.FragmentService;
+import com.android.systemui.keyguard.KeyguardSliceProvider;
 import com.android.systemui.keyguard.KeyguardUnlockAnimationController;
 import com.android.systemui.keyguard.KeyguardViewMediator;
 import com.android.systemui.keyguard.ScreenLifecycle;
@@ -301,6 +302,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             "com.android.systemui.statusbar.banner_action_cancel";
     private static final String BANNER_ACTION_SETUP =
             "com.android.systemui.statusbar.banner_action_setup";
+
+    private static final String PULSE_ON_NEW_TRACKS =
+            Settings.Secure.PULSE_ON_NEW_TRACKS;
 
     private static final int MSG_OPEN_SETTINGS_PANEL = 1002;
     private static final int MSG_LAUNCH_TRANSITION_TIMEOUT = 1003;
@@ -981,29 +985,42 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         ContentObserver contentObserver = new ContentObserver(null) {
             @Override
-            public void onChange(boolean selfChange) {
-                if (mDisplayId == Display.DEFAULT_DISPLAY
-                        && mWindowManagerService != null) {
-                    boolean forcedVisibility = mNeedsNavigationBar || LineageSettings.System.getInt(
+            public void onChange(boolean selfChange, Uri uri) {
+                if (uri.equals(
+                        LineageSettings.System.getUriFor(LineageSettings.System.FORCE_SHOW_NAVBAR))) {
+                    if (mDisplayId == Display.DEFAULT_DISPLAY
+                            && mWindowManagerService != null) {
+                        boolean forcedVisibility = mNeedsNavigationBar || LineageSettings.System.getInt(
+                                mContext.getContentResolver(),
+                                LineageSettings.System.FORCE_SHOW_NAVBAR, 0) != 0;
+                        boolean hasNavbar = getNavigationBarView() != null;
+                        mContext.getMainExecutor().execute(() -> {
+                            if (forcedVisibility) {
+                                if (!hasNavbar) {
+                                    mNavigationBarController.onDisplayReady(mDisplayId);
+                                }
+                            } else {
+                                if (hasNavbar) {
+                                    mNavigationBarController.onDisplayRemoved(mDisplayId);
+                                }
+                            }
+                        });
+                    }
+                } else if (uri.equals(Settings.Secure.getUriFor(Settings.Secure.PULSE_ON_NEW_TRACKS))) {
+                    boolean showPulseOnNewTracks = Settings.Secure.getInt(
                             mContext.getContentResolver(),
-                            LineageSettings.System.FORCE_SHOW_NAVBAR, 0) != 0;
-                    boolean hasNavbar = getNavigationBarView() != null;
-                    mContext.getMainExecutor().execute(() -> {
-                        if (forcedVisibility) {
-                            if (!hasNavbar) {
-                                mNavigationBarController.onDisplayReady(mDisplayId);
-                            }
-                        } else {
-                            if (hasNavbar) {
-                                mNavigationBarController.onDisplayRemoved(mDisplayId);
-                            }
-                        }
-                    });
+                            Settings.Secure.PULSE_ON_NEW_TRACKS, 0) == 1;
+                    KeyguardSliceProvider sliceProvider = KeyguardSliceProvider.getAttachedInstance();
+                    if (sliceProvider != null)
+                        sliceProvider.setPulseOnNewTracks(showPulseOnNewTracks);
                 }
             }
         };
         mContext.getContentResolver().registerContentObserver(
                 LineageSettings.System.getUriFor(LineageSettings.System.FORCE_SHOW_NAVBAR), false,
+                contentObserver);
+        mContext.getContentResolver().registerContentObserver(
+                Settings.Secure.getUriFor(Settings.Secure.PULSE_ON_NEW_TRACKS), false,
                 contentObserver);
         contentObserver.onChange(true);
 
