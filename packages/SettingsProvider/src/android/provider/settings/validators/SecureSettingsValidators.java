@@ -448,5 +448,9 @@ public class SecureSettingsValidators {
                 new InclusiveIntegerRangeValidator(0, 1));
         VALIDATORS.put(Secure.WINDOW_IGNORE_SECURE, BOOLEAN_VALIDATOR);
 
+        VALIDATORS.put(Secure.DOZE_TILT_GESTURE, BOOLEAN_VALIDATOR);
+        VALIDATORS.put(Secure.DOZE_HANDWAVE_GESTURE, BOOLEAN_VALIDATOR);
+        VALIDATORS.put(Secure.DOZE_POCKET_GESTURE, BOOLEAN_VALIDATOR);
+        VALIDATORS.put(Secure.DOZE_GESTURE_VIBRATE, BOOLEAN_VALIDATOR);
     }
 }

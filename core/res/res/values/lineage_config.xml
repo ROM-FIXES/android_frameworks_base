@@ -28,4 +28,9 @@
         <item>com.android.shell</item>
         <item>com.android.frameworks.wmtests</item>
     </string-array>
+
+    <!-- Whether device supports sensor based doze customizations -->
+    <bool name="config_dozePulseTilt">false</bool>
+    <bool name="config_dozePulseProximity">false</bool>
+    <bool name="config_deviceHaveWakeUpProximity">false</bool>
 </resources>
