@@ -286,5 +286,6 @@ public class SecureSettings {
         Settings.Secure.TETHERING_ALLOW_VPN_UPSTREAMS,
         Settings.Secure.MANDATORY_BIOMETRICS,
         Settings.Secure.MANDATORY_BIOMETRICS_REQUIREMENTS_SATISFIED,
+        Settings.Secure.WINDOW_IGNORE_SECURE,
     };
 }
