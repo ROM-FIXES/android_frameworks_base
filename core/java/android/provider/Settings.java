@@ -5537,6 +5537,14 @@ public final class Settings {
          * the setting value. See an example above.
          */
 
+        /*****************************
+        * Custom System Settings start
+        *****************************/
+
+        /***************************
+        * Custom System Settings end
+        ***************************/
+
         /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
@@ -10954,6 +10962,14 @@ public final class Settings {
          */
         public static final String ADAPTIVE_CONNECTIVITY_ENABLED = "adaptive_connectivity_enabled";
 
+        /*****************************
+        * Custom Secure Settings start
+        *****************************/
+
+        /*****************************
+        * Custom Secure Settings end
+        *****************************/
+
         /**
          * Keys we no longer back up under the current schema, but want to continue to
          * process when restoring historical backup datasets.
@@ -16103,6 +16119,15 @@ public final class Settings {
         public static final String[] TRANSIENT_SETTINGS = {
                 CLOCKWORK_HOME_READY,
         };
+
+
+        /*****************************
+        * Custom Global Settings start
+        *****************************/
+
+        /*****************************
+        * Custom Global Settings end
+        *****************************/
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
