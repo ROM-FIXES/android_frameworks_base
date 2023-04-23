@@ -41,6 +41,7 @@ import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Trace;
+import android.provider.Settings;
 import android.service.notification.NotificationStats;
 import android.service.notification.StatusBarNotification;
 import android.util.ArraySet;
@@ -49,9 +50,12 @@ import android.view.Display;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.android.internal.util.crdroid.ImageHelper;
+
 import com.android.app.animation.Interpolators;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.systemui.Dumpable;
+import com.android.systemui.R;
 import com.android.systemui.colorextraction.SysuiColorExtractor;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dump.DumpManager;
@@ -103,6 +107,8 @@ public class NotificationMediaManager implements Dumpable {
 
     private static final String LOCKSCREEN_MEDIA_METADATA =
             "lineagesecure:" + LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA;
+    private static final String LOCKSCREEN_ALBUMART_FILTER =
+            "system:" + Settings.System.LOCKSCREEN_ALBUMART_FILTER;
 
     private final StatusBarStateController mStatusBarStateController;
     private final SysuiColorExtractor mColorExtractor;
@@ -162,6 +168,7 @@ public class NotificationMediaManager implements Dumpable {
     private LockscreenWallpaper.WallpaperDrawable mWallapperDrawable;
 
     private boolean mShowMediaMetadata;
+    private int mAlbumArtFilter;
 
     private final MediaController.Callback mMediaListener = new MediaController.Callback() {
         @Override
@@ -241,11 +248,19 @@ public class NotificationMediaManager implements Dumpable {
                     mShowMediaMetadata = LineageSettings.Secure.getInt(mContext.getContentResolver(),
                             LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA, 0) == 1;
                     dispatchUpdateMediaMetaData(false /* changed */, true /* allowAnimation */);
+                } else if (uri.equals(Settings.System.getUriFor(Settings.System.LOCKSCREEN_ALBUMART_FILTER))) {
+                    mAlbumArtFilter = Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_ALBUMART_FILTER)
+                    dispatchUpdateMediaMetaData(false /* changed */, true /* allowAnimation */);
                 }
             }
         };
-        mContext.getContentResolver().registerContentObserver(
+
+        notificationMediaContentResolver = mContext.getContentResolver();
+        notificationMediaContentResolver.registerContentObserver(
                 LineageSettings.Secure.getUriFor(LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA), false,
+                    notificationMediaContentObserver);
+        notificationMediaContentResolver.registerContentObserver(
+                Settings.System.getUriFor(Settings.System.LOCKSCREEN_ALBUMART_FILTER), false,
                     notificationMediaContentObserver);
         notificationMediaContentObserver.onChange(true);
 
@@ -627,10 +642,34 @@ public class NotificationMediaManager implements Dumpable {
     private void finishUpdateMediaMetaData(boolean metaDataChanged, boolean allowEnterAnimation,
             @Nullable Bitmap bmp) {
         Drawable artworkDrawable = null;
+        mShowMediaMetadata = LineageSettings.Secure.getInt(mContext.getContentResolver(),
+                LineageSettings.Secure.LOCKSCREEN_MEDIA_METADATA, 0) == 1;
         // set media artwork as lockscreen wallpaper if player is playing
         if (bmp != null && (mShowMediaMetadata || !ENABLE_LOCKSCREEN_WALLPAPER) &&
                 PlaybackState.STATE_PLAYING == getMediaControllerPlaybackState(mMediaController)) {
-            artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(), bmp);
+            switch (mAlbumArtFilter) {
+                case 0:
+                default:
+                    artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(), bmp);
+                    break;
+                case 1:
+                    artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                        ImageHelper.toGrayscale(bmp));
+                    break;
+                case 2:
+                    Drawable aw = new BitmapDrawable(mBackdropBack.getResources(), bmp);
+                    artworkDrawable = new BitmapDrawable(ImageHelper.getColoredBitmap(aw,
+                        mContext.getResources().getColor(R.color.accent_device_default_light)));
+                    break;
+                case 3:
+                    artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                        ImageHelper.getBlurredImage(mContext, bmp, 7.0f));
+                    break;
+                case 4:
+                    artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                        ImageHelper.getGrayscaleBlurredImage(mContext, bmp, 7.0f));
+                    break;
+            }
         }
         boolean hasMediaArtwork = artworkDrawable != null;
         boolean allowWhenShade = false;

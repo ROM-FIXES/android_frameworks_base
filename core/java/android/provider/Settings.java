@@ -5778,6 +5778,12 @@ public final class Settings {
         * Custom System Settings start
         *****************************/
 
+        /**
+         * Switch between filters for lockscreen album art
+         * @hide
+         */
+        public static final String LOCKSCREEN_ALBUMART_FILTER = "lockscreen_albumart_filter";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5887,6 +5893,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SHOW_WEB_SUGGESTIONS);
             PUBLIC_SETTINGS.add(VIBRATE_WHEN_RINGING);
             PUBLIC_SETTINGS.add(APPLY_RAMPING_RINGER);
+            PUBLIC_SETTINGS.add(LOCKSCREEN_ALBUMART_FILTER);
         }
 
         /**
