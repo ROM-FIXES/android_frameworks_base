@@ -5802,6 +5802,31 @@ public final class Settings {
          */
         public static final String SCREENSHOT_SHUTTER_SOUND = "screenshot_shutter_sound";
 
+
+        /**
+         * Whether to enable Smart Pixels
+         * @hide
+         */
+        public static final String SMART_PIXELS_ENABLE = "smart_pixels_enable";
+
+        /**
+         * Smart Pixels pattern
+         * @hide
+         */
+        public static final String SMART_PIXELS_PATTERN = "smart_pixels_pattern";
+
+        /**
+         * Smart Pixels Shift Timeout
+         * @hide
+         */
+        public static final String SMART_PIXELS_SHIFT_TIMEOUT = "smart_pixels_shift_timeout";
+
+        /**
+         * Whether Smart Pixels should enable on power saver mode
+         * @hide
+         */
+        public static final String SMART_PIXELS_ON_POWER_SAVE = "smart_pixels_on_power_save";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5914,6 +5939,10 @@ public final class Settings {
             PUBLIC_SETTINGS.add(LOCKSCREEN_ALBUMART_FILTER);
             PUBLIC_SETTINGS.add(LOCKSCREEN_MEDIA_BLUR);
             PUBLIC_SETTINGS.add(THREE_FINGER_GESTURE);
+            PUBLIC_SETTINGS.add(SMART_PIXELS_ENABLE);
+            PUBLIC_SETTINGS.add(SMART_PIXELS_PATTERN);
+            PUBLIC_SETTINGS.add(SMART_PIXELS_SHIFT_TIMEOUT);
+            PUBLIC_SETTINGS.add(SMART_PIXELS_ON_POWER_SAVE);
         }
 
         /**
