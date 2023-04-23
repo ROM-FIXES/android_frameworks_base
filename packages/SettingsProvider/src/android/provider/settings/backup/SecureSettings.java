@@ -247,5 +247,7 @@ public class SecureSettings {
         Settings.Secure.DOZE_HANDWAVE_GESTURE,
         Settings.Secure.DOZE_POCKET_GESTURE,
         Settings.Secure.DOZE_GESTURE_VIBRATE,
+        Settings.Secure.PULSE_AMBIENT_LIGHT,
+        Settings.Secure.PULSE_AMBIENT_LIGHT_COLOR,
     };
 }
