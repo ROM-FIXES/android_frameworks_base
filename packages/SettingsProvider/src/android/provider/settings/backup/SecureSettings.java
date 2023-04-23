@@ -267,6 +267,10 @@ public class SecureSettings {
         Settings.Secure.EVEN_DIMMER_MIN_NITS,
         Settings.Secure.STYLUS_POINTER_ICON_ENABLED,
         Settings.Secure.CAMERA_EXTENSIONS_FALLBACK,
-        Settings.Secure.VISUAL_QUERY_ACCESSIBILITY_DETECTION_ENABLED
+        Settings.Secure.VISUAL_QUERY_ACCESSIBILITY_DETECTION_ENABLED,
+        Settings.Secure.DOZE_TILT_GESTURE,
+        Settings.Secure.DOZE_HANDWAVE_GESTURE,
+        Settings.Secure.DOZE_POCKET_GESTURE,
+        Settings.Secure.DOZE_GESTURE_VIBRATE,
     };
 }
