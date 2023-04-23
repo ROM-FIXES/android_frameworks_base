@@ -10982,6 +10982,12 @@ public final class Settings {
          */
         public static final String PULSE_AMBIENT_LIGHT_DURATION = "pulse_ambient_light_duration";
 
+        /**
+         * Ambient Edge Light Layout
+         * @hide
+         */
+        public static final String PULSE_AMBIENT_LIGHT_LAYOUT = "pulse_ambient_light_layout";
+
         /*****************************
         * Custom Secure Settings end
         *****************************/
