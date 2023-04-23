@@ -88,5 +88,6 @@ public class SystemSettings {
         Settings.System.ALARM_ALERT,
         Settings.System.NOTIFICATION_LIGHT_PULSE,
         Settings.System.LOCKSCREEN_ALBUMART_FILTER,
+        Settings.System.LOCKSCREEN_MEDIA_BLUR,
     };
 }
