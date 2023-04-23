@@ -447,6 +447,10 @@ internal constructor(
     }
 
     private fun playCameraSoundIfNeeded() {
+        if (Settings.System.getIntForUser(context.contentResolver,
+                Settings.System.SCREENSHOT_SHUTTER_SOUND, 1, UserHandle.USER_CURRENT) != 1) {
+            return
+        }
         // the controller is not-null only on the default display controller
         screenshotSoundController?.playScreenshotSoundAsync()
     }
