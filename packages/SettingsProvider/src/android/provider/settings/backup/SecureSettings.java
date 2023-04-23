@@ -287,5 +287,9 @@ public class SecureSettings {
         Settings.Secure.MANDATORY_BIOMETRICS,
         Settings.Secure.MANDATORY_BIOMETRICS_REQUIREMENTS_SATISFIED,
         Settings.Secure.WINDOW_IGNORE_SECURE,
+        Settings.Secure.DOZE_TILT_GESTURE,
+        Settings.Secure.DOZE_HANDWAVE_GESTURE,
+        Settings.Secure.DOZE_POCKET_GESTURE,
+        Settings.Secure.DOZE_GESTURE_VIBRATE,
     };
 }
