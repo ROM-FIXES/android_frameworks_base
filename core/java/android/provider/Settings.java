@@ -6301,6 +6301,12 @@ public final class Settings {
         * Custom System Settings start
         *****************************/
 
+        /**
+         * Enable/Disable screenshot sound
+         * @hide
+         */
+        public static final String SCREENSHOT_SHUTTER_SOUND = "screenshot_shutter_sound";
+
         /***************************
         * Custom System Settings end
         ***************************/
