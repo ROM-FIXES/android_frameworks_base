@@ -154,6 +154,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
 
     private boolean mShowMediaMetadata;
     private int mAlbumArtFilter;
+    private Bitmap oldArt;
+    private Drawable oldDrawable;
 
     private final MediaController.Callback mMediaListener = new MediaController.Callback() {
         @Override
@@ -220,6 +222,7 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         setupNotifPipeline();
 
         dumpManager.registerDumpable(this);
+        oldArt = null;
 
         mTunerService = tunerService;
         mTunerService.addTunable(this, LOCKSCREEN_MEDIA_METADATA);
@@ -581,28 +584,44 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         // set media artwork as lockscreen wallpaper if player is playing
         if (bmp != null && (mShowMediaMetadata || !ENABLE_LOCKSCREEN_WALLPAPER) &&
                 PlaybackState.STATE_PLAYING == getMediaControllerPlaybackState(mMediaController)) {
-            switch (mAlbumArtFilter) {
-                case 0:
-                default:
-                    artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(), bmp);
-                    break;
-                case 1:
-                    artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
-                        ImageHelper.toGrayscale(bmp));
-                    break;
-                case 2:
-                    Drawable aw = new BitmapDrawable(mBackdropBack.getResources(), bmp);
-                    artworkDrawable = new BitmapDrawable(ImageHelper.getColoredBitmap(aw,
-                        mContext.getResources().getColor(R.color.accent_device_default_light)));
-                    break;
-                case 3:
-                    artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
-                        ImageHelper.getBlurredImage(mContext, bmp, mLockscreenMediaBlur));
-                    break;
-                case 4:
-                    artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
-                        ImageHelper.getGrayscaleBlurredImage(mContext, bmp, mLockscreenMediaBlur));
-                    break;
+            boolean recycleBitmaps = false;
+            try{
+                Log.d(TAG, "finishUpdateMediaMetaData Old artwork reuseable: " + bmp.sameAs(oldArt));
+                if (bmp.sameAs(oldArt))
+                    recycleBitmaps = true;
+            } catch (Exception e) {
+                Log.d(TAG, "finishUpdateMediaMetaData Exception" + e);
+            }
+            oldArt = bmp;
+            if (!recycleBitmaps) {
+                switch (mAlbumArtFilter) {
+                    case 0:
+                    default:
+                        artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(), bmp);
+                        break;
+                    case 1:
+                        artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                            ImageHelper.toGrayscale(bmp));
+                        break;
+                    case 2:
+                        Drawable aw = new BitmapDrawable(mBackdropBack.getResources(), bmp);
+                        artworkDrawable = new BitmapDrawable(ImageHelper.getColoredBitmap(aw,
+                            mContext.getResources().getColor(R.color.accent_device_default_light)));
+                        break;
+                    case 3:
+                        artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                            ImageHelper.getBlurredImage(mContext, bmp, mLockscreenMediaBlur));
+                        break;
+                    case 4:
+                        artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                            ImageHelper.getGrayscaleBlurredImage(mContext, bmp, mLockscreenMediaBlur));
+                        break;
+                }
+                oldDrawable = artworkDrawable;
+                Log.d(TAG, "finishUpdateMediaMetaData Generated new artwork.");
+            } else {
+                artworkDrawable = oldDrawable;
+                Log.d(TAG, "finishUpdateMediaMetaData Recycled!");
             }
         }
         boolean hasMediaArtwork = artworkDrawable != null;
@@ -617,6 +636,8 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
                 // We're in the SHADE mode on the SIM screen - yet we still need to show
                 // the lockscreen wallpaper in that mode.
                 allowWhenShade = mStatusBarStateController.getState() == KEYGUARD;
+                Log.d(TAG, "DEBUG_MEDIA: showing normal wp");
+                oldDrawable = artworkDrawable;
             }
         }
 
