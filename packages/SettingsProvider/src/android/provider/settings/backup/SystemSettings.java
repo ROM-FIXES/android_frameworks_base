@@ -104,5 +104,9 @@ public class SystemSettings {
         Settings.System.LOCKSCREEN_ALBUMART_FILTER,
         Settings.System.LOCKSCREEN_MEDIA_BLUR,
         Settings.System.THREE_FINGER_GESTURE,
+        Settings.System.SMART_PIXELS_ENABLE,
+        Settings.System.SMART_PIXELS_PATTERN,
+        Settings.System.SMART_PIXELS_SHIFT_TIMEOUT,
+        Settings.System.SMART_PIXELS_ON_POWER_SAVE,
     };
 }
