@@ -5612,6 +5612,13 @@ public final class Settings {
          */
         public static final String ALERT_SLIDER_NOTIFICATIONS = "alert_slider_notifications";
 
+        /**
+         * Sensor block per-package
+         * @hide
+         */
+        @Readable
+        public static final String SENSOR_BLOCK = "sensor_block";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5696,6 +5703,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_ENABLED);
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_TIMEOUT);
             PUBLIC_SETTINGS.add(ALERT_SLIDER_NOTIFICATIONS);
+            PUBLIC_SETTINGS.add(SENSOR_BLOCK);
         }
 
         /**
