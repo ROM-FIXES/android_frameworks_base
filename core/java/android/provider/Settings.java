@@ -5556,6 +5556,12 @@ public final class Settings {
          */
         public static final String SMART_CHARGING_RESUME_LEVEL = "smart_charging_resume_level";
 
+        /**
+         * Switch between filters for lockscreen album art
+         * @hide
+         */
+        public static final String LOCKSCREEN_ALBUMART_FILTER = "lockscreen_albumart_filter";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5633,6 +5639,8 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SMART_CHARGING);
             PUBLIC_SETTINGS.add(SMART_CHARGING_LEVEL);
             PUBLIC_SETTINGS.add(SMART_CHARGING_RESUME_LEVEL);
+            PUBLIC_SETTINGS.add(LOCKSCREEN_ALBUMART_FILTER);
+
         }
 
         /**

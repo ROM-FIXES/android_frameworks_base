@@ -90,5 +90,6 @@ public class SystemSettings {
         Settings.System.SMART_CHARGING,
         Settings.System.SMART_CHARGING_LEVEL,
         Settings.System.SMART_CHARGING_RESUME_LEVEL,
+        Settings.System.LOCKSCREEN_ALBUMART_FILTER,
     };
 }
