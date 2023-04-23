@@ -115,11 +115,14 @@ public class SystemSensorManager extends SensorManager {
     private static InjectEventQueue sInjectEventQueue = null;
 
     private final ArrayList<Sensor> mFullSensorsList = new ArrayList<>();
+    private final Object mDynamicSensorListLock = new Object();
+    @GuardedBy("mDynamicSensorListLock")
     private List<Sensor> mFullDynamicSensorsList = new ArrayList<>();
     private final SparseArray<List<Sensor>> mFullRuntimeSensorListByDevice = new SparseArray<>();
     private final SparseArray<SparseArray<List<Sensor>>> mRuntimeSensorListByDeviceByType =
             new SparseArray<>();
 
+    @GuardedBy("mDynamicSensorListLock")
     private boolean mDynamicSensorListDirty = true;
 
     private final HashMap<Integer, Sensor> mHandleToSensor = new HashMap<>();
@@ -568,7 +571,7 @@ public class SystemSensorManager extends SensorManager {
     }
 
     private void updateDynamicSensorList() {
-        synchronized (mFullDynamicSensorsList) {
+        synchronized (mDynamicSensorListLock) {
             if (mDynamicSensorListDirty) {
                 List<Sensor> list = new ArrayList<>();
                 nativeGetDynamicSensors(mNativeInstance, list);
@@ -672,8 +675,10 @@ public class SystemSensorManager extends SensorManager {
                             Log.i(TAG, "DYNS received DYNAMIC_SENSOR_CHANED broadcast");
                         }
                         // Dynamic sensors probably changed
-                        mDynamicSensorListDirty = true;
-                        updateDynamicSensorList();
+                        synchronized (mDynamicSensorListLock) {
+                            mDynamicSensorListDirty = true;
+                            updateDynamicSensorList();
+                        }
                     }
                 }
             };
