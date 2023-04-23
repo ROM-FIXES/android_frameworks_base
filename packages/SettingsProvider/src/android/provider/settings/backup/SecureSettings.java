@@ -242,6 +242,10 @@ public class SecureSettings {
         Settings.Secure.HEARING_AID_SYSTEM_SOUNDS_ROUTING,
         Settings.Secure.ACCESSIBILITY_FONT_SCALING_HAS_BEEN_CHANGED,
         Settings.Secure.SEARCH_PRESS_HOLD_NAV_HANDLE_ENABLED,
-        Settings.Secure.SEARCH_LONG_PRESS_HOME_ENABLED
+        Settings.Secure.SEARCH_LONG_PRESS_HOME_ENABLED,
+        Settings.Secure.DOZE_TILT_GESTURE,
+        Settings.Secure.DOZE_HANDWAVE_GESTURE,
+        Settings.Secure.DOZE_POCKET_GESTURE,
+        Settings.Secure.DOZE_GESTURE_VIBRATE,
     };
 }
