@@ -11619,6 +11619,13 @@ public final class Settings {
          */
         public static final String PULSE_AMBIENT_LIGHT_LAYOUT = "pulse_ambient_light_layout";
 
+        /**
+         * Helper setting to contain the current pulse reason so we can check
+         * if it has been triggered from a notification or a gesture
+         * @hide
+         */
+        public static final String PULSE_TRIGGER_REASON = "pulse_trigger_reason";
+
         /*****************************
         * Custom Secure Settings end
         *****************************/
