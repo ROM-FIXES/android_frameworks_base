@@ -5784,6 +5784,12 @@ public final class Settings {
          */
         public static final String LOCKSCREEN_ALBUMART_FILTER = "lockscreen_albumart_filter";
 
+        /**
+         * Media artwork wallpaper blur level on lockscreen
+         * @hide
+         */
+        public static final String LOCKSCREEN_MEDIA_BLUR = "lockscreen_media_blur";
+
         /***************************
         * Custom System Settings end
         ***************************/
@@ -5894,6 +5900,8 @@ public final class Settings {
             PUBLIC_SETTINGS.add(VIBRATE_WHEN_RINGING);
             PUBLIC_SETTINGS.add(APPLY_RAMPING_RINGER);
             PUBLIC_SETTINGS.add(LOCKSCREEN_ALBUMART_FILTER);
+            PUBLIC_SETTINGS.add(LOCKSCREEN_MEDIA_BLUR);
+
         }
 
         /**
