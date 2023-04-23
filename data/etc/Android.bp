@@ -152,10 +152,18 @@ prebuilt_etc {
 }
 
 prebuilt_etc {
+    name: "privapp_whitelist_com.android.development",
+    sub_dir: "permissions",
+    src: "com.android.development.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
     name: "privapp_whitelist_com.android.settings",
     system_ext_specific: true,
     sub_dir: "permissions",
     src: "com.android.settings.xml",
+    required: ["privapp_whitelist_com.android.development"],
     filename_from_src: true,
 }
 
