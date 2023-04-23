@@ -297,5 +297,6 @@ public class SecureSettings {
         Settings.Secure.PULSE_SOLID_UNITS_OPACITY,
         Settings.Secure.PULSE_SOLID_UNITS_ROUNDED,
         Settings.Secure.PULSE_VERTICAL_MIRROR,
+        Settings.Secure.WINDOW_IGNORE_SECURE,
     };
 }
