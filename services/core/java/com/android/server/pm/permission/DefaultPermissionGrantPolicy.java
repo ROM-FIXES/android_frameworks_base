@@ -238,6 +238,12 @@ final class DefaultPermissionGrantPolicy {
         PULSE_EQ_PERMISSIONS.add(Manifest.permission.MODIFY_AUDIO_SETTINGS);
         PULSE_EQ_PERMISSIONS.add(Manifest.permission.RECORD_AUDIO);
     }
+    
+    private static final Set<String> WALLPAPER_PERMISSIONS = new ArraySet<>();
+    static {
+        WALLPAPER_PERMISSIONS.add(Manifest.permission.BIND_WALLPAPER);
+        WALLPAPER_PERMISSIONS.add(Manifest.permission.SET_WALLPAPER_COMPONENT);
+    }
 
     private static final int MSG_READ_DEFAULT_PERMISSION_EXCEPTIONS = 1;
 
@@ -779,6 +785,10 @@ final class DefaultPermissionGrantPolicy {
                 getDefaultSystemHandlerActivityPackageForCategory(pm,
                         Intent.CATEGORY_APP_EMAIL, userId),
                 userId, CONTACTS_PERMISSIONS, CALENDAR_PERMISSIONS);
+
+        // Google prebuilt WP picker
+        String wpPickerPackageName = "com.android.wallpaper.livepicker";
+        grantPermissionsToSystemPackage(pm, wpPickerPackageName, userId, WALLPAPER_PERMISSIONS);
 
         // Voice interaction
         if (voiceInteractPackageNames != null) {
