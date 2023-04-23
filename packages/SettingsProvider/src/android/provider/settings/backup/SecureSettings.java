@@ -274,5 +274,6 @@ public class SecureSettings {
         Settings.Secure.DOZE_GESTURE_VIBRATE,
         Settings.Secure.PULSE_AMBIENT_LIGHT,
         Settings.Secure.PULSE_AMBIENT_LIGHT_COLOR,
+        Settings.Secure.PULSE_AMBIENT_LIGHT_LAYOUT,
     };
 }
