@@ -11192,6 +11192,14 @@ public final class Settings {
          */
         public static final String VOLUME_LINK_NOTIFICATION = "volume_link_notification";
 
+
+        /**
+         * Control whether FLAG_SECURE is ignored for all windows.
+         * @hide
+         */
+        @Readable
+        public static final String WINDOW_IGNORE_SECURE = "window_ignore_secure";
+
         /*****************************
         * Custom Secure Settings end
         *****************************/
