@@ -227,5 +227,6 @@ public class SecureSettings {
         Settings.Secure.PULSE_AMBIENT_LIGHT_COLOR,
         Settings.Secure.PULSE_AMBIENT_LIGHT_LAYOUT,
         Settings.Secure.PULSE_TRIGGER_REASON,
+        Settings.Secure.PULSE_ON_NEW_TRACKS,
     };
 }
