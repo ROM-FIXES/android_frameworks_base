@@ -71,5 +71,7 @@
         <permission name="android.permission.SATELLITE_COMMUNICATION" />
         <permission name="android.permission.READ_SYSTEM_GRAMMATICAL_GENDER" />
         <permission name="android.permission.SET_BIOMETRIC_DIALOG_ADVANCED" />
+        <permission name="android.permission.READ_DEVICE_CONFIG"/>
+        <permission name="android.permission.WRITE_DEVICE_CONFIG"/>
     </privapp-permissions>
 </permissions>
