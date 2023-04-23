@@ -3250,6 +3250,9 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
                 !mDozeParameters.getDisplayNeedsBlanking() && mDozeParameters.getAlwaysOn();
         boolean pulseLights = Settings.Secure.getIntForUser(mView.getContext().getContentResolver(),
                 Settings.Secure.PULSE_AMBIENT_LIGHT, 0, UserHandle.USER_CURRENT) != 0;
+        int pulseReason = Settings.Secure.getIntForUser(mView.getContext().getContentResolver(),
+                Settings.Secure.PULSE_TRIGGER_REASON, DozeLog.PULSE_REASON_NONE, UserHandle.USER_CURRENT);
+        boolean pulseReasonNotification = pulseReason == DozeLog.PULSE_REASON_NOTIFICATION;
         if (animatePulse) {
             mAnimateNextPositionUpdate = true;
         }
@@ -3258,7 +3261,7 @@ public final class NotificationPanelViewController implements ShadeSurface, Dump
         if (!mPulsing && !mDozing) {
             mAnimateNextPositionUpdate = false;
         }
-        if ((mPulseLightsView != null) && pulseLights) {
+        if ((mPulseLightsView != null) && pulseReasonNotification) {
             mPulseLightsView.setVisibility(mPulsing ? View.VISIBLE : View.GONE);
             if (mPulsing) {
                 mPulseLightsView.animateNotification();
