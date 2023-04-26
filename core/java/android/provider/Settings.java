@@ -11007,10 +11007,6 @@ public final class Settings {
          */
         public static final String PULSE_ON_NEW_TRACKS = "pulse_on_new_tracks";
 
-        /*****************************
-        * Custom Secure Settings end
-        *****************************/
-
         /**
          * Pulse ambient music visualizer
          * @hide
@@ -11130,6 +11126,10 @@ public final class Settings {
          * @hide
          */
         public static final String PULSE_VERTICAL_MIRROR = "pulse_vertical_mirror";
+
+        /*****************************
+        * Custom Secure Settings end
+        *****************************/
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
