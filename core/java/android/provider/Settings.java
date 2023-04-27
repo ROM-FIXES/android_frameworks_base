@@ -5605,10 +5605,6 @@ public final class Settings {
          */
         public static final String SMART_PIXELS_ON_POWER_SAVE = "smart_pixels_on_power_save";
 
-        /***************************
-        * Custom System Settings end
-        ***************************/
-
         /**
          * Adaptive playback
          * Automatically pause media when the volume is muted and
@@ -5624,6 +5620,10 @@ public final class Settings {
          * @hide
          */
         public static final String ADAPTIVE_PLAYBACK_TIMEOUT = "adaptive_playback_timeout";
+
+        /***************************
+        * Custom System Settings end
+        ***************************/
 
         /**
          * Keys we no longer back up under the current schema, but want to continue to
@@ -5705,6 +5705,8 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SMART_PIXELS_PATTERN);
             PUBLIC_SETTINGS.add(SMART_PIXELS_SHIFT_TIMEOUT);
             PUBLIC_SETTINGS.add(SMART_PIXELS_ON_POWER_SAVE);
+            PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_ENABLED);
+            PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_TIMEOUT);
         }
 
         /**
