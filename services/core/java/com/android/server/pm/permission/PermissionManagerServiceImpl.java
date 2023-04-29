@@ -2652,9 +2652,6 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
                 final UserPermissionState userState = mState.getOrCreateUserState(userId);
                 final UidPermissionState uidState = userState.getOrCreateUidState(ps.getAppId());
 
-                // "replace" parameter is set to true even when the app is first installed
-                final boolean uidStateWasPresent = userState.getUidState(ps.getAppId()) != null;
-
                 if (uidState.isMissing()) {
                     for (String permissionName : uidRequestedPermissions) {
                         Permission permission = mRegistry.getPermission(permissionName);
@@ -2894,9 +2891,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
                             }
 
                             if (isSpecialRuntimePermission(permName) &&
-                                    // don't grant special runtime permission after update,
-                                    // unless app comes from the system image
-                                    (!uidStateWasPresent || ps.isSystem())) {
+                                    origPermState == null) {
                                 if (uidState.grantPermission(bp)) {
                                     wasChanged = true;
                                 }
