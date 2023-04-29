@@ -854,6 +854,7 @@ public final class PowerManagerService extends SystemService
     }
 
     // Smart charging
+    private boolean mSmartChargingAvailable;
     private boolean mSmartChargingEnabled;
     private boolean mSmartChargingResetStats;
     private int mSmartChargingLevel;
@@ -1566,6 +1567,8 @@ public final class PowerManagerService extends SystemService
         }
 
         // Smart charging
+        mSmartChargingAvailable = resources.getBoolean(
+                com.android.internal.R.bool.config_smartChargingAvailable);
         mSmartChargingLevelDefaultConfig = resources.getInteger(
                 com.android.internal.R.integer.config_smartChargingBatteryLevel);
         mSmartChargingResumeLevelDefaultConfig = resources.getInteger(
