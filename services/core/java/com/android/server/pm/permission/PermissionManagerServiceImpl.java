@@ -1409,8 +1409,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
             // their permissions as always granted runtime ones since we need
             // to keep the review required permission flag per user while an
             // install permission's state is shared across all users.
-            if (pkg.getTargetSdkVersion() < Build.VERSION_CODES.M && bp.isRuntime() &&
-                    !isSpecialRuntimePermission(permName)) {
+            if (pkg.getTargetSdkVersion() < Build.VERSION_CODES.M && bp.isRuntime()) {
                 return;
             }
 
@@ -1453,8 +1452,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
                             + " for package " + packageName);
                 }
 
-                if (pkg.getTargetSdkVersion() < Build.VERSION_CODES.M &&
-                    !isSpecialRuntimePermission(permName)) {
+                if (pkg.getTargetSdkVersion() < Build.VERSION_CODES.M) {
                     Slog.w(TAG, "Cannot grant runtime permission to a legacy app");
                     return;
                 }
@@ -1600,8 +1598,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
             // their permissions as always granted runtime ones since we need
             // to keep the review required permission flag per user while an
             // install permission's state is shared across all users.
-            if (pkg.getTargetSdkVersion() < Build.VERSION_CODES.M && bp.isRuntime() &&
-                    !isSpecialRuntimePermission(permName)) {
+            if (pkg.getTargetSdkVersion() < Build.VERSION_CODES.M && bp.isRuntime()) {
                 return;
             }
 
@@ -1808,8 +1805,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
 
             // If this permission was granted by default or role, make sure it is.
             if ((oldFlags & FLAG_PERMISSION_GRANTED_BY_DEFAULT) != 0
-                    || (oldFlags & FLAG_PERMISSION_GRANTED_BY_ROLE) != 0
-                    || isSpecialRuntimePermission(permName)) {
+                    || (oldFlags & FLAG_PERMISSION_GRANTED_BY_ROLE) != 0) {
                 // PermissionPolicyService will handle the app op for runtime permissions later.
                 grantRuntimePermissionInternal(packageName, permName, false,
                         Process.SYSTEM_UID, userId, delayingPermCallback);
@@ -2522,10 +2518,6 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
         }
     }
 
-    public static boolean isSpecialRuntimePermission(final String permission) {
-        return false;
-    }
-
     /**
      * Restore the permission state for a package.
      *
@@ -2887,13 +2879,6 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
                                     if (uidState.grantPermission(bp)) {
                                         wasChanged = true;
                                     }
-                                }
-                            }
-
-                            if (isSpecialRuntimePermission(permName) &&
-                                    origPermState == null) {
-                                if (uidState.grantPermission(bp)) {
-                                    wasChanged = true;
                                 }
                             }
                         } else {
@@ -3661,7 +3646,7 @@ public class PermissionManagerServiceImpl implements PermissionManagerServiceInt
             if (shouldGrantPermission) {
                 final int flags = getPermissionFlagsInternal(pkg.getPackageName(), permission,
                         myUid, userId);
-                if (supportsRuntimePermissions || isSpecialRuntimePermission(permission)) {
+                if (supportsRuntimePermissions) {
                     // Installer cannot change immutable permissions.
                     if ((flags & immutableFlags) == 0) {
                         grantRuntimePermissionInternal(pkg.getPackageName(), permission, false,
