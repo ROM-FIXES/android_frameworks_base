@@ -1108,7 +1108,6 @@ public final class NotificationPanelViewController implements Dumpable {
                 mOnEmptySpaceClickListener);
         addTrackingHeadsUpListener(mNotificationStackScrollLayoutController::setTrackingHeadsUp);
         setKeyguardBottomArea(mView.findViewById(R.id.keyguard_bottom_area));
-        mPulseLightsView = (NotificationLightsView) mView.findViewById(R.id.lights_container);
 
         initBottomArea();
 
@@ -4332,13 +4331,6 @@ public final class NotificationPanelViewController implements Dumpable {
         // The height callback will take care of pushing the clock to the right position.
         if (!mPulsing && !mDozing) {
             mAnimateNextPositionUpdate = false;
-        }
-        if ((mPulseLightsView != null) && pulseReasonNotification) {
-            mPulseLightsView.setVisibility(mPulsing ? View.VISIBLE : View.GONE);
-            if (mPulsing) {
-                mPulseLightsView.animateNotification();
-                mPulseLightsView.setPulsing(pulsing);
-            }
         }
         mNotificationStackScrollLayoutController.setPulsing(pulsing, animatePulse);
 
