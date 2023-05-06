@@ -168,6 +168,7 @@ public class ScreenshotController {
         public ScreenshotController.ActionsReadyListener mActionsReadyListener;
         public ScreenshotController.QuickShareActionReadyListener mQuickShareActionsReadyListener;
         public UserHandle owner;
+        public boolean createDeleteAction;
 
         void clearImage() {
             image = null;
@@ -1257,6 +1258,7 @@ public class ScreenshotController {
         data.mActionsReadyListener = actionsReadyListener;
         data.mQuickShareActionsReadyListener = quickShareActionsReadyListener;
         data.owner = owner;
+        data.createDeleteAction = true;
 
         if (mSaveInBgTask != null) {
             // just log success/failure for the pre-existing screenshot
