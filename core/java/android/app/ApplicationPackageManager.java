@@ -926,7 +926,7 @@ public class ApplicationPackageManager extends PackageManager {
             if (Arrays.asList(featuresNexus).contains(name)) return true;
         }
         if (name != null && Arrays.asList(featuresTensor).contains(name)
-                && !Arrays.asList(pTensorCodenames).contains(SystemProperties.get("ro.evolution.device"))) {
+                && !Arrays.asList(pTensorCodenames).contains(SystemProperties.get("ro.lineage.device"))) {
             return false;
         }
         if (Arrays.asList(featuresAndroid).contains(name)) return true;
