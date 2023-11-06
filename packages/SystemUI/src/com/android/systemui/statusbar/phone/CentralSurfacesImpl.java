@@ -903,8 +903,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mFingerprintManager = fingerprintManager;
         mActivityStarter = activityStarter;
 
-        // TODO: DF32: Use Tuner Service like above fingerprintManager
-        mPulseController = new PulseControllerImpl(mContext, this, mCommandQueue, mUiBgExecutor);
+        mPulseController = new PulseControllerImpl(mContext, this,
+                mCommandQueue, mUiBgExecutor, mConfigurationController);
 
         mLockscreenShadeTransitionController = lockscreenShadeTransitionController;
         mStartingSurfaceOptional = startingSurfaceOptional;
