@@ -20,6 +20,7 @@ import android.app.WallpaperColors;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.os.UserHandle;
+import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.colorextraction.ColorExtractor;
@@ -35,6 +36,8 @@ import dagger.Lazy;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -48,6 +51,9 @@ public class SysuiColorExtractor extends ColorExtractor implements Dumpable,
     private final Tonal mTonal;
     private final GradientColors mNeutralColorsLock;
     private Lazy<SelectedUserInteractor> mUserInteractor;
+    private int mMediaBackgroundColor = 0;
+
+    private final List<MediaAccentColorListener> mListeners;
 
     @Inject
     public SysuiColorExtractor(
@@ -80,6 +86,7 @@ public class SysuiColorExtractor extends ColorExtractor implements Dumpable,
         configurationController.addCallback(this);
         dumpManager.registerDumpable(getClass().getSimpleName(), this);
         mUserInteractor = userInteractor;
+        mListeners = new ArrayList<>();
 
         // Listen to all users instead of only the current one.
         if (wallpaperManager.isWallpaperSupported()) {
@@ -143,5 +150,72 @@ public class SysuiColorExtractor extends ColorExtractor implements Dumpable,
         pw.println("    system: " + Arrays.toString(system));
         pw.println("    lock: " + Arrays.toString(lock));
         pw.println("  Neutral colors: " + mNeutralColorsLock);
+    }
+
+    /**
+     * Sets the media background color and notifies listeners.
+     *
+     * @param color The new media background color.
+     */
+    public void setMediaBackgroundColor(int color) {
+        mMediaBackgroundColor = color;
+        // Make a copy of the listeners list to avoid concurrent modification exceptions
+        // if a listener tries to remove itself during iteration.
+        ArrayList<MediaAccentColorListener> callbacks = new ArrayList<>(mListeners);
+        try {
+            for (MediaAccentColorListener listener : mListeners) {
+                listener.onMediaAccentColorUpdated(color);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "setMediaBackgroundColor exception: " + e);
+        }
+    }
+
+    /**
+     * Returns the media background color.
+     *
+     * @return The media background color.
+     */
+    public int getMediaBackgroundColor() {
+        return mMediaBackgroundColor;
+    }
+
+    /**
+     * Adds a listener to be notified of media accent color changes.
+     *
+     * @param listener The listener to add.
+     */
+    public void addMediaAccentColorListener(MediaAccentColorListener listener) {
+        if (mListeners.contains(listener)) {
+            Log.e(TAG, "addMediaAccentColorListener: listener already added");
+            return;
+        }
+        mListeners.add(listener);
+    }
+
+    /**
+     * Removes a listener that was previously added to listen for media accent color changes.
+     *
+     * @param listener The listener to remove.
+     */
+    public void removeMediaAccentColorListener(MediaAccentColorListener listener) {
+        if(!mListeners.contains(listener)){
+            Log.e(TAG, "removeMediaAccentColorListener: listener not added");
+            return;
+        }
+        mListeners.remove(listener);
+    }
+
+
+    /**
+     * Interface to listen for media accent color updates.
+     */
+    public interface MediaAccentColorListener {
+        /**
+         * Called when the media accent color is updated.
+         *
+         * @param color The updated media accent color.
+         */
+        void onMediaAccentColorUpdated(int color);
     }
 }
