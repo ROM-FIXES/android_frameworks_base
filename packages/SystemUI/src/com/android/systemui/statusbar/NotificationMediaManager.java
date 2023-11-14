@@ -302,6 +302,16 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             public void onMediaDataLoaded(@NonNull String key,
                     @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
                     int receivedSmartspaceCardLatency, boolean isSsReactivated) {
+
+                    try {
+                        ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
+                            for (int i = 0; i < callbacks.size(); i++) {
+                                callbacks.get(i).setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
+                            }
+                    } catch (NullPointerException e) {
+                        Log.d(TAG, "onMediaDataLoaded(): " + e);
+                    }
+
             }
 
             @Override
@@ -505,7 +515,6 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
         ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
         for (int i = 0; i < callbacks.size(); i++) {
             callbacks.get(i).onPrimaryMetadataOrStateChanged(mMediaMetadata, state);
-            callbacks.get(i).setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
         }
     }
 
