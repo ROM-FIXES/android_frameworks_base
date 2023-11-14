@@ -200,6 +200,13 @@ public class NotificationMediaManager implements Dumpable {
             public void onMediaDataLoaded(@NonNull String key,
                     @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
                     int receivedSmartspaceCardLatency, boolean isSsReactivated) {
+                        try {
+                            ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
+                                for (int i = 0; i < callbacks.size(); i++)
+                                    callbacks.get(i).setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
+                        } catch (NullPointerException e) {
+                            Log.d(TAG, "onMediaDataLoaded(): " + e);
+                        }
             }
 
             @Override
@@ -307,11 +314,10 @@ public class NotificationMediaManager implements Dumpable {
     private void updateMediaMetaData(MediaListener callback) {
         int playbackState = getMediaControllerPlaybackState(mMediaController);
         mHandler.post(() -> {
-            for (int i = 0; i < callbacks.size(); i++) {
                 callback.onPrimaryMetadataOrStateChanged(mMediaMetadata, playbackState);
-                callbacks.get(i).setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
+                callback.setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
             }
-        });
+        );
     }
 
     public void removeCallback(MediaListener callback) {
