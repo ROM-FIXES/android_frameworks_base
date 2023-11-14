@@ -694,29 +694,30 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
             }
             oldArt = bmp;
             if (!recycleBitmaps) {
-                switch (mAlbumArtFilter) {
-                    case 0:
-                    default:
-                        artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(), bmp);
-                        break;
-                    case 1:
-                        artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
-                            ImageHelper.toGrayscale(bmp));
-                        break;
-                    case 2:
-                        Drawable aw = new BitmapDrawable(mBackdropBack.getResources(), bmp);
-                        artworkDrawable = new BitmapDrawable(ImageHelper.getColoredBitmap(aw,
-                            mContext.getResources().getColor(R.color.accent_device_default_light)));
-                        break;
-                    case 3:
-                        artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
-                            ImageHelper.getBlurredImage(mContext, bmp, mLockscreenMediaBlur));
-                        break;
-                    case 4:
-                        artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
-                            ImageHelper.getGrayscaleBlurredImage(mContext, bmp, mLockscreenMediaBlur));
-                        break;
-                }
+                // switch (mAlbumArtFilter) {
+                //     case 0:
+                //     default:
+                //         artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(), bmp);
+                //         break;
+                //     case 1:
+                //         artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                //             ImageHelper.toGrayscale(bmp));
+                //         break;
+                //     case 2:
+                //         Drawable aw = new BitmapDrawable(mBackdropBack.getResources(), bmp);
+                //         artworkDrawable = new BitmapDrawable(ImageHelper.getColoredBitmap(aw,
+                //             mContext.getResources().getColor(R.color.accent_device_default_light)));
+                //         break;
+                //     case 3:
+                //         artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                //             ImageHelper.getBlurredImage(mContext, bmp, mLockscreenMediaBlur));
+                //         break;
+                //     case 4:
+                //         artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(),
+                //             ImageHelper.getGrayscaleBlurredImage(mContext, bmp, mLockscreenMediaBlur));
+                //         break;
+                // }
+                artworkDrawable = new BitmapDrawable(mBackdropBack.getResources(), bmp);
                 oldDrawable = artworkDrawable;
                 Log.d(TAG, "finishUpdateMediaMetaData Generated new artwork.");
             } else {
@@ -890,7 +891,26 @@ public class NotificationMediaManager implements Dumpable, TunerService.Tunable 
     };
 
     private Bitmap processArtwork(Bitmap artwork) {
-        return mMediaArtworkProcessor.processArtwork(mContext, artwork);
+        // return mMediaArtworkProcessor.processArtwork(mContext, artwork);
+        switch (mAlbumArtFilter) {
+            case 0:
+            default:
+                return artwork;
+            case 1:
+                return Bitmap.createBitmap(ImageHelper.toGrayscale(artwork));
+            case 2:
+                return Bitmap.createBitmap(ImageHelper.getColoredBitmap(
+                            new BitmapDrawable(mBackdropBack.getResources(), artwork),
+                                mContext.getResources().getColor(R.color.accent_device_default_light)
+                            )
+                        );
+            case 3:
+                return Bitmap.createBitmap(
+                        ImageHelper.getBlurredImage(mContext, artwork, mLockscreenMediaBlur)
+                        );
+            case 4:
+                return Bitmap.createBitmap(ImageHelper.getGrayscaleBlurredImage(mContext, artwork, mLockscreenMediaBlur));
+        }
     }
 
     @MainThread
