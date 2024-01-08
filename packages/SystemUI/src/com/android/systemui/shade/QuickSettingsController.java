@@ -2207,6 +2207,7 @@ public class QuickSettingsController implements Dumpable {
             mShadeTransitionController.setQs(mQs);
             mNotificationStackScrollLayoutController.setQsHeader((ViewGroup) mQs.getHeader());
             mQs.setScrollListener(mQsScrollListener);
+            Log.v(TAG, "QS TUNER: STATUS_BAR_QUICK_QS_PULLDOWN added ");
             mTunerService.addTunable(this, STATUS_BAR_QUICK_QS_PULLDOWN);
             updateExpansion();
         }
