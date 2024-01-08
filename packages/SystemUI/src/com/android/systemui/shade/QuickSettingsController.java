@@ -2225,6 +2225,7 @@ public class QuickSettingsController implements Dumpable {
 
         @Override
         public void onTuningChanged(String key, String newValue) {
+            Log.v(TAG, "QS TUNER: onTuningChanged: " + newValue);
             if (STATUS_BAR_QUICK_QS_PULLDOWN.equals(key)) {
                 mOneFingerQuickSettingsIntercept = TunerService.parseInteger(newValue, 1);
             }
