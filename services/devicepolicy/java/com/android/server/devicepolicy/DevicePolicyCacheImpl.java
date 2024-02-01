@@ -79,21 +79,23 @@ public class DevicePolicyCacheImpl extends DevicePolicyCache {
 
     @Override
     public boolean isScreenCaptureAllowed(int userHandle) {
-        if (DevicePolicyManagerService.isPolicyEngineForFinanceFlagEnabled()) {
-            return isScreenCaptureAllowedInPolicyEngine(userHandle);
-        } else {
-            synchronized (mLock) {
-                return mScreenCaptureDisallowedUser != UserHandle.USER_ALL
-                        && mScreenCaptureDisallowedUser != userHandle;
-            }
-        }
+        // if (DevicePolicyManagerService.isPolicyEngineForFinanceFlagEnabled()) {
+        //     return isScreenCaptureAllowedInPolicyEngine(userHandle);
+        // } else {
+        //     synchronized (mLock) {
+        //         return mScreenCaptureDisallowedUser != UserHandle.USER_ALL
+        //                 && mScreenCaptureDisallowedUser != userHandle;
+        //     }
+        // }
+        return true;
     }
 
     private boolean isScreenCaptureAllowedInPolicyEngine(int userHandle) {
         // This won't work if resolution mechanism is not strictest applies, but it's ok for now.
         synchronized (mLock) {
-            return !mScreenCaptureDisallowedUsers.contains(userHandle)
-                    && !mScreenCaptureDisallowedUsers.contains(UserHandle.USER_ALL);
+            return true;
+            // return !mScreenCaptureDisallowedUsers.contains(userHandle)
+            //         && !mScreenCaptureDisallowedUsers.contains(UserHandle.USER_ALL);
         }
     }
 

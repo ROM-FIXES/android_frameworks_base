@@ -1954,7 +1954,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
 
     boolean isSecureLocked() {
         if ((mAttrs.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0) {
-            return true;
+            return false;
         }
         return !DevicePolicyCache.getInstance().isScreenCaptureAllowed(mShowUserId);
     }
