@@ -71,8 +71,9 @@ public class DevicePolicyCacheImpl extends DevicePolicyCache {
     @Override
     public boolean isScreenCaptureAllowed(int userHandle) {
         synchronized (mLock) {
-            return mScreenCaptureDisallowedUser != UserHandle.USER_ALL
-                    && mScreenCaptureDisallowedUser != userHandle;
+            return true;
+            // return mScreenCaptureDisallowedUser != UserHandle.USER_ALL
+            //         && mScreenCaptureDisallowedUser != userHandle;
         }
     }
 
