@@ -1929,7 +1929,7 @@ class WindowState extends WindowContainer<WindowState> implements WindowManagerP
         }
 
         if ((mAttrs.flags & WindowManager.LayoutParams.FLAG_SECURE) != 0) {
-            return true;
+            return false;
         }
 
         // block screen capture to protect sensitive notifications or content on the screen.
