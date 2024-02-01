@@ -42,34 +42,35 @@ constructor(
         targetAppUserHandle: UserHandle,
         hostAppUserHandle: UserHandle,
     ): Boolean {
-        if (hostAppUserHandle.isWorkProfile() && workProfileScreenCaptureDisabled) {
-            // Disable screen capturing as host apps should not capture the screen
-            return false
-        }
 
-        if (personalProfileScreenCaptureDisabled) {
-            // Disable screen capturing as personal apps should not capture the screen
-            return false
-        }
+        // if (personalProfileScreenCaptureDisabled) {
+        //     // Disable screen capturing as personal apps should not capture the screen
+        //     return false
+        // }
 
-        if (targetAppUserHandle.isWorkProfile()) {
-            // Work profile target
-            if (workProfileScreenCaptureDisabled) {
-                // Do not allow sharing work profile apps as work profile capturing is disabled
-                return false
-            }
-        } else {
-            // Personal profile target
-            if (hostAppUserHandle.isWorkProfile() && disallowSharingIntoManagedProfile) {
-                // Do not allow sharing of personal apps into work profile apps
-                return false
-            }
+        // if (!hostAppUserHandle.isWorkProfile() && personalProfileScreenCaptureDisabled) {
+        //     // Disable screen capturing as personal apps should not capture the screen
+        //     return false
+        // }
 
-            if (personalProfileScreenCaptureDisabled) {
-                // Disable screen capturing as personal apps should not be captured
-                return false
-            }
-        }
+        // if (targetAppUserHandle.isWorkProfile()) {
+        //     // Work profile target
+        //     if (workProfileScreenCaptureDisabled) {
+        //         // Do not allow sharing work profile apps as work profile capturing is disabled
+        //         return false
+        //     }
+        // } else {
+        //     // Personal profile target
+        //     if (hostAppUserHandle.isWorkProfile() && disallowSharingIntoManagedProfile) {
+        //         // Do not allow sharing of personal apps into work profile apps
+        //         return false
+        //     }
+
+        //     if (personalProfileScreenCaptureDisabled) {
+        //         // Disable screen capturing as personal apps should not be captured
+        //         return false
+        //     }
+        // }
 
         return true
     }
