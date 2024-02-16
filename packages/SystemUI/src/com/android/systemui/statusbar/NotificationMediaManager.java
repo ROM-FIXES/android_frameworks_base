@@ -225,6 +225,7 @@ public class NotificationMediaManager implements Dumpable {
     }
 
     private void setupNotifPipeline() {
+        Log.v(TAG, "DEBUG_MEDIA: setupNotifPipeline: ");
         mNotifPipeline.addCollectionListener(new NotifCollectionListener() {
             @Override
             public void onEntryAdded(@NonNull NotificationEntry entry) {
@@ -301,6 +302,7 @@ public class NotificationMediaManager implements Dumpable {
      * @return true if playing
      */
     public static boolean isPlayingState(int state) {
+        Log.v(TAG, "DEBUG_MEDIA: isPlayingState: ");
         return !PAUSED_MEDIA_STATES.contains(state)
             && !CONNECTING_MEDIA_STATES.contains(state);
     }
@@ -345,6 +347,7 @@ public class NotificationMediaManager implements Dumpable {
     }
 
     public void addCallback(MediaListener callback) {
+        Log.v(TAG, "DEBUG_MEDIA: addCallback: ");
         mMediaListeners.add(callback);
         callback.onPrimaryMetadataOrStateChanged(mMediaMetadata,
                 getMediaControllerPlaybackState(mMediaController));
