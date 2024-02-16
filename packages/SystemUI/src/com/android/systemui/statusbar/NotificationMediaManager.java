@@ -95,7 +95,7 @@ import dagger.Lazy;
  */
 public class NotificationMediaManager implements Dumpable {
     private static final String TAG = "NotificationMediaManager";
-    public static final boolean DEBUG_MEDIA = false;
+    public static final boolean DEBUG_MEDIA = true;
 
     private final StatusBarStateController mStatusBarStateController;
     private final SysuiColorExtractor mColorExtractor;
