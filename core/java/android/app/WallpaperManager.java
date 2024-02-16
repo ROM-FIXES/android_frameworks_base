@@ -854,11 +854,13 @@ public class WallpaperManager {
         if (sGlobals == null) {
             sIsLockscreenLiveWallpaperEnabled = SystemProperties.getBoolean(
                     "persist.wm.debug.lockscreen_live_wallpaper", true);
+            Log.e(TAG, "sGlobals sIsLockscreenLiveWallpaperEnabled "+ sIsLockscreenLiveWallpaperEnabled);
         }
         if (sIsLockscreenLiveWallpaperEnabled == null) {
             try {
                 sIsLockscreenLiveWallpaperEnabled =
                         sGlobals.mService.isLockscreenLiveWallpaperEnabled();
+                Log.e(TAG, "Null sIsLockscreenLiveWallpaperEnabled "+ sIsLockscreenLiveWallpaperEnabled);
             } catch (RemoteException e) {
                 throw e.rethrowFromSystemServer();
             }
