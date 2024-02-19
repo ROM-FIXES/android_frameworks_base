@@ -5968,11 +5968,7 @@ public final class Settings {
             PUBLIC_SETTINGS.add(SMART_PIXELS_ON_POWER_SAVE);
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_ENABLED);
             PUBLIC_SETTINGS.add(ADAPTIVE_PLAYBACK_TIMEOUT);
-<<<<<<< HEAD
-=======
-            PUBLIC_SETTINGS.add(ALERT_SLIDER_NOTIFICATIONS);
             PUBLIC_SETTINGS.add(SENSOR_BLOCK);
->>>>>>> c17fb44653d4... FWB: Sensor block per-package switch (1/2)
         }
 
         /**
