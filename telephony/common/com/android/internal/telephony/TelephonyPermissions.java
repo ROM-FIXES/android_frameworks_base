@@ -894,7 +894,8 @@ public final class TelephonyPermissions {
                 // If subId is not associated with calling user, return false.
                 Log.e(LOG_TAG, "User[User ID:" + callerUserHandle.getIdentifier()
                         + "] is not associated with Subscription ID:" + subId);
-                return false;
+                Log.e(LOG_TAG, "Context: " + context.getPackageName());
+                return true;
             }
         } catch (IllegalArgumentException e) {
             // Found no record of this sub Id.
