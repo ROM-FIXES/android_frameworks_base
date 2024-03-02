@@ -93,9 +93,9 @@ public final class ChangeReporter {
             FrameworkStatsLog.write(FrameworkStatsLog.APP_COMPATIBILITY_CHANGE_REPORTED, uid,
                     changeId, state, mSource);
         }
-        if (shouldWriteToDebug(uid, changeId, state)) {
-            debugLog(uid, changeId, state);
-        }
+        // if (shouldWriteToDebug(uid, changeId, state)) {
+        //     debugLog(uid, changeId, state);
+        // }
         markAsReported(uid, new ChangeReport(changeId, state));
     }
 
