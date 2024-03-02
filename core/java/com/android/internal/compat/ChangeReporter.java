@@ -101,13 +101,13 @@ public class ChangeReporter {
             boolean isLoggableBySdk) {
         boolean isAlreadyReported =
                 checkAndSetIsAlreadyReported(uid, new ChangeReport(changeId, state));
-        if (shouldWriteToStatsLog(isKnownSystemApp, isAlreadyReported)) {
-            FrameworkStatsLog.write(FrameworkStatsLog.APP_COMPATIBILITY_CHANGE_REPORTED, uid,
-                    changeId, state, mSource);
-        }
-        if (shouldWriteToDebug(isAlreadyReported, state, isLoggableBySdk)) {
-            debugLog(uid, changeId, state);
-        }
+        // if (shouldWriteToStatsLog(isKnownSystemApp, isAlreadyReported)) {
+        //     FrameworkStatsLog.write(FrameworkStatsLog.APP_COMPATIBILITY_CHANGE_REPORTED, uid,
+        //             changeId, state, mSource);
+        // }
+        // if (shouldWriteToDebug(isAlreadyReported, state, isLoggableBySdk)) {
+        //     debugLog(uid, changeId, state);
+        // }
     }
 
     /**
