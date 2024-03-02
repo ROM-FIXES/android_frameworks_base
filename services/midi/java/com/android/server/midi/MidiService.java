@@ -1368,7 +1368,7 @@ public class MidiService extends IMidiManager.Stub {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private void addPackageDeviceServer(ServiceInfo serviceInfo, int userId) {
-        Log.d(TAG, "addPackageDeviceServer()" + userId);
+        // Log.d(TAG, "addPackageDeviceServer()" + userId);
         XmlResourceParser parser = null;
 
         try {
