@@ -256,9 +256,9 @@ public class MidiService extends IMidiManager.Stub {
                 Manifest.permission.INTERACT_ACROSS_PROFILES})
         public void addDeviceConnection(Device device, IMidiDeviceOpenCallback callback,
                 int userId) {
-            Log.d(TAG, "addDeviceConnection() device:" + device + " userId:" + userId);
+            // Log.d(TAG, "addDeviceConnection() device:" + device + " userId:" + userId);
             if (mDeviceConnections.size() >= MAX_CONNECTIONS_PER_CLIENT) {
-                Log.i(TAG, "too many MIDI connections for UID = " + mUid);
+                // Log.i(TAG, "too many MIDI connections for UID = " + mUid);
                 throw new SecurityException(
                         "too many MIDI connections for UID = " + mUid);
             }
@@ -287,7 +287,7 @@ public class MidiService extends IMidiManager.Stub {
         }
 
         public void deviceAdded(Device device) {
-            Log.d(TAG, "deviceAdded() " + device.getUserId() + " userId:" + getUserId());
+            // Log.d(TAG, "deviceAdded() " + device.getUserId() + " userId:" + getUserId());
             // ignore devices that our client cannot access
             if (!device.isUidAllowed(mUid) || !device.isUserIdAllowed(getUserId())) return;
 
@@ -302,7 +302,7 @@ public class MidiService extends IMidiManager.Stub {
         }
 
         public void deviceRemoved(Device device) {
-            Log.d(TAG, "deviceRemoved() " + device.getUserId() + " userId:" + getUserId());
+            // Log.d(TAG, "deviceRemoved() " + device.getUserId() + " userId:" + getUserId());
             // ignore devices that our client cannot access
             if (!device.isUidAllowed(mUid) || !device.isUserIdAllowed(getUserId())) return;
 
@@ -317,7 +317,7 @@ public class MidiService extends IMidiManager.Stub {
         }
 
         public void deviceStatusChanged(Device device, MidiDeviceStatus status) {
-            Log.d(TAG, "deviceStatusChanged() " + device.getUserId() + " userId:" + getUserId());
+            // Log.d(TAG, "deviceStatusChanged() " + device.getUserId() + " userId:" + getUserId());
             // ignore devices that our client cannot access
             if (!device.isUidAllowed(mUid) || !device.isUserIdAllowed(getUserId())) return;
 
@@ -343,7 +343,7 @@ public class MidiService extends IMidiManager.Stub {
 
         @Override
         public void binderDied() {
-            Log.d(TAG, "Client died: " + this);
+            // Log.d(TAG, "Client died: " + this);
             close();
         }
 
@@ -434,10 +434,10 @@ public class MidiService extends IMidiManager.Stub {
         }
 
         private void setDeviceServer(IMidiDeviceServer server) {
-            Log.i(TAG, "setDeviceServer()");
+            // Log.i(TAG, "setDeviceServer()");
             if (server != null) {
                 if (mServer != null) {
-                    Log.e(TAG, "mServer already set in setDeviceServer");
+                    // Log.e(TAG, "mServer already set in setDeviceServer");
                     return;
                 }
                 IBinder binder = server.asBinder();
@@ -527,33 +527,33 @@ public class MidiService extends IMidiManager.Stub {
                 Manifest.permission.INTERACT_ACROSS_USERS,
                 Manifest.permission.INTERACT_ACROSS_PROFILES})
         public void addDeviceConnection(DeviceConnection connection, int userId) {
-            Log.d(TAG, "addDeviceConnection() [A] connection:" + connection);
+            // Log.d(TAG, "addDeviceConnection() [A] connection:" + connection);
             synchronized (mDeviceConnections) {
                 mDeviceConnectionsAdded.incrementAndGet();
                 if (mPreviousCounterInstant == null) {
                     mPreviousCounterInstant = Instant.now();
                 }
 
-                Log.d(TAG, "  mServer:" + mServer);
+                // Log.d(TAG, "  mServer:" + mServer);
                 if (mServer != null) {
-                    Log.i(TAG, "++++ A");
+                    // Log.i(TAG, "++++ A");
                     mDeviceConnections.add(connection);
                     connection.notifyClient(mServer);
                 } else if (mServiceConnection == null &&
                     (mServiceInfo != null || mBluetoothDevice != null)) {
-                    Log.i(TAG, "++++ B");
+                    // Log.i(TAG, "++++ B");
                     mDeviceConnections.add(connection);
 
                     mServiceConnection = new ServiceConnection() {
                         @Override
                         public void onServiceConnected(ComponentName name, IBinder service) {
-                            Log.i(TAG, "++++ onServiceConnected() mBluetoothDevice:"
-                                    + mBluetoothDevice);
+                            // Log.i(TAG, "++++ onServiceConnected() mBluetoothDevice:"
+                                    // + mBluetoothDevice);
                             IMidiDeviceServer server = null;
                             if (mBluetoothDevice != null) {
                                 IBluetoothMidiService mBluetoothMidiService =
                                         IBluetoothMidiService.Stub.asInterface(service);
-                                Log.i(TAG, "++++ mBluetoothMidiService:" + mBluetoothMidiService);
+                                // Log.i(TAG, "++++ mBluetoothMidiService:" + mBluetoothMidiService);
                                 if (mBluetoothMidiService != null) {
                                     try {
                                         // We need to explicitly add the device in a separate method
@@ -597,12 +597,12 @@ public class MidiService extends IMidiManager.Stub {
 
                     if (!mContext.bindServiceAsUser(intent, mServiceConnection,
                             Context.BIND_AUTO_CREATE, UserHandle.of(mUserId))) {
-                        Log.e(TAG, "Unable to bind service: " + intent);
+                        // Log.e(TAG, "Unable to bind service: " + intent);
                         setDeviceServer(null);
                         mServiceConnection = null;
                     }
                 } else {
-                    Log.e(TAG, "No way to connect to device in addDeviceConnection");
+                    // Log.e(TAG, "No way to connect to device in addDeviceConnection");
                     connection.notifyClient(null);
                 }
             }
@@ -718,7 +718,7 @@ public class MidiService extends IMidiManager.Stub {
 
         @Override
         public void binderDied() {
-            Log.d(TAG, "Device died: " + this);
+            // Log.d(TAG, "Device died: " + this);
             synchronized (mDevicesByInfo) {
                 closeLocked();
             }
@@ -772,7 +772,7 @@ public class MidiService extends IMidiManager.Stub {
         }
 
         public void notifyClient(IMidiDeviceServer deviceServer) {
-            Log.d(TAG, "notifyClient");
+            // Log.d(TAG, "notifyClient");
 
             if (mCallback != null) {
                 try {
@@ -806,17 +806,17 @@ public class MidiService extends IMidiManager.Stub {
         return false;
     }
 
-    private static void dumpIntentExtras(Intent intent) {
-        String action = intent.getAction();
-        Log.d(TAG, "Intent: " + action);
-        Bundle bundle = intent.getExtras();
-        if (bundle != null) {
-            for (String key : bundle.keySet()) {
-                Log.d(TAG, "  " + key + " : "
-                        + (bundle.get(key) != null ? bundle.get(key) : "NULL"));
-            }
-        }
-    }
+    // private static void dumpIntentExtras(Intent intent) {
+    //     String action = intent.getAction();
+    //     // Log.d(TAG, "Intent: " + action);
+    //     Bundle bundle = intent.getExtras();
+    //     if (bundle != null) {
+    //         for (String key : bundle.keySet()) {
+    //             // Log.d(TAG, "  " + key + " : "
+    //             //         + (bundle.get(key) != null ? bundle.get(key) : "NULL"));
+    //         }
+    //     }
+    // }
 
     private static boolean isBleTransport(Intent intent) {
         Bundle bundle = intent.getExtras();
@@ -830,17 +830,17 @@ public class MidiService extends IMidiManager.Stub {
 
     private void dumpUuids(BluetoothDevice btDevice) {
         ParcelUuid[] uuidParcels = btDevice.getUuids();
-        Log.d(TAG, "dumpUuids(" + btDevice + ") numParcels:"
-                + (uuidParcels != null ? uuidParcels.length : 0));
+        // Log.d(TAG, "dumpUuids(" + btDevice + ") numParcels:"
+                // + (uuidParcels != null ? uuidParcels.length : 0));
 
         if (uuidParcels == null) {
-            Log.d(TAG, "No UUID Parcels");
+            // Log.d(TAG, "No UUID Parcels");
             return;
         }
 
         for (ParcelUuid parcel : uuidParcels) {
             UUID uuid = parcel.getUuid();
-            Log.d(TAG, " uuid:" + uuid);
+            // Log.d(TAG, " uuid:" + uuid);
         }
     }
 
@@ -863,23 +863,23 @@ public class MidiService extends IMidiManager.Stub {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action == null) {
-                Log.w(TAG, "MidiService, action is null");
+                // Log.w(TAG, "MidiService, action is null");
                 return;
             }
 
             switch (action) {
                 case BluetoothDevice.ACTION_ACL_CONNECTED:
                 {
-                    Log.d(TAG, "ACTION_ACL_CONNECTED");
-                    dumpIntentExtras(intent);
+                    // Log.d(TAG, "ACTION_ACL_CONNECTED");
+                    // dumpIntentExtras(intent);
                     // BLE-MIDI controllers are by definition BLE, so if this device
                     // isn't, it CAN'T be a midi device
                     if (!isBleTransport(intent)) {
-                        Log.i(TAG, "No BLE transport - NOT MIDI");
+                        // Log.i(TAG, "No BLE transport - NOT MIDI");
                         break;
                     }
 
-                    Log.d(TAG, "BLE Device");
+                    // Log.d(TAG, "BLE Device");
                     BluetoothDevice btDevice =
                             intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, android.bluetooth.BluetoothDevice.class);
                     dumpUuids(btDevice);
@@ -887,18 +887,18 @@ public class MidiService extends IMidiManager.Stub {
                     // See if there are any service UUIDs and if so do any of them indicate a
                     // Non-MIDI device (headset, headphones, QWERTY keyboard....)
                     if (hasNonMidiUuids(btDevice)) {
-                        Log.d(TAG, "Non-MIDI service UUIDs found. NOT MIDI");
+                        // Log.d(TAG, "Non-MIDI service UUIDs found. NOT MIDI");
                         break;
                     }
 
-                    Log.d(TAG, "Potential MIDI Device.");
+                    // Log.d(TAG, "Potential MIDI Device.");
                     openBluetoothDevice(btDevice);
                 }
                 break;
 
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
                 {
-                    Log.d(TAG, "ACTION_ACL_DISCONNECTED");
+                    // Log.d(TAG, "ACTION_ACL_DISCONNECTED");
                     BluetoothDevice btDevice =
                             intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, android.bluetooth.BluetoothDevice.class);
                     // We DO know at this point if we are disconnecting a MIDI device, so
@@ -911,15 +911,15 @@ public class MidiService extends IMidiManager.Stub {
 
                 case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
 //                {
-//                    Log.d(TAG, "ACTION_BOND_STATE_CHANGED");
+//                    // Log.d(TAG, "ACTION_BOND_STATE_CHANGED");
 //                    int bondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, -1);
-//                    Log.d(TAG, "  bondState:" + bondState);
+//                    // Log.d(TAG, "  bondState:" + bondState);
 //                    BluetoothDevice btDevice =
 //                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-//                    Log.d(TAG, "  btDevice:" + btDevice);
+//                    // Log.d(TAG, "  btDevice:" + btDevice);
 //                    dumpUuids(btDevice);
 //                    if (isBLEMIDIDevice(btDevice)) {
-//                        Log.d(TAG, "BT MIDI DEVICE");
+//                        // Log.d(TAG, "BT MIDI DEVICE");
 //                        openBluetoothDevice(btDevice);
 //                    }
 //                }
@@ -927,12 +927,12 @@ public class MidiService extends IMidiManager.Stub {
 
                 case BluetoothDevice.ACTION_UUID:
                 {
-                    Log.d(TAG, "ACTION_UUID");
+                    // Log.d(TAG, "ACTION_UUID");
                     BluetoothDevice btDevice =
                             intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, android.bluetooth.BluetoothDevice.class);
                     dumpUuids(btDevice);
                     if (isBLEMIDIDevice(btDevice)) {
-                        Log.d(TAG, "BT MIDI DEVICE");
+                        // Log.d(TAG, "BT MIDI DEVICE");
                         openBluetoothDevice(btDevice);
                     }
                 }
@@ -978,8 +978,8 @@ public class MidiService extends IMidiManager.Stub {
             Manifest.permission.CREATE_USERS,
             Manifest.permission.MANAGE_USERS})
     private void onStartOrUnlockUser(TargetUser user, boolean matchDirectBootUnaware) {
-        Log.d(TAG, "onStartOrUnlockUser " + user.getUserIdentifier() + " matchDirectBootUnaware: "
-                + matchDirectBootUnaware);
+        // Log.d(TAG, "onStartOrUnlockUser " + user.getUserIdentifier() + " matchDirectBootUnaware: "
+                // + matchDirectBootUnaware);
         int resolveFlags = PackageManager.GET_META_DATA;
         if (matchDirectBootUnaware) {
             resolveFlags |= PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
@@ -1107,13 +1107,13 @@ public class MidiService extends IMidiManager.Stub {
     public void openDevice(IBinder token, MidiDeviceInfo deviceInfo,
             IMidiDeviceOpenCallback callback) {
         Client client = getClient(token);
-        Log.d(TAG, "openDevice() client:" + client);
+        // Log.d(TAG, "openDevice() client:" + client);
         if (client == null) return;
 
         Device device;
         synchronized (mDevicesByInfo) {
             device = mDevicesByInfo.get(deviceInfo);
-            Log.d(TAG, "  device:" + device);
+            // Log.d(TAG, "  device:" + device);
             if (device == null) {
                 throw new IllegalArgumentException("device does not exist: " + deviceInfo);
             }
@@ -1137,7 +1137,7 @@ public class MidiService extends IMidiManager.Stub {
         // clear calling identity so bindService does not fail
         final long identity = Binder.clearCallingIdentity();
         try {
-            Log.i(TAG, "addDeviceConnection() [B] device:" + device);
+            // Log.i(TAG, "addDeviceConnection() [B] device:" + device);
             client.addDeviceConnection(device, callback, getCallingUserId());
         } finally {
             Binder.restoreCallingIdentity(identity);
@@ -1145,7 +1145,7 @@ public class MidiService extends IMidiManager.Stub {
     }
 
     private void openBluetoothDevice(BluetoothDevice bluetoothDevice) {
-        Log.d(TAG, "openBluetoothDevice() device: " + bluetoothDevice);
+        // Log.d(TAG, "openBluetoothDevice() device: " + bluetoothDevice);
 
         MidiManager midiManager = mContext.getSystemService(MidiManager.class);
         midiManager.openBluetoothDevice(bluetoothDevice,
@@ -1153,7 +1153,7 @@ public class MidiService extends IMidiManager.Stub {
                     @Override
                     public void onDeviceOpened(MidiDevice device) {
                         synchronized (mBleMidiDeviceMap) {
-                            Log.i(TAG, "onDeviceOpened() device:" + device);
+                            // Log.i(TAG, "onDeviceOpened() device:" + device);
                             mBleMidiDeviceMap.put(bluetoothDevice, device);
                         }
                     }
@@ -1161,7 +1161,7 @@ public class MidiService extends IMidiManager.Stub {
     }
 
     private void closeBluetoothDevice(BluetoothDevice bluetoothDevice) {
-        Log.d(TAG, "closeBluetoothDevice() device: " + bluetoothDevice);
+        // Log.d(TAG, "closeBluetoothDevice() device: " + bluetoothDevice);
 
         MidiDevice midiDevice;
         synchronized (mBleMidiDeviceMap) {
@@ -1172,7 +1172,7 @@ public class MidiService extends IMidiManager.Stub {
             try {
                 midiDevice.close();
             } catch (IOException ex) {
-                Log.e(TAG, "Exception closing BLE-MIDI device" + ex);
+                // Log.e(TAG, "Exception closing BLE-MIDI device" + ex);
             }
         }
     }
@@ -1180,14 +1180,14 @@ public class MidiService extends IMidiManager.Stub {
     @Override
     public void openBluetoothDevice(IBinder token, BluetoothDevice bluetoothDevice,
             IMidiDeviceOpenCallback callback) {
-        Log.d(TAG, "openBluetoothDevice()");
+        // Log.d(TAG, "openBluetoothDevice()");
 
         Client client = getClient(token);
         if (client == null) return;
 
         // Bluetooth devices are created on demand
         Device device;
-        Log.i(TAG, "alloc device...");
+        // Log.i(TAG, "alloc device...");
         synchronized (mDevicesByInfo) {
             device = mBluetoothDevices.get(bluetoothDevice);
             if (device == null) {
@@ -1195,11 +1195,11 @@ public class MidiService extends IMidiManager.Stub {
                 mBluetoothDevices.put(bluetoothDevice, device);
             }
         }
-        Log.i(TAG, "device: " + device);
+        // Log.i(TAG, "device: " + device);
         // clear calling identity so bindService does not fail
         final long identity = Binder.clearCallingIdentity();
         try {
-            Log.i(TAG, "addDeviceConnection() [C] device:" + device);
+            // Log.i(TAG, "addDeviceConnection() [C] device:" + device);
             client.addDeviceConnection(device, callback, getCallingUserId());
         } finally {
             Binder.restoreCallingIdentity(identity);
@@ -1273,7 +1273,7 @@ public class MidiService extends IMidiManager.Stub {
         if (device.isUidAllowed(uid)) {
             return device.getDeviceStatus();
         } else {
-            Log.e(TAG, "getDeviceStatus() invalid UID = " + uid);
+            // Log.e(TAG, "getDeviceStatus() invalid UID = " + uid);
             EventLog.writeEvent(0x534e4554, "203549963",
                     uid, "getDeviceStatus: invalid uid");
             return null;
@@ -1306,7 +1306,7 @@ public class MidiService extends IMidiManager.Stub {
             String[] inputPortNames, String[] outputPortNames, Bundle properties,
             IMidiDeviceServer server, ServiceInfo serviceInfo,
             boolean isPrivate, int uid, int defaultProtocol, int userId) {
-        Log.d(TAG, "addDeviceLocked() " + uid + " type:" + type + " userId:" + userId);
+        // Log.d(TAG, "addDeviceLocked() " + uid + " type:" + type + " userId:" + userId);
 
         // Limit the number of devices per app.
         int deviceCountForApp = 0;
@@ -1330,7 +1330,7 @@ public class MidiService extends IMidiManager.Stub {
             try {
                 server.setDeviceInfo(deviceInfo);
             } catch (RemoteException e) {
-                Log.e(TAG, "RemoteException in setDeviceInfo()");
+                // Log.e(TAG, "RemoteException in setDeviceInfo()");
                 return null;
             }
         }
@@ -1386,7 +1386,7 @@ public class MidiService extends IMidiManager.Stub {
                     PackageManager.GET_SERVICES | PackageManager.GET_META_DATA
                     | PackageManager.MATCH_DIRECT_BOOT_UNAWARE, userId);
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "handlePackageUpdate could not find package " + packageName, e);
+            // Log.e(TAG, "handlePackageUpdate could not find package " + packageName, e);
             return;
         }
 
@@ -1405,7 +1405,7 @@ public class MidiService extends IMidiManager.Stub {
 
         try {
             if (serviceInfo == null) {
-                Log.w(TAG, "Skipping null service info");
+                // Log.w(TAG, "Skipping null service info");
                 return;
             }
 
@@ -1417,7 +1417,7 @@ public class MidiService extends IMidiManager.Stub {
             parser = serviceInfo.loadXmlMetaData(mPackageManager,
                     MidiDeviceService.SERVICE_INTERFACE);
             if (parser == null) {
-                Log.w(TAG, "loading xml metadata failed");
+                // Log.w(TAG, "loading xml metadata failed");
                 return;
             }
 
@@ -1436,8 +1436,8 @@ public class MidiService extends IMidiManager.Stub {
                     String tagName = parser.getName();
                     if ("device".equals(tagName)) {
                         if (properties != null) {
-                            Log.w(TAG, "nested <device> elements in metadata for "
-                                + serviceInfo.packageName);
+                            // Log.w(TAG, "nested <device> elements in metadata for "
+                                // + serviceInfo.packageName);
                             continue;
                         }
                         properties = new Bundle();
@@ -1458,8 +1458,8 @@ public class MidiService extends IMidiManager.Stub {
                         }
                     } else if ("input-port".equals(tagName)) {
                         if (properties == null) {
-                            Log.w(TAG, "<input-port> outside of <device> in metadata for "
-                                + serviceInfo.packageName);
+                            // Log.w(TAG, "<input-port> outside of <device> in metadata for "
+                                // + serviceInfo.packageName);
                             continue;
                         }
                         numInputPorts++;
@@ -1477,8 +1477,8 @@ public class MidiService extends IMidiManager.Stub {
                         inputPortNames.add(portName);
                     } else if ("output-port".equals(tagName)) {
                         if (properties == null) {
-                            Log.w(TAG, "<output-port> outside of <device> in metadata for "
-                                + serviceInfo.packageName);
+                            // Log.w(TAG, "<output-port> outside of <device> in metadata for "
+                                // + serviceInfo.packageName);
                             continue;
                         }
                         numOutputPorts++;
@@ -1500,8 +1500,8 @@ public class MidiService extends IMidiManager.Stub {
                     if ("device".equals(tagName)) {
                         if (properties != null) {
                             if (numInputPorts == 0 && numOutputPorts == 0) {
-                                Log.w(TAG, "<device> with no ports in metadata for "
-                                    + serviceInfo.packageName);
+                                // Log.w(TAG, "<device> with no ports in metadata for "
+                                    //  + serviceInfo.packageName);
                                 continue;
                             }
 
@@ -1511,8 +1511,8 @@ public class MidiService extends IMidiManager.Stub {
                                         serviceInfo.packageName, 0, userId);
                                 uid = appInfo.uid;
                             } catch (PackageManager.NameNotFoundException e) {
-                                Log.e(TAG, "could not fetch ApplicationInfo for "
-                                        + serviceInfo.packageName);
+                                // Log.e(TAG, "could not fetch ApplicationInfo for "
+                                        //  + serviceInfo.packageName);
                                 continue;
                             }
 
@@ -1534,7 +1534,7 @@ public class MidiService extends IMidiManager.Stub {
                 }
             }
         } catch (Exception e) {
-            Log.w(TAG, "Unable to load component info " + serviceInfo.toString(), e);
+            // Log.w(TAG, "Unable to load component info " + serviceInfo.toString(), e);
         } finally {
             if (parser != null) parser.close();
         }
@@ -1546,7 +1546,7 @@ public class MidiService extends IMidiManager.Stub {
 
         try {
             if (serviceInfo == null) {
-                Log.w(TAG, "Skipping null service info");
+                // Log.w(TAG, "Skipping null service info");
                 return;
             }
 
@@ -1557,8 +1557,8 @@ public class MidiService extends IMidiManager.Stub {
             }
 
             if (!virtualUmp()) {
-                Log.w(TAG, "Skipping MIDI device service " + serviceInfo.packageName
-                        + ": virtual UMP flag not enabled");
+                // Log.w(TAG, "Skipping MIDI device service " + serviceInfo.packageName
+                        // + ": virtual UMP flag not enabled");
                 return;
             }
 
@@ -1567,23 +1567,23 @@ public class MidiService extends IMidiManager.Stub {
             Property property = mPackageManager.getProperty(MidiUmpDeviceService.SERVICE_INTERFACE,
                     componentName);
             if (property == null) {
-                Log.w(TAG, "Getting MidiUmpDeviceService property failed");
+                // Log.w(TAG, "Getting MidiUmpDeviceService property failed");
                 return;
             }
             int resId = property.getResourceId();
             if (resId == 0) {
-                Log.w(TAG, "Getting MidiUmpDeviceService resourceId failed");
+                // Log.w(TAG, "Getting MidiUmpDeviceService resourceId failed");
                 return;
             }
             Resources resources = mPackageManager.getResourcesForApplication(
                     serviceInfo.packageName);
             if (resources == null) {
-                Log.w(TAG, "Getting resource failed " + serviceInfo.packageName);
+                // Log.w(TAG, "Getting resource failed " + serviceInfo.packageName);
                 return;
             }
             parser = resources.getXml(resId);
             if (parser == null) {
-                Log.w(TAG, "Getting XML failed " + resId);
+                // Log.w(TAG, "Getting XML failed " + resId);
                 return;
             }
 
@@ -1600,8 +1600,8 @@ public class MidiService extends IMidiManager.Stub {
                     String tagName = parser.getName();
                     if ("device".equals(tagName)) {
                         if (properties != null) {
-                            Log.w(TAG, "nested <device> elements in metadata for "
-                                    + serviceInfo.packageName);
+                            // Log.w(TAG, "nested <device> elements in metadata for "
+                                    //  + serviceInfo.packageName);
                             continue;
                         }
                         properties = new Bundle();
@@ -1621,8 +1621,8 @@ public class MidiService extends IMidiManager.Stub {
                         }
                     } else if ("port".equals(tagName)) {
                         if (properties == null) {
-                            Log.w(TAG, "<port> outside of <device> in metadata for "
-                                    + serviceInfo.packageName);
+                            // Log.w(TAG, "<port> outside of <device> in metadata for "
+                                    //  + serviceInfo.packageName);
                             continue;
                         }
                         numPorts++;
@@ -1644,8 +1644,8 @@ public class MidiService extends IMidiManager.Stub {
                     if ("device".equals(tagName)) {
                         if (properties != null) {
                             if (numPorts == 0) {
-                                Log.w(TAG, "<device> with no ports in metadata for "
-                                        + serviceInfo.packageName);
+                                // Log.w(TAG, "<device> with no ports in metadata for "
+                                        //  + serviceInfo.packageName);
                                 continue;
                             }
 
@@ -1655,8 +1655,8 @@ public class MidiService extends IMidiManager.Stub {
                                         serviceInfo.packageName, 0, userId);
                                 uid = appInfo.uid;
                             } catch (PackageManager.NameNotFoundException e) {
-                                Log.e(TAG, "could not fetch ApplicationInfo for "
-                                        + serviceInfo.packageName);
+                                // Log.e(TAG, "could not fetch ApplicationInfo for "
+                                        //  + serviceInfo.packageName);
                                 continue;
                             }
 
@@ -1679,7 +1679,7 @@ public class MidiService extends IMidiManager.Stub {
         } catch (PackageManager.NameNotFoundException e) {
                 // No such property
         } catch (Exception e) {
-            Log.w(TAG, "Unable to load component info " + serviceInfo.toString(), e);
+            // Log.w(TAG, "Unable to load component info " + serviceInfo.toString(), e);
         } finally {
             if (parser != null) parser.close();
         }
@@ -1746,7 +1746,7 @@ public class MidiService extends IMidiManager.Stub {
         String deviceName = extractUsbDeviceName(name);
         String tagName = extractUsbDeviceTag(name);
 
-        Log.i(TAG, "Checking " + deviceName + " " + tagName);
+        // Log.i(TAG, "Checking " + deviceName + " " + tagName);
 
         // Only one MIDI 2.0 device can be used at once.
         // Multiple MIDI 1.0 devices can be used at once.
@@ -1767,7 +1767,7 @@ public class MidiService extends IMidiManager.Stub {
         String deviceName = extractUsbDeviceName(name);
         String tagName = extractUsbDeviceTag(name);
 
-        Log.i(TAG, "Adding " + deviceName + " " + tagName);
+        // Log.i(TAG, "Adding " + deviceName + " " + tagName);
 
         if ((tagName).equals(MIDI_UNIVERSAL_STRING)) {
             mUsbMidiUniversalDeviceInUse.add(deviceName);
@@ -1786,7 +1786,7 @@ public class MidiService extends IMidiManager.Stub {
         String deviceName = extractUsbDeviceName(name);
         String tagName = extractUsbDeviceTag(name);
 
-        Log.i(TAG, "Removing " + deviceName + " " + tagName);
+        // Log.i(TAG, "Removing " + deviceName + " " + tagName);
 
         if ((tagName).equals(MIDI_UNIVERSAL_STRING)) {
             mUsbMidiUniversalDeviceInUse.remove(deviceName);
