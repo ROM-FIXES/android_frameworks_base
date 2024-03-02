@@ -521,16 +521,16 @@ public class AppDataHelper {
         Future<?> prepareAppDataFuture = SystemServerInitThreadPool.submit(() -> {
             TimingsTraceLog traceLog = new TimingsTraceLog("SystemServerTimingAsync",
                     Trace.TRACE_TAG_PACKAGE_MANAGER);
-            traceLog.traceBegin("AppDataFixup");
+            // traceLog.traceBegin("AppDataFixup");
             try {
                 mInstaller.fixupAppData(StorageManager.UUID_PRIVATE_INTERNAL,
                         StorageManager.FLAG_STORAGE_DE | StorageManager.FLAG_STORAGE_CE);
             } catch (Installer.InstallerException e) {
                 Slog.w(TAG, "Trouble fixing GIDs", e);
             }
-            traceLog.traceEnd();
+            // traceLog.traceEnd();
 
-            traceLog.traceBegin("AppDataPrepare");
+            // traceLog.traceBegin("AppDataPrepare");
             if (deferPackages == null || deferPackages.isEmpty()) {
                 return;
             }
@@ -552,7 +552,7 @@ public class AppDataHelper {
             synchronized (mPm.mInstallLock) {
                 executeBatchLI(batch);
             }
-            traceLog.traceEnd();
+            // traceLog.traceEnd();
             Slog.i(TAG, "Deferred reconcileAppsData finished " + count + " packages");
         }, "prepareAppData");
         return prepareAppDataFuture;
