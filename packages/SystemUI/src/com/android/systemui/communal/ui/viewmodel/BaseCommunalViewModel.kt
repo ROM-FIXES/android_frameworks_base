@@ -23,7 +23,7 @@ import com.android.compose.animation.scene.SceneKey
 import com.android.systemui.communal.domain.interactor.CommunalInteractor
 import com.android.systemui.communal.domain.model.CommunalContentModel
 import com.android.systemui.communal.widgets.WidgetConfigurator
-import com.android.systemui.media.controls.ui.view.MediaHost
+import com.android.systemui.media.controls.ui.MediaHost
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

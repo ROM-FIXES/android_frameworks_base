@@ -24,8 +24,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.contains
 import com.android.compose.animation.scene.ElementKey
 import com.android.compose.animation.scene.SceneScope
-import com.android.systemui.media.controls.ui.controller.MediaCarouselController
-import com.android.systemui.media.controls.ui.view.MediaHost
+import com.android.systemui.media.controls.ui.MediaCarouselController
+import com.android.systemui.media.controls.ui.MediaHost
 import com.android.systemui.util.animation.MeasurementInput
 
 private object MediaCarousel {
