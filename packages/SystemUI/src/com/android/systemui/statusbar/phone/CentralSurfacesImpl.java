@@ -36,7 +36,10 @@ import static com.android.systemui.charging.WirelessChargingAnimation.UNKNOWN_BA
 import static com.android.systemui.statusbar.NotificationLockscreenUserManager.PERMISSION_SELF;
 import static com.android.systemui.statusbar.StatusBarState.SHADE;
 
+import android.animation.TimeInterpolator;
 import android.annotation.Nullable;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.IWallpaperManager;
 import android.app.KeyguardManager;
@@ -60,6 +63,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Point;
+import android.graphics.PixelFormat;
 import android.hardware.devicestate.DeviceStateManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.metrics.LogMaker;
@@ -84,11 +88,15 @@ import android.util.EventLog;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.IRemoteAnimationRunner;
 import android.view.IWindowManager;
 import android.view.MotionEvent;
 import android.view.ThreadedRenderer;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewRootImpl;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
@@ -127,6 +135,7 @@ import com.android.systemui.biometrics.AuthRippleController;
 import com.android.systemui.bouncer.domain.interactor.AlternateBouncerInteractor;
 import com.android.systemui.broadcast.BroadcastDispatcher;
 import com.android.systemui.camera.CameraIntents;
+import com.android.systemui.chaos.lab.gestureanywhere.GestureAnywhereView;
 import com.android.systemui.charging.WiredChargingRippleController;
 import com.android.systemui.charging.WirelessChargingAnimation;
 import com.android.systemui.classifier.FalsingCollector;
@@ -600,6 +609,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             (extractor, which) -> updateTheme();
 
     private final SceneContainerFlags mSceneContainerFlags;
+
+    private boolean mGaEnabled;
 
     /**
      * Public constructor for CentralSurfaces.
@@ -1243,6 +1254,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         createNavigationBar(result);
 
+        addGestureAnywhereView();
+
         mAmbientIndicationContainer = getNotificationShadeWindowView().findViewById(
                 R.id.ambient_indication_container);
 
@@ -1638,7 +1651,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         }
     }
 
-    private CustomSettingsObserver mCustomSettingsObserver = new CustomSettingsObserver(mHandler);
+    private CustomSettingsObserver mCustomSettingsObserver = new CustomSettingsObserver(mMainHandler);
     private class CustomSettingsObserver extends ContentObserver {
 
         CustomSettingsObserver(Handler handler) {
@@ -1647,9 +1660,9 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         void observe() {
             ContentResolver resolver = mContext.getContentResolver();
-            /*resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.XXX),
-                    false, this, UserHandle.USER_ALL);*/
+            resolver.registerContentObserver(LineageSettings.System.getUriFor(
+                LineageSettings.System.GESTURE_ANYWHERE_ENABLED),
+                false, this, UserHandle.USER_ALL);
         }
 
         @Override
@@ -1661,7 +1674,18 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         }
 
         public void update() {
-            //doXXX();
+            refreshGA();
+        }
+    }
+
+    private void refreshGA() {
+        mGaEnabled = LineageSettings.System.getInt(
+                    mContext.getContentResolver(), LineageSettings.System.GESTURE_ANYWHERE_ENABLED, 0) == 1;
+        if (mGaEnabled) {
+            LineageSettings.System.putInt(mContext.getContentResolver(),
+                LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER, 1);
+            LineageSettings.System.putInt(mContext.getContentResolver(),
+                LineageSettings.System.GESTURE_ANYWHERE_SHOW_TRIGGER, 0);
         }
     }
 
@@ -2980,6 +3004,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
     private final Lazy<AssistManager> mAssistManagerLazy;
 
+    protected GestureAnywhereView mGestureAnywhereView;
+
     @Override
     public boolean isDeviceInteractive() {
         return mDeviceInteractive;
@@ -3370,5 +3396,37 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     public ActivityTransitionAnimator.Controller getAnimatorControllerFromNotification(
             ExpandableNotificationRow associatedView) {
         return mNotificationAnimationProvider.getAnimatorController(associatedView);
+    }
+
+    protected void addGestureAnywhereView() {
+        mGestureAnywhereView = (GestureAnywhereView)View.inflate(
+                mContext, R.layout.gesture_anywhere_overlay, null);
+        mWindowManager.addView(mGestureAnywhereView, getGestureAnywhereViewLayoutParams(Gravity.LEFT));
+
+        mGestureAnywhereView.setStatusBar(this);
+    }
+
+    protected void removeGestureAnywhereView() {
+        if (mGestureAnywhereView != null)
+            mWindowManager.removeView(mGestureAnywhereView);
+    }
+
+    protected WindowManager.LayoutParams getGestureAnywhereViewLayoutParams(int gravity) {
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_STATUS_BAR_SUB_PANEL,
+                0
+                | WindowManager.LayoutParams.FLAG_TOUCHABLE_WHEN_WAKING
+                | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+                | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
+                PixelFormat.TRANSLUCENT);
+        lp.privateFlags |= WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION;
+        lp.gravity = Gravity.TOP | gravity;
+        lp.setTitle("GestureAnywhereView");
+
+        return lp;
     }
 }
