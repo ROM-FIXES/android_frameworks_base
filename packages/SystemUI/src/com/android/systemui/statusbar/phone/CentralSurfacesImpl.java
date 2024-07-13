@@ -1256,6 +1256,10 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         addGestureAnywhereView();
 
+        // if (ENABLE_LOCKSCREEN_WALLPAPER && mWallpaperSupported) {
+        //     mLockscreenWallpaper = mLockscreenWallpaperLazy.get();
+        // }
+
         mAmbientIndicationContainer = getNotificationShadeWindowView().findViewById(
                 R.id.ambient_indication_container);
 
