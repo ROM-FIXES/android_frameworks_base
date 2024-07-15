@@ -41,6 +41,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.FileUtils;
+import android.os.SystemProperties;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -83,6 +84,8 @@ public class WallpaperDataParser {
     private final WallpaperCropper mWallpaperCropper;
     private final Context mContext;
 
+    private final boolean mIsLockscreenLiveWallpaperEnabled;
+
     WallpaperDataParser(Context context, WallpaperDisplayHelper wallpaperDisplayHelper,
             WallpaperCropper wallpaperCropper) {
         mContext = context;
@@ -90,6 +93,8 @@ public class WallpaperDataParser {
         mWallpaperCropper = wallpaperCropper;
         mImageWallpaper = ComponentName.unflattenFromString(
                 context.getResources().getString(R.string.image_wallpaper_component));
+        mIsLockscreenLiveWallpaperEnabled =
+                SystemProperties.getBoolean("persist.wm.debug.lockscreen_live_wallpaper", true);
     }
 
     private JournaledFile makeJournaledFile(int userId) {
@@ -129,27 +134,43 @@ public class WallpaperDataParser {
     }
 
     /**
+     * TODO(b/197814683) adapt comment once flag is removed
+     *
      * Load the system wallpaper (and the lock wallpaper, if it exists) from disk
      * @param userId the id of the user for which the wallpaper should be loaded
      * @param keepDimensionHints if false, parse and set the
      *                      {@link DisplayData} width and height for the specified userId
-     * @param migrateFromOld whether the current wallpaper is pre-N and needs migration
-     * @param which The wallpaper(s) to load.
+     * @param wallpaper the wallpaper object to reuse to do the modifications.
+     *                      If null, a new object will be created.
+     * @param lockWallpaper the lock wallpaper object to reuse to do the modifications.
+     *                      If null, a new object will be created.
+     * @param which The wallpaper(s) to load. Only has effect if
+     *                      {@link WallpaperManager#isLockscreenLiveWallpaperEnabled} is true,
+     *                      otherwise both wallpaper will always be loaded.
      * @return a {@link WallpaperLoadingResult} object containing the wallpaper data.
+     *                      This object will contain the {@code wallpaper} and
+     *                      {@code lockWallpaper} provided as parameters, if they are not null.
      */
     public WallpaperLoadingResult loadSettingsLocked(int userId, boolean keepDimensionHints,
-            boolean migrateFromOld, @SetWallpaperFlags int which) {
+            WallpaperData wallpaper, WallpaperData lockWallpaper, @SetWallpaperFlags int which) {
         // TODO(b/270726737) remove the "keepDimensionHints" arg when removing the multi crop flag
         JournaledFile journal = makeJournaledFile(userId);
         FileInputStream stream = null;
         File file = journal.chooseForRead();
 
-        boolean loadSystem = (which & FLAG_SYSTEM) != 0;
-        boolean loadLock = (which & FLAG_LOCK) != 0;
-        WallpaperData wallpaper = null;
-        WallpaperData lockWallpaper = null;
+        boolean migrateFromOld = wallpaper == null;
 
-        if (loadSystem) {
+        boolean separateLockscreenEngine = mIsLockscreenLiveWallpaperEnabled;
+        boolean loadSystem = !separateLockscreenEngine || (which & FLAG_SYSTEM) != 0;
+        boolean loadLock = !separateLockscreenEngine || (which & FLAG_LOCK) != 0;
+
+        // don't reuse the wallpaper objects in the new version
+        if (separateLockscreenEngine) {
+            wallpaper = null;
+            lockWallpaper = null;
+        }
+
+        if (wallpaper == null && loadSystem) {
             // Do this once per boot
             if (migrateFromOld) migrateFromOld();
             wallpaper = new WallpaperData(userId, FLAG_SYSTEM);
@@ -175,8 +196,11 @@ public class WallpaperDataParser {
                 type = parser.next();
                 if (type == XmlPullParser.START_TAG) {
                     String tag = parser.getName();
-                    if (("wp".equals(tag) && loadSystem) || ("kwp".equals(tag) && loadLock)) {
-                        if ("kwp".equals(tag)) {
+                    if (("wp".equals(tag) && loadSystem)
+                            || ("kwp".equals(tag) && mIsLockscreenLiveWallpaperEnabled
+                                && loadLock)) {
+
+                        if ("kwp".equals(tag) && lockWallpaper == null) {
                             lockWallpaper = new WallpaperData(userId, FLAG_LOCK);
                         }
                         WallpaperData wallpaperToParse =
@@ -209,6 +233,12 @@ public class WallpaperDataParser {
                             Slog.v(TAG, "mNextWallpaperComponent:"
                                     + wallpaper.nextWallpaperComponent);
                         }
+                    } else if ("kwp".equals(tag) && !mIsLockscreenLiveWallpaperEnabled) {
+                        // keyguard-specific wallpaper for this user (legacy code)
+                        if (lockWallpaper == null) {
+                            lockWallpaper = new WallpaperData(userId, FLAG_LOCK);
+                        }
+                        parseWallpaperAttributes(parser, lockWallpaper, false);
                     }
                 }
             } while (type != XmlPullParser.END_DOCUMENT);
