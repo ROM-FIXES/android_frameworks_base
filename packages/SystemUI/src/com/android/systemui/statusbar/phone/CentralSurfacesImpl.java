@@ -900,7 +900,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         ContentObserver contentObserver = new ContentObserver(null) {
             @Override
-            public void onChange(boolean selfChange) {
+            public void onChange(boolean selfChange, Uri uri) {
                 if (uri.equals(
                         LineageSettings.System.getUriFor(LineageSettings.System.FORCE_SHOW_NAVBAR))) {
                     if (mDisplayId == Display.DEFAULT_DISPLAY
