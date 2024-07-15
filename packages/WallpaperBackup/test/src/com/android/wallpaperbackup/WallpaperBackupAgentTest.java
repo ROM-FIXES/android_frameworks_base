@@ -124,8 +124,6 @@ public class WallpaperBackupAgentTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
-        when(mWallpaperManager.isLockscreenLiveWallpaperEnabled()).thenReturn(true);
         when(mWallpaperManager.isWallpaperBackupEligible(eq(FLAG_SYSTEM))).thenReturn(true);
         when(mWallpaperManager.isWallpaperBackupEligible(eq(FLAG_LOCK))).thenReturn(true);
 
@@ -371,25 +369,19 @@ public class WallpaperBackupAgentTest {
     @Test
     public void testUpdateWallpaperComponent_systemAndLock() throws IOException {
         mWallpaperBackupAgent.mIsDeviceInRestore = true;
-
         mWallpaperBackupAgent.updateWallpaperComponent(mWallpaperComponent,
-                /* applyToLock */ true, FLAG_LOCK | FLAG_SYSTEM);
+                /* which */ FLAG_LOCK | FLAG_SYSTEM);
 
         // Imitate wallpaper component installation.
         mWallpaperBackupAgent.mWallpaperPackageMonitor.onPackageAdded(TEST_WALLPAPER_PACKAGE,
                 /* uid */0);
-        if (mWallpaperManager.isLockscreenLiveWallpaperEnabled()) {
-            verify(mWallpaperManager, times(1))
-                    .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_LOCK | FLAG_SYSTEM);
-            verify(mWallpaperManager, never())
-                    .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_SYSTEM);
-            verify(mWallpaperManager, never())
-                    .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_LOCK);
-            verify(mWallpaperManager, never()).clear(anyInt());
-        } else {
-            verify(mWallpaperManager, times(1)).setWallpaperComponent(mWallpaperComponent);
-            verify(mWallpaperManager, times(1)).clear(eq(FLAG_LOCK));
-        }
+        verify(mWallpaperManager, times(1))
+                .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_LOCK | FLAG_SYSTEM);
+        verify(mWallpaperManager, never())
+                .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_SYSTEM);
+        verify(mWallpaperManager, never())
+                .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_LOCK);
+        verify(mWallpaperManager, never()).clear(anyInt());
     }
 
     @Test
@@ -398,24 +390,19 @@ public class WallpaperBackupAgentTest {
         mWallpaperBackupAgent.mIsDeviceInRestore = true;
 
         mWallpaperBackupAgent.updateWallpaperComponent(mWallpaperComponent,
-                /* applyToLock */ false, FLAG_SYSTEM);
+                /* which */ FLAG_SYSTEM);
 
         // Imitate wallpaper component installation.
         mWallpaperBackupAgent.mWallpaperPackageMonitor.onPackageAdded(TEST_WALLPAPER_PACKAGE,
                 /* uid */0);
 
-        if (mWallpaperManager.isLockscreenLiveWallpaperEnabled()) {
-            verify(mWallpaperManager, times(1))
-                    .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_SYSTEM);
-            verify(mWallpaperManager, never())
-                    .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_LOCK);
-            verify(mWallpaperManager, never())
-                    .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_LOCK | FLAG_SYSTEM);
-            verify(mWallpaperManager, never()).clear(anyInt());
-        } else {
-            verify(mWallpaperManager, times(1)).setWallpaperComponent(mWallpaperComponent);
-            verify(mWallpaperManager, never()).clear(eq(FLAG_LOCK));
-        }
+        verify(mWallpaperManager, times(1))
+                .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_SYSTEM);
+        verify(mWallpaperManager, never())
+                .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_LOCK);
+        verify(mWallpaperManager, never())
+                .setWallpaperComponentWithFlags(mWallpaperComponent, FLAG_LOCK | FLAG_SYSTEM);
+        verify(mWallpaperManager, never()).clear(anyInt());
     }
 
     @Test
@@ -424,7 +411,7 @@ public class WallpaperBackupAgentTest {
         mWallpaperBackupAgent.mIsDeviceInRestore = false;
 
         mWallpaperBackupAgent.updateWallpaperComponent(mWallpaperComponent,
-                /* applyToLock */ true, FLAG_LOCK | FLAG_SYSTEM);
+                /* which */ FLAG_LOCK | FLAG_SYSTEM);
 
         // Imitate wallpaper component installation.
         mWallpaperBackupAgent.mWallpaperPackageMonitor.onPackageAdded(TEST_WALLPAPER_PACKAGE,
@@ -440,7 +427,7 @@ public class WallpaperBackupAgentTest {
         mWallpaperBackupAgent.mIsDeviceInRestore = false;
 
         mWallpaperBackupAgent.updateWallpaperComponent(mWallpaperComponent,
-                /* applyToLock */ true, FLAG_LOCK | FLAG_SYSTEM);
+                /* which */ FLAG_LOCK | FLAG_SYSTEM);
 
         // Imitate "wrong" wallpaper component installation.
         mWallpaperBackupAgent.mWallpaperPackageMonitor.onPackageAdded(/* packageName */"",
@@ -630,7 +617,7 @@ public class WallpaperBackupAgentTest {
     }
 
     @Test
-    public void testOnRestore_systemWallpaperImgSuccess_logsSuccess() throws Exception {
+    public void testOnRestore_wallpaperImgSuccess_logsSuccess() throws Exception {
         mockStagedWallpaperFile(WALLPAPER_INFO_STAGE);
         mockStagedWallpaperFile(SYSTEM_WALLPAPER_STAGE);
         mWallpaperBackupAgent.onCreate(USER_HANDLE, BackupAnnotations.BackupDestination.CLOUD,
@@ -638,17 +625,16 @@ public class WallpaperBackupAgentTest {
 
         mWallpaperBackupAgent.onRestoreFinished();
 
+        // wallpaper will be applied to home & lock screen, a success for both screens is expected
         DataTypeResult result = getLoggingResult(WALLPAPER_IMG_SYSTEM,
                 mWallpaperBackupAgent.getBackupRestoreEventLogger().getLoggingResults());
         assertThat(result).isNotNull();
         assertThat(result.getSuccessCount()).isEqualTo(1);
 
-        if (mWallpaperManager.isLockscreenLiveWallpaperEnabled()) {
-            result = getLoggingResult(WALLPAPER_IMG_LOCK,
-                    mWallpaperBackupAgent.getBackupRestoreEventLogger().getLoggingResults());
-            assertThat(result).isNotNull();
-            assertThat(result.getSuccessCount()).isEqualTo(1);
-        }
+        result = getLoggingResult(WALLPAPER_IMG_LOCK,
+                mWallpaperBackupAgent.getBackupRestoreEventLogger().getLoggingResults());
+        assertThat(result).isNotNull();
+        assertThat(result.getSuccessCount()).isEqualTo(1);
     }
 
     @Test
@@ -771,7 +757,7 @@ public class WallpaperBackupAgentTest {
         mWallpaperBackupAgent.setBackupManagerForTesting(mBackupManager);
 
         mWallpaperBackupAgent.updateWallpaperComponent(mWallpaperComponent,
-                /* applyToLock */ true, FLAG_LOCK | FLAG_SYSTEM);
+                /* which */ FLAG_LOCK | FLAG_SYSTEM);
         // Imitate wallpaper component installation.
         mWallpaperBackupAgent.mWallpaperPackageMonitor.onPackageAdded(TEST_WALLPAPER_PACKAGE,
                 /* uid */0);
@@ -795,7 +781,7 @@ public class WallpaperBackupAgentTest {
         mWallpaperBackupAgent.setBackupManagerForTesting(mBackupManager);
 
         mWallpaperBackupAgent.updateWallpaperComponent(mWallpaperComponent,
-                /* applyToLock */ true, FLAG_LOCK | FLAG_SYSTEM);
+                /* which */ FLAG_LOCK | FLAG_SYSTEM);
         // Imitate wallpaper component installation.
         mWallpaperBackupAgent.mWallpaperPackageMonitor.onPackageAdded(TEST_WALLPAPER_PACKAGE,
                 /* uid */0);
@@ -817,7 +803,7 @@ public class WallpaperBackupAgentTest {
         mWallpaperBackupAgent.setBackupManagerForTesting(mBackupManager);
 
         mWallpaperBackupAgent.updateWallpaperComponent(mWallpaperComponent,
-                /* applyToLock */ true, FLAG_LOCK | FLAG_SYSTEM);
+                /* which */ FLAG_LOCK | FLAG_SYSTEM);
 
         // Imitate wallpaper component installation.
         mWallpaperBackupAgent.mWallpaperPackageMonitor.onPackageAdded(TEST_WALLPAPER_PACKAGE,
@@ -1041,10 +1027,8 @@ public class WallpaperBackupAgentTest {
         }
 
         @Override
-        PackageMonitor getWallpaperPackageMonitor(ComponentName componentName,
-                boolean applyToLock, int which) {
-            mWallpaperPackageMonitor = super.getWallpaperPackageMonitor(
-                    componentName, applyToLock, which);
+        PackageMonitor getWallpaperPackageMonitor(ComponentName componentName, int which) {
+            mWallpaperPackageMonitor = super.getWallpaperPackageMonitor(componentName, which);
             return mWallpaperPackageMonitor;
         }
 
