@@ -183,7 +183,7 @@ interface IWallpaperManager {
      * Check whether wallpapers are supported for the calling user.
      */
     boolean isWallpaperSupported(in String callingPackage);
-    
+
     /**
      * Check whether setting of wallpapers are allowed for the calling user.
      */
@@ -193,6 +193,12 @@ interface IWallpaperManager {
      * Backup: is the current system wallpaper image eligible for off-device backup?
      */
     boolean isWallpaperBackupEligible(int which, int userId);
+
+    /*
+     * Keyguard: register a callback for being notified that lock-state relevant
+     * wallpaper content has changed.
+     */
+    boolean setLockWallpaperCallback(IWallpaperManagerCallback cb);
 
     /**
      * Returns the colors used by the lock screen or system wallpaper.
@@ -278,4 +284,11 @@ interface IWallpaperManager {
      * @hide
      */
     boolean isStaticWallpaper(int which);
+
+    /**
+     * Temporary method for project b/197814683.
+     * Return true if the lockscreen wallpaper always uses a WallpaperService, not a static image.
+     * @hide
+     */
+     boolean isLockscreenLiveWallpaperEnabled();
 }

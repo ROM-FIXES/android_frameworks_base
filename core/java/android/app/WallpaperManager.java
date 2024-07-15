@@ -402,6 +402,7 @@ public class WallpaperManager {
     private final Context mContext;
     private final boolean mWcgEnabled;
     private final ColorManagementProxy mCmProxy;
+    private static Boolean sIsLockscreenLiveWallpaperEnabled = null;
     private static Boolean sIsMultiCropEnabled = null;
 
     /**
@@ -938,14 +939,29 @@ public class WallpaperManager {
     }
 
     /**
-     * TODO (b/305908217) remove
      * Temporary method for project b/197814683.
      * @return true if the lockscreen wallpaper always uses a wallpaperService, not a static image
      * @hide
      */
     @TestApi
     public boolean isLockscreenLiveWallpaperEnabled() {
-        return true;
+        return isLockscreenLiveWallpaperEnabledHelper();
+    }
+
+    private static boolean isLockscreenLiveWallpaperEnabledHelper() {
+        if (sGlobals == null) {
+            sIsLockscreenLiveWallpaperEnabled = SystemProperties.getBoolean(
+                    "persist.wm.debug.lockscreen_live_wallpaper", true);
+        }
+        if (sIsLockscreenLiveWallpaperEnabled == null) {
+            try {
+                sIsLockscreenLiveWallpaperEnabled =
+                        sGlobals.mService.isLockscreenLiveWallpaperEnabled();
+            } catch (RemoteException e) {
+                throw e.rethrowFromSystemServer();
+            }
+        }
+        return sIsLockscreenLiveWallpaperEnabled;
     }
 
     /**
@@ -2755,7 +2771,12 @@ public class WallpaperManager {
      */
     @RequiresPermission(android.Manifest.permission.SET_WALLPAPER)
     public void clearWallpaper() {
-        clearWallpaper(FLAG_LOCK | FLAG_SYSTEM, mContext.getUserId());
+        if (isLockscreenLiveWallpaperEnabled()) {
+            clearWallpaper(FLAG_LOCK | FLAG_SYSTEM, mContext.getUserId());
+            return;
+        }
+        clearWallpaper(FLAG_LOCK, mContext.getUserId());
+        clearWallpaper(FLAG_SYSTEM, mContext.getUserId());
     }
 
     /**
@@ -3092,7 +3113,11 @@ public class WallpaperManager {
      */
     @RequiresPermission(android.Manifest.permission.SET_WALLPAPER)
     public void clear() throws IOException {
-        clear(FLAG_SYSTEM | FLAG_LOCK);
+        if (isLockscreenLiveWallpaperEnabled()) {
+            clear(FLAG_SYSTEM | FLAG_LOCK);
+            return;
+        }
+        setStream(openDefaultWallpaper(mContext, FLAG_SYSTEM), null, false);
     }
 
     /**
@@ -3117,7 +3142,16 @@ public class WallpaperManager {
      */
     @RequiresPermission(android.Manifest.permission.SET_WALLPAPER)
     public void clear(@SetWallpaperFlags int which) throws IOException {
-        clearWallpaper(which, mContext.getUserId());
+        if (isLockscreenLiveWallpaperEnabled()) {
+            clearWallpaper(which, mContext.getUserId());
+            return;
+        }
+        if ((which & FLAG_SYSTEM) != 0) {
+            clear();
+        }
+        if ((which & FLAG_LOCK) != 0) {
+            clearWallpaper(FLAG_LOCK, mContext.getUserId());
+        }
     }
 
     /**
@@ -3132,12 +3166,16 @@ public class WallpaperManager {
     public static InputStream openDefaultWallpaper(Context context, @SetWallpaperFlags int which) {
         final String whichProp;
         final int defaultResId;
-        /* Factory-default lock wallpapers are not yet supported.
-        whichProp = which == FLAG_LOCK ? PROP_LOCK_WALLPAPER : PROP_WALLPAPER;
-        defaultResId = which == FLAG_LOCK ? R.drawable.default_lock_wallpaper :  ....
-        */
-        whichProp = PROP_WALLPAPER;
-        defaultResId = R.drawable.default_wallpaper;
+        if (which == FLAG_LOCK && !isLockscreenLiveWallpaperEnabledHelper()) {
+            /* Factory-default lock wallpapers are not yet supported
+            whichProp = PROP_LOCK_WALLPAPER;
+            defaultResId = com.android.internal.R.drawable.default_lock_wallpaper;
+            */
+            return null;
+        } else {
+            whichProp = PROP_WALLPAPER;
+            defaultResId = com.android.internal.R.drawable.default_wallpaper;
+        }
         final String path = SystemProperties.get(whichProp);
         final InputStream wallpaperInputStream = getWallpaperInputStream(path);
         if (wallpaperInputStream != null) {
@@ -3273,6 +3311,25 @@ public class WallpaperManager {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Register a callback for lock wallpaper observation. Only the OS may use this.
+     *
+     * @return true on success; false on error.
+     * @hide
+     */
+    public boolean setLockWallpaperCallback(IWallpaperManagerCallback callback) {
+        if (sGlobals.mService == null) {
+            Log.w(TAG, "WallpaperService not running");
+            throw new RuntimeException(new DeadSystemException());
+        }
+
+        try {
+            return sGlobals.mService.setLockWallpaperCallback(callback);
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
     }
 
     /**
