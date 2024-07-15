@@ -126,6 +126,8 @@ public class ImageWallpaper extends WallpaperService {
         private int mBitmapUsages = 0;
         private final Object mLock = new Object();
 
+        private boolean mIsLockscreenLiveWallpaperEnabled;
+
         CanvasEngine() {
             super();
             setFixedSizeAllowed(true);
@@ -169,8 +171,12 @@ public class ImageWallpaper extends WallpaperService {
                 Log.d(TAG, "onCreate");
             }
             mWallpaperManager = getDisplayContext().getSystemService(WallpaperManager.class);
+            mIsLockscreenLiveWallpaperEnabled = mWallpaperManager
+                    .isLockscreenLiveWallpaperEnabled();
             mSurfaceHolder = surfaceHolder;
-            Rect dimensions = mWallpaperManager.peekBitmapDimensions(getSourceFlag(), true);
+            Rect dimensions = mIsLockscreenLiveWallpaperEnabled
+                    ? mWallpaperManager.peekBitmapDimensions(getSourceFlag(), true)
+                    : mWallpaperManager.peekBitmapDimensions();
             int width = Math.max(MIN_SURFACE_WIDTH, dimensions.width());
             int height = Math.max(MIN_SURFACE_HEIGHT, dimensions.height());
             mSurfaceHolder.setFixedSize(width, height);
@@ -327,9 +333,16 @@ public class ImageWallpaper extends WallpaperService {
             boolean loadSuccess = false;
             Bitmap bitmap;
             try {
+<<<<<<< HEAD
                 Trace.beginSection("WPMS.getBitmapAsUser");
                 bitmap = mWallpaperManager.getBitmapAsUser(
                         mUserTracker.getUserId(), false, getSourceFlag(), true);
+=======
+                bitmap = mIsLockscreenLiveWallpaperEnabled
+                        ? mWallpaperManager.getBitmapAsUser(
+                                mUserTracker.getUserId(), false, getSourceFlag(), true)
+                        : mWallpaperManager.getBitmapAsUser(mUserTracker.getUserId(), false);
+>>>>>>> parent of 4de11add42ad (Remove lockscreen lwp flag)
                 if (bitmap != null
                         && bitmap.getByteCount() > RecordingCanvas.MAX_BITMAP_SIZE) {
                     throw new RuntimeException("Wallpaper is too large to draw!");
@@ -340,6 +353,7 @@ public class ImageWallpaper extends WallpaperService {
                 // be loaded, we will go into a cycle. Don't do a build where the
                 // default wallpaper can't be loaded.
                 Log.w(TAG, "Unable to load wallpaper!", exception);
+<<<<<<< HEAD
                 Trace.beginSection("WPMS.clearWallpaper");
                 mWallpaperManager.clearWallpaper(getWallpaperFlags(), mUserTracker.getUserId());
                 Trace.endSection();
@@ -348,6 +362,20 @@ public class ImageWallpaper extends WallpaperService {
                     Trace.beginSection("WPMS.getBitmapAsUser_defaultWallpaper");
                     bitmap = mWallpaperManager.getBitmapAsUser(
                             mUserTracker.getUserId(), false, getSourceFlag(), true);
+=======
+                if (mIsLockscreenLiveWallpaperEnabled) {
+                    mWallpaperManager.clearWallpaper(getWallpaperFlags(), mUserTracker.getUserId());
+                } else {
+                    mWallpaperManager.clearWallpaper(
+                            WallpaperManager.FLAG_SYSTEM, mUserTracker.getUserId());
+                }
+
+                try {
+                    bitmap = mIsLockscreenLiveWallpaperEnabled
+                            ? mWallpaperManager.getBitmapAsUser(
+                                    mUserTracker.getUserId(), false, getSourceFlag(), true)
+                            : mWallpaperManager.getBitmapAsUser(mUserTracker.getUserId(), false);
+>>>>>>> parent of 4de11add42ad (Remove lockscreen lwp flag)
                 } catch (RuntimeException | OutOfMemoryError e) {
                     Log.w(TAG, "Unable to load default wallpaper!", e);
                     bitmap = null;
@@ -374,9 +402,15 @@ public class ImageWallpaper extends WallpaperService {
                     Trace.endSection();
                 }
                 mBitmap = bitmap;
+<<<<<<< HEAD
                 Trace.beginSection("WPMS.wallpaperSupportsWcg");
                 mWideColorGamut = mWallpaperManager.wallpaperSupportsWcg(getSourceFlag());
                 Trace.endSection();
+=======
+                mWideColorGamut = mIsLockscreenLiveWallpaperEnabled
+                        ? mWallpaperManager.wallpaperSupportsWcg(getSourceFlag())
+                        : mWallpaperManager.wallpaperSupportsWcg(WallpaperManager.FLAG_SYSTEM);
+>>>>>>> parent of 4de11add42ad (Remove lockscreen lwp flag)
 
                 // +2 usages for the color extraction and the delayed unload.
                 mBitmapUsages += 2;

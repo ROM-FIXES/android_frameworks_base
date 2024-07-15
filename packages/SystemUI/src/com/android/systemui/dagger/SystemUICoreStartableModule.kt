@@ -52,6 +52,7 @@ import com.android.systemui.shortcut.ShortcutKeyDispatcher
 import com.android.systemui.statusbar.ImmersiveModeConfirmation
 import com.android.systemui.statusbar.gesture.GesturePointerEventListener
 import com.android.systemui.statusbar.notification.InstantAppNotifier
+import com.android.systemui.statusbar.phone.LockscreenWallpaper
 import com.android.systemui.statusbar.phone.ScrimController
 import com.android.systemui.statusbar.phone.StatusBarHeadsUpChangeListener
 import com.android.systemui.stylus.StylusUsiPowerStartable
@@ -288,6 +289,11 @@ abstract class SystemUICoreStartableModule {
     @IntoMap
     @ClassKey(KeyguardViewConfigurator::class)
     abstract fun bindKeyguardViewConfigurator(impl: KeyguardViewConfigurator): CoreStartable
+
+    @Binds
+    @IntoMap
+    @ClassKey(LockscreenWallpaper::class)
+    abstract fun bindLockscreenWallpaper(impl: LockscreenWallpaper): CoreStartable
 
     @Binds
     @IntoMap

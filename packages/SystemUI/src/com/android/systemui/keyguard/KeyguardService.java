@@ -186,7 +186,7 @@ public class KeyguardService extends Service {
     // Wrap Keyguard going away animation.
     // Note: Also used for wrapping occlude by Dream animation. It works (with some redundancy).
     public static IRemoteTransition wrap(final KeyguardViewMediator keyguardViewMediator,
-            final IRemoteAnimationRunner runner) {
+        final IRemoteAnimationRunner runner, final boolean lockscreenLiveWallpaperEnabled) {
         return new IRemoteTransition.Stub() {
 
             @GuardedBy("mLeashMap")
@@ -220,8 +220,9 @@ public class KeyguardService extends Service {
                     }
                 }
                 initAlphaForAnimationTargets(t, apps);
-                initAlphaForAnimationTargets(t, wallpapers);
-
+                if (lockscreenLiveWallpaperEnabled) {
+                    initAlphaForAnimationTargets(t, wallpapers);
+                }
                 t.apply();
 
                 runner.onAnimationStart(
