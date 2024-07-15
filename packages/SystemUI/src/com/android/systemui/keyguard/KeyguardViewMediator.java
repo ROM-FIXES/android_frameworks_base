@@ -187,8 +187,6 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
-
-
 import kotlinx.coroutines.CoroutineDispatcher;
 
 /**
@@ -1528,12 +1526,11 @@ public class KeyguardViewMediator implements CoreStartable, Dumpable,
             setShowingLocked(false /* showing */, true /* forceCallbacks */);
         }
 
-        boolean isLLwpEnabled = getWallpaperManager().isLockscreenLiveWallpaperEnabled();
         mKeyguardTransitions.register(
-                KeyguardService.wrap(this, getExitAnimationRunner(), isLLwpEnabled),
-                KeyguardService.wrap(this, getOccludeAnimationRunner(), isLLwpEnabled),
-                KeyguardService.wrap(this, getOccludeByDreamAnimationRunner(), isLLwpEnabled),
-                KeyguardService.wrap(this, getUnoccludeAnimationRunner(), isLLwpEnabled));
+                KeyguardService.wrap(this, getExitAnimationRunner()),
+                KeyguardService.wrap(this, getOccludeAnimationRunner()),
+                KeyguardService.wrap(this, getOccludeByDreamAnimationRunner()),
+                KeyguardService.wrap(this, getUnoccludeAnimationRunner()));
 
         final ContentResolver cr = mContext.getContentResolver();
 
