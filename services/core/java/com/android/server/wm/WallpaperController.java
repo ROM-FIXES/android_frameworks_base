@@ -46,7 +46,6 @@ import android.os.Debug;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.os.SystemProperties;
 import android.util.ArraySet;
 import android.util.MathUtils;
 import android.util.Slog;
@@ -120,26 +119,10 @@ class WallpaperController {
 
     private boolean mShouldOffsetWallpaperCenter;
 
-<<<<<<< HEAD
     /**
      * Whether the wallpaper has been notified about a physical display switch event is started.
      */
     private volatile boolean mIsWallpaperNotifiedOnDisplaySwitch;
-=======
-    final boolean mIsLockscreenLiveWallpaperEnabled;
-
-    private final Consumer<WindowState> mFindWallpapers = w -> {
-        if (w.mAttrs.type == TYPE_WALLPAPER) {
-            WallpaperWindowToken token = w.mToken.asWallpaperToken();
-            if (token.canShowWhenLocked() && !mFindResults.hasTopShowWhenLockedWallpaper()) {
-                mFindResults.setTopShowWhenLockedWallpaper(w);
-            } else if (!token.canShowWhenLocked()
-                    && !mFindResults.hasTopHideWhenLockedWallpaper()) {
-                mFindResults.setTopHideWhenLockedWallpaper(w);
-            }
-        }
-    };
->>>>>>> parent of 4de11add42ad (Remove lockscreen lwp flag)
 
     private final ToBooleanFunction<WindowState> mFindWallpaperTargetFunction = w -> {
         final boolean useShellTransition = w.mTransitionController.isShellTransitionsEnabled();
@@ -250,9 +233,6 @@ class WallpaperController {
     WallpaperController(WindowManagerService service, DisplayContent displayContent) {
         mService = service;
         mDisplayContent = displayContent;
-        mIsLockscreenLiveWallpaperEnabled =
-                SystemProperties.getBoolean("persist.wm.debug.lockscreen_live_wallpaper", true);
-
         Resources resources = service.mContext.getResources();
         mMinWallpaperScale =
                 resources.getFloat(com.android.internal.R.dimen.config_wallpaperMinScale);
