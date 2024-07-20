@@ -72,6 +72,7 @@ android_library {
     name: "SystemUI-res",
     use_resource_processor: true,
     resource_dirs: [
+        "pulse/res",
         "res-product",
         "res-keyguard",
         "res",
@@ -105,9 +106,9 @@ android_library {
         },
     },
     use_resource_processor: true,
-    resource_dirs: [
-        "pulse/res",
-    ],
+    // resource_dirs: [
+    //     "pulse/res",
+    // ],
     static_libs: [
         "SystemUI-res",
         "WifiTrackerLib",
