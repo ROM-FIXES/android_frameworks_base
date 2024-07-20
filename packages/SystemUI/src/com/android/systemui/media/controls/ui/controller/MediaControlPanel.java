@@ -970,7 +970,7 @@ public class MediaControlPanel {
                         appIconView.setImageResource(R.drawable.ic_music_note);
                     }
                 }
-                mColorExtractor.setMediaBackgroundColor(mColorSchemeTransition.getAccentPrimary().getTargetColor());
+                mSysuiColorExtractor.setMediaBackgroundColor(mColorSchemeTransition.getAccentPrimary().getTargetColor());
                 Trace.endAsyncSection(traceName, traceCookie);
             });
         });
