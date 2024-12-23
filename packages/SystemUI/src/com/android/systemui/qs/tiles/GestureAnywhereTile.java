@@ -33,7 +33,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
-
+import com.android.systemui.animation.Expandable;
 
 
 import com.android.systemui.plugins.qs.QSTile.BooleanState;
@@ -113,7 +113,7 @@ public class GestureAnywhereTile extends QSTileImpl<BooleanState> {
     }
 
     @Override
-    protected void handleClick(@Nullable View view) {
+    protected void handleClick(@Nullable Expandable expandable) {
         if (mKeyguard.isMethodSecure() && !mKeyguard.canDismissLockScreen()) {
             mActivityStarter.postQSRunnableDismissingKeyguard(() -> {
                 toggleState();
