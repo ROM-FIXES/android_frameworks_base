@@ -116,8 +116,7 @@ public class SystemSettings {
                 Settings.System.SCREEN_FLASH_NOTIFICATION_COLOR,
                 Settings.System.NOTIFICATION_COOLDOWN_ENABLED,
                 Settings.System.NOTIFICATION_COOLDOWN_ALL,
-                Settings.System.NOTIFICATION_COOLDOWN_VIBRATE_UNLOCKED,
-                Settings.System.THREE_FINGER_GESTURE_ACTIVE
+                Settings.System.NOTIFICATION_COOLDOWN_VIBRATE_UNLOCKED
         ));
         if (Flags.backUpSmoothDisplayAndForcePeakRefreshRate()) {
             settings.add(Settings.System.PEAK_REFRESH_RATE);

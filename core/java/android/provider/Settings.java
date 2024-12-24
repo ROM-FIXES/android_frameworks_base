@@ -6301,14 +6301,6 @@ public final class Settings {
         * Custom System Settings start
         *****************************/
 
-        /**
-         * Whether three fingers swipe is active
-         * 0 = Inactive, 1 = Active
-         * @hide
-         */
-        @Readable
-        public static final String THREE_FINGER_GESTURE_ACTIVE = "three_fingers_swipe_active";
-
         /***************************
         * Custom System Settings end
         ***************************/
