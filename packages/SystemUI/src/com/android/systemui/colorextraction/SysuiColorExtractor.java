@@ -153,4 +153,12 @@ public class SysuiColorExtractor extends ColorExtractor implements Dumpable,
     public int getMediaBackgroundColor() {
         return mMediaBackgroundColor;
     }
+
+    public interface ColorExtractionListener {
+        /**
+         * Called whenever there's new ColorExtraction.
+         */
+
+        void onColorExtracted(int color);
+    }
 }
