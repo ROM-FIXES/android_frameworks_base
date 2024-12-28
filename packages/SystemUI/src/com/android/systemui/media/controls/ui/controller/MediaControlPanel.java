@@ -991,7 +991,7 @@ public class MediaControlPanel {
                     appIconView.setImageIcon(data.getAppIcon());
                     appIconView.setColorFilter(mediaBackgroundColor);
                     Log.e(TAG, "Setting mediaBackgroundColor to " + mediaBackgroundColor);
-                    mSysuiColorExtractor.setMediaBackgroundColor(mediaBackgroundColor);
+                    // mSysuiColorExtractor.setMediaBackgroundColor(mediaBackgroundColor);
                 } else {
                     // Resume players use launcher icon
                     appIconView.setColorFilter(getGrayscaleFilter());
@@ -1005,6 +1005,13 @@ public class MediaControlPanel {
                     }
                     Log.e(TAG, "NOT Setting mediaBackgroundColor to " + mediaBackgroundColor);
                 }
+                Log.e(TAG, "DF: Would have mediaBackgroundColor to " + mediaBackgroundColor);
+                mSysuiColorExtractor.setMediaBackgroundColor(mediaBackgroundColor);
+                Intent intent = new Intent(SysuiColorExtractor.ACTION_MEDIA_ACCENT_COLOR_CHANGED);
+                intent.putExtra("color", mediaBackgroundColor); // Put the color in the intent
+                intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT); // Add this flag
+                mContext.sendBroadcastAsUser(intent, UserHandle.ALL); // Send the broadcast
+
                 Trace.endAsyncSection(traceName, traceCookie);
             });
             Log.e(TAG, "mediaBackgroundColor After MainExecuter is " + mColorSchemeTransition.getAccentPrimary().getTargetColor());
