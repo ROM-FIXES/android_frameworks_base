@@ -837,7 +837,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mEmergencyGestureIntentFactory = emergencyGestureIntentFactory;
 
         mPulseController = new PulseControllerImpl(mContext, this,
-                mCommandQueue, mUiBgExecutor, mConfigurationController);
+                mCommandQueue, mUiBgExecutor, mConfigurationController, mColorExtractor);
 
         mLockscreenShadeTransitionController = lockscreenShadeTransitionController;
         mStartingSurfaceOptional = startingSurfaceOptional;

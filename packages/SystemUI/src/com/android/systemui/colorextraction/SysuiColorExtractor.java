@@ -157,10 +157,11 @@ public class SysuiColorExtractor extends ColorExtractor implements Dumpable,
     }
 
     public void setMediaBackgroundColor(int color) {
-        Log.e(TAG, "DF: Received Color: " + color);
+        Log.e(TAG, "DF: Received color: " + color);
         mMediaBackgroundColor = color;
         ArrayList<MediaAccentColorListener> callbacks = new ArrayList<>(mListeners);
         try {
+            Log.e(TAG, "DF: setMediaBackgroundColor attach callbacks: ");
             for (MediaAccentColorListener listener : mListeners) {
                 Log.e(TAG, "DF: for loop of listeners: " + color);
                 listener.onMediaAccentColorUpdated(color);
