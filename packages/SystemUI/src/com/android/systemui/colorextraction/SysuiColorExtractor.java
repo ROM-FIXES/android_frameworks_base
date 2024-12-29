@@ -20,7 +20,6 @@ import android.app.WallpaperColors;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.os.UserHandle;
-import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.colorextraction.ColorExtractor;
@@ -36,8 +35,6 @@ import dagger.Lazy;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -52,12 +49,6 @@ public class SysuiColorExtractor extends ColorExtractor implements Dumpable,
     private final GradientColors mNeutralColorsLock;
     private Lazy<SelectedUserInteractor> mUserInteractor;
     private int mMediaBackgroundColor = 0;
-
-    private final List<MediaAccentColorListener> mListeners;// = new ArrayList<>();
-    private int mMediaAccentColor = 0; // Store the color
-
-    public static final String ACTION_MEDIA_ACCENT_COLOR_CHANGED =
-        "com.android.systemui.ACTION_MEDIA_ACCENT_COLOR_CHANGED";
 
     @Inject
     public SysuiColorExtractor(
@@ -90,7 +81,6 @@ public class SysuiColorExtractor extends ColorExtractor implements Dumpable,
         configurationController.addCallback(this);
         dumpManager.registerDumpable(getClass().getSimpleName(), this);
         mUserInteractor = userInteractor;
-        mListeners = new ArrayList<>();
 
         // Listen to all users instead of only the current one.
         if (wallpaperManager.isWallpaperSupported()) {
@@ -157,48 +147,10 @@ public class SysuiColorExtractor extends ColorExtractor implements Dumpable,
     }
 
     public void setMediaBackgroundColor(int color) {
-        Log.e(TAG, "DF: Received color: " + color);
         mMediaBackgroundColor = color;
-        ArrayList<MediaAccentColorListener> callbacks = new ArrayList<>(mListeners);
-        try {
-            Log.e(TAG, "DF: setMediaBackgroundColor attach callbacks: ");
-            for (MediaAccentColorListener listener : mListeners) {
-                Log.e(TAG, "DF: for loop of listeners: " + color);
-                listener.onMediaAccentColorUpdated(color);
-            }
-            for (int i = 0; i < callbacks.size(); i++) {
-                Log.e(TAG, "setMediaBackgroundColor(): Callback " + i);
-                // Todo figure out how to implement onMediaAccentColorUpdated similar to NotificationMediaManager doing this:
-                // callbacks.get(i).setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "DF: setMediaBackgroundColor exception: " + e);
-        }
     }
 
     public int getMediaBackgroundColor() {
         return mMediaBackgroundColor;
     }
-
-    public void addMediaAccentColorListener(MediaAccentColorListener listener) {
-        mListeners.add(listener);
-    }
-
-
-    public void removeMediaAccentColorListener(MediaAccentColorListener listener) {
-        mListeners.remove(listener);
-    }
-
-    public interface ColorExtractionListener {
-        /**
-         * Called whenever there's new ColorExtraction.
-         */
-
-        void onColorExtracted(int color);
-    }
-
-    public interface MediaAccentColorListener {
-        void onMediaAccentColorUpdated(int color);
-    }
-
 }

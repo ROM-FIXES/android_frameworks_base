@@ -958,7 +958,6 @@ public class MediaControlPanel {
                         || (!mIsArtworkBound && isArtworkBound)) {
                     if (mPrevArtwork == null) {
                         albumView.setImageDrawable(artwork);
-                        Log.e(TAG, "DF: mPrevArtwork NULL");
                     } else {
                         // Since we throw away the last transition, this'll pop if you backgrounds
                         // are cycled too fast (or the correct background arrives very soon after
@@ -976,9 +975,7 @@ public class MediaControlPanel {
 
                         albumView.setImageDrawable(transitionDrawable);
                         transitionDrawable.startTransition(isArtworkBound ? 333 : 80);
-                        Log.e(TAG, "DF: transitionDrawable NULL");
                     }
-                    Log.e(TAG, "DF: transitioning done");
                     mPrevArtwork = artwork;
                     mIsArtworkBound = isArtworkBound;
                 }
@@ -986,12 +983,10 @@ public class MediaControlPanel {
                 // App icon - use notification icon
                 ImageView appIconView = mMediaViewHolder.getAppIcon();
                 appIconView.clearColorFilter();
-                int mediaBackgroundColor = mColorSchemeTransition.getAccentPrimary().getTargetColor();
                 if (data.getAppIcon() != null && !data.getResumption()) {
                     appIconView.setImageIcon(data.getAppIcon());
-                    appIconView.setColorFilter(mediaBackgroundColor);
-                    Log.e(TAG, "Setting mediaBackgroundColor to " + mediaBackgroundColor);
-                    // mSysuiColorExtractor.setMediaBackgroundColor(mediaBackgroundColor);
+                    appIconView.setColorFilter(
+                            mColorSchemeTransition.getAccentPrimary().getTargetColor());
                 } else {
                     // Resume players use launcher icon
                     appIconView.setColorFilter(getGrayscaleFilter());
@@ -1003,18 +998,10 @@ public class MediaControlPanel {
                         Log.w(TAG, "Cannot find icon for package " + data.getPackageName(), e);
                         appIconView.setImageResource(R.drawable.ic_music_note);
                     }
-                    Log.e(TAG, "NOT Setting mediaBackgroundColor to " + mediaBackgroundColor);
                 }
-                Log.e(TAG, "DF: Would have mediaBackgroundColor to " + mediaBackgroundColor);
-                mSysuiColorExtractor.setMediaBackgroundColor(mediaBackgroundColor);
-                Intent intent = new Intent(SysuiColorExtractor.ACTION_MEDIA_ACCENT_COLOR_CHANGED);
-                intent.putExtra("color", mediaBackgroundColor); // Put the color in the intent
-                intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT); // Add this flag
-                mContext.sendBroadcastAsUser(intent, UserHandle.ALL); // Send the broadcast
-
+                mSysuiColorExtractor.setMediaBackgroundColor(mColorSchemeTransition.getAccentPrimary().getTargetColor());
                 Trace.endAsyncSection(traceName, traceCookie);
             });
-            Log.e(TAG, "mediaBackgroundColor After MainExecuter is " + mColorSchemeTransition.getAccentPrimary().getTargetColor());
         });
     }
 
@@ -2003,6 +1990,5 @@ public class MediaControlPanel {
                 interactedSubcardRank,
                 interactedSubcardCardinality);
     }
-
 }
 
