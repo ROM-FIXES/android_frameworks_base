@@ -36,7 +36,6 @@ import android.util.Log;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.systemui.Dumpable;
-import com.android.systemui.colorextraction.SysuiColorExtractor;
 import com.android.systemui.dagger.qualifiers.Background;
 import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dump.DumpManager;
@@ -100,15 +99,13 @@ public class NotificationMediaManager implements Dumpable {
     private String mNowPlayingNotificationKey;
     private String mNowPlayingTrack;
 
-    private final SysuiColorExtractor mColorExtractor;
-
     @VisibleForTesting
     final MediaController.Callback mMediaListener = new MediaController.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackState state) {
             super.onPlaybackStateChanged(state);
             if (DEBUG_MEDIA) {
-                Log.v(TAG, "DEBUG_MEDIA: onPlaybackStateChanged: " + state);
+                Log.e(TAG, "DEBUG_MEDIA: onPlaybackStateChanged: " + state);
             }
             if (state != null) {
                 if (!isPlaybackActive(state.getState())) {
@@ -122,7 +119,7 @@ public class NotificationMediaManager implements Dumpable {
         public void onMetadataChanged(MediaMetadata metadata) {
             super.onMetadataChanged(metadata);
             if (DEBUG_MEDIA) {
-                Log.v(TAG, "DEBUG_MEDIA: onMetadataChanged: " + metadata);
+                Log.e(TAG, "DEBUG_MEDIA: onMetadataChanged: " + metadata);
             }
             if (notificationMediaManagerBackgroundExecution()) {
                 mBackgroundExecutor.execute(() -> setMediaMetadata(metadata));
@@ -133,6 +130,7 @@ public class NotificationMediaManager implements Dumpable {
             dispatchUpdateMediaMetaData();
         }
     };
+
 
     private void setMediaMetadata(MediaMetadata metadata) {
         mMediaMetadata = metadata;
@@ -149,8 +147,7 @@ public class NotificationMediaManager implements Dumpable {
             MediaDataManager mediaDataManager,
             DumpManager dumpManager,
             @Background Executor backgroundExecutor,
-            @Main Handler handler,
-            SysuiColorExtractor colorExtractor
+            @Main Handler handler
     ) {
         mContext = context;
         mMediaListeners = new ArrayList<>();
@@ -160,7 +157,6 @@ public class NotificationMediaManager implements Dumpable {
         mNotifCollection = notifCollection;
         mBackgroundExecutor = backgroundExecutor;
         mHandler = handler;
-        mColorExtractor = colorExtractor;
 
         setupNotifPipeline();
 
@@ -200,13 +196,6 @@ public class NotificationMediaManager implements Dumpable {
             public void onMediaDataLoaded(@NonNull String key,
                     @Nullable String oldKey, @NonNull MediaData data, boolean immediately,
                     int receivedSmartspaceCardLatency, boolean isSsReactivated) {
-                        try {
-                            ArrayList<MediaListener> callbacks = new ArrayList<>(mMediaListeners);
-                                for (int i = 0; i < callbacks.size(); i++)
-                                    callbacks.get(i).setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
-                        } catch (NullPointerException e) {
-                            Log.d(TAG, "onMediaDataLoaded(): " + e);
-                        }
             }
 
             @Override
@@ -219,7 +208,7 @@ public class NotificationMediaManager implements Dumpable {
                 if (mediaControlsUserInitiatedDeleteintent() && !userInitiated) {
                     // Dismissing the notification will send the app's deleteIntent, so ignore if
                     // this was an automatic removal
-                    Log.d(TAG, "Not dismissing " + key + " because it was removed by the system");
+                    Log.e(TAG, "Not dismissing " + key + " because it was removed by the system");
                     return;
                 }
                 mNotifPipeline.getAllNotifs()
@@ -313,16 +302,11 @@ public class NotificationMediaManager implements Dumpable {
 
     private void updateMediaMetaData(MediaListener callback) {
         int playbackState = getMediaControllerPlaybackState(mMediaController);
-        mHandler.post(() -> {
-                callback.onPrimaryMetadataOrStateChanged(mMediaMetadata, playbackState);
-                callback.setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
-            }
-        );
+        mHandler.post(
+                () -> callback.onPrimaryMetadataOrStateChanged(mMediaMetadata, playbackState));
     }
 
     public void removeCallback(MediaListener callback) {
-        mColorExtractor.setMediaBackgroundColor(0);
-        callback.setMediaNotificationColor(0);
         mMediaListeners.remove(callback);
     }
 
@@ -374,7 +358,7 @@ public class NotificationMediaManager implements Dumpable {
                     if (PlaybackState.STATE_PLAYING
                             == getMediaControllerPlaybackState(aController)) {
                         if (DEBUG_MEDIA) {
-                            Log.v(TAG, "DEBUG_MEDIA: found mediastyle controller matching "
+                            Log.e(TAG, "DEBUG_MEDIA: found mediastyle controller matching "
                                     + entry.getSbn().getKey());
                         }
                         mediaNotification = entry;
@@ -413,7 +397,7 @@ public class NotificationMediaManager implements Dumpable {
                     if (PlaybackState.STATE_PLAYING
                             == getMediaControllerPlaybackState(aController)) {
                         if (DEBUG_MEDIA) {
-                            Log.v(TAG, "DEBUG_MEDIA: found mediastyle controller matching "
+                            Log.e(TAG, "DEBUG_MEDIA: found mediastyle controller matching "
                                     + sbn.getKey());
                         }
                         statusBarNotification = sbn;
@@ -437,7 +421,7 @@ public class NotificationMediaManager implements Dumpable {
             mMediaController.registerCallback(mMediaListener, mHandler);
             mMediaMetadata = mMediaController.getMetadata();
             if (DEBUG_MEDIA) {
-                Log.v(TAG, "DEBUG_MEDIA: insert listener, found new controller: "
+                Log.e(TAG, "DEBUG_MEDIA: insert listener, found new controller: "
                         + mMediaController + ", receive metadata: " + mMediaMetadata);
             }
         }
@@ -446,7 +430,7 @@ public class NotificationMediaManager implements Dumpable {
                 && !mediaNotification.getKey().equals(mMediaNotificationKey)) {
             mMediaNotificationKey = mediaNotification.getKey();
             if (DEBUG_MEDIA) {
-                Log.v(TAG, "DEBUG_MEDIA: Found new media notification: key="
+                Log.e(TAG, "DEBUG_MEDIA: Found new media notification: key="
                         + mMediaNotificationKey);
             }
         }
@@ -486,7 +470,6 @@ public class NotificationMediaManager implements Dumpable {
         mHandler.post(() -> {
             for (int i = 0; i < callbacks.size(); i++) {
                 callbacks.get(i).onPrimaryMetadataOrStateChanged(mMediaMetadata, state);
-                callbacks.get(i).setMediaNotificationColor(mColorExtractor.getMediaBackgroundColor());
             }
         });
     }
@@ -538,7 +521,7 @@ public class NotificationMediaManager implements Dumpable {
         mMediaMetadata = null;
         if (mMediaController != null) {
             if (DEBUG_MEDIA) {
-                Log.v(TAG, "DEBUG_MEDIA: Disconnecting from old controller: "
+                Log.e(TAG, "DEBUG_MEDIA: Disconnecting from old controller: "
                         + mMediaController.getPackageName());
             }
             mMediaController.unregisterCallback(mMediaListener);
@@ -555,7 +538,5 @@ public class NotificationMediaManager implements Dumpable {
          */
         default void onPrimaryMetadataOrStateChanged(MediaMetadata metadata,
                 @PlaybackState.State int state) {}
-
-        default void setMediaNotificationColor(int color) {};
     }
 }
