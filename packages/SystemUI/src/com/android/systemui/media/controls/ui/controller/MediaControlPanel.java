@@ -31,6 +31,7 @@ import android.app.ActivityOptions;
 import android.app.BroadcastOptions;
 import android.app.PendingIntent;
 import android.app.WallpaperColors;
+import android.app.WallpaperManager;
 import android.app.smartspace.SmartspaceAction;
 import android.content.Context;
 import android.content.Intent;
@@ -62,6 +63,10 @@ import android.os.Process;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -297,6 +302,9 @@ public class MediaControlPanel {
                 }
             };
 
+    private Bitmap mOriginalWallpaper;
+    private WallpaperManager mWallpaperManager;
+
     /**
      * Initialize a new control panel
      *
@@ -327,7 +335,8 @@ public class MediaControlPanel {
             NotificationLockscreenUserManager lockscreenUserManager,
             BroadcastDialogController broadcastDialogController,
             GlobalSettings globalSettings,
-            SysuiColorExtractor colorExtractor
+            SysuiColorExtractor colorExtractor,
+            WallpaperManager wallpaperManager
     ) {
         mContext = context;
         mBackgroundExecutor = backgroundExecutor;
@@ -359,6 +368,7 @@ public class MediaControlPanel {
 
         mGlobalSettings = globalSettings;
         updateAnimatorDurationScale();
+        mWallpaperManager = wallpaperManager;
     }
 
     /**
@@ -637,8 +647,10 @@ public class MediaControlPanel {
         bindScrubbingTime(data);
         bindActionButtons(data);
 
+        boolean isPlaying = isPlaying();
+
         boolean isSongUpdated = bindSongMetadata(data);
-        bindArtworkAndColors(data, key, isSongUpdated);
+        bindArtworkAndColors(data, key, isSongUpdated, isPlaying);
 
         // TODO: We don't need to refresh this state constantly, only if the state actually changed
         // to something which might impact the measurement
@@ -680,6 +692,10 @@ public class MediaControlPanel {
                         TURBULENCE_NOISE_PLAY_DURATION
                 );
             }
+        }
+
+        if (!mButtonClicked && mWasPlaying && !isPlaying) { // Check pause/stop condition
+            restoreOriginalWallpaper();
         }
 
         mButtonClicked = false;
@@ -897,7 +913,7 @@ public class MediaControlPanel {
         mRecommendationViewHolder.getRecommendations().setContentDescription(contentDescription);
     }
 
-    private void bindArtworkAndColors(MediaData data, String key, boolean updateBackground) {
+    private void bindArtworkAndColors(MediaData data, String key, boolean updateBackground, boolean isPlaying) {
         final int traceCookie = data.hashCode();
         final String traceName = "MediaControlPanel#bindArtworkAndColors<" + key + ">";
         Trace.beginAsyncSection(traceName, traceCookie);
@@ -951,6 +967,16 @@ public class MediaControlPanel {
                 // Transition Colors to current color scheme
                 boolean colorSchemeChanged = mColorSchemeTransition.updateColorScheme(colorScheme);
 
+                // Capture and store original wallpaper when binding artwork for the first time playing
+                if (isPlaying && mOriginalWallpaper == null) {
+                    captureOriginalWallpaper();
+                }
+
+                if (isPlaying && artworkIcon != null && data.getArtwork() != null) { // Apply blur only when playing
+                        artwork = blurArtwork(artworkIcon, finalWidth, finalHeight);
+                        setBlurredWallpaper(artwork);
+                }
+
                 // Bind the album view to the artwork or a transition drawable
                 ImageView albumView = mMediaViewHolder.getAlbumView();
                 albumView.setPadding(0, 0, 0, 0);
@@ -1003,6 +1029,53 @@ public class MediaControlPanel {
                 Trace.endAsyncSection(traceName, traceCookie);
             });
         });
+    }
+
+    private Drawable blurArtwork(Icon artworkIcon, int width, int height) {
+        BitmapDrawable drawable = (BitmapDrawable) getScaledBackground(artworkIcon, width, height);
+
+        if (drawable == null) return new ColorDrawable(Color.TRANSPARENT);
+
+        Bitmap bitmap = drawable.getBitmap();
+
+          if (bitmap == null) return new ColorDrawable(Color.TRANSPARENT);
+
+        // Blur using Renderscript
+        RenderScript rs = RenderScript.create(mContext);
+        final Allocation input = Allocation.createFromBitmap(rs, bitmap,
+                Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+        final Allocation output = Allocation.createTyped(rs, input.getType());
+        final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+        script.setRadius(25f); // Adjust blur radius as needed
+        script.setInput(input);
+        script.forEach(output);
+        output.copyTo(bitmap);
+        rs.destroy();
+
+        return new BitmapDrawable(mContext.getResources(), bitmap);
+    }
+
+    private void captureOriginalWallpaper() {
+        Drawable drawable = mWallpaperManager.getDrawable();
+
+          if (drawable instanceof BitmapDrawable) {
+              mOriginalWallpaper = ((BitmapDrawable) drawable).getBitmap();
+          }
+
+    }
+
+    private void setBlurredWallpaper(Drawable blurredArtwork) {
+        if (blurredArtwork instanceof BitmapDrawable) {
+             mWallpaperManager.setBitmap(((BitmapDrawable) blurredArtwork).getBitmap());
+
+        }
+    }
+
+    private void restoreOriginalWallpaper() {
+          if (mOriginalWallpaper != null) {
+               mWallpaperManager.setBitmap(mOriginalWallpaper);
+              mOriginalWallpaper = null; // Reset after restoring
+          }
     }
 
     private void bindRecommendationArtwork(
