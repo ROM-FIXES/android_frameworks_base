@@ -465,7 +465,7 @@ public class LegacyScreenshotController implements InteractiveScreenshotHandler 
 
     private void releaseMediaPlayer() {
         if (mScreenshotSoundController == null) return;
-        mScreenshotSoundController.releaseScreenshotSoundAsync();
+        // mScreenshotSoundController.releaseScreenshotSoundAsync();
     }
 
     /**
@@ -662,7 +662,7 @@ public class LegacyScreenshotController implements InteractiveScreenshotHandler 
     private void playCameraSoundIfNeeded() {
         if (mScreenshotSoundController == null) return;
         // the controller is not-null only on the default display controller
-        mScreenshotSoundController.playScreenshotSoundAsync();
+        // mScreenshotSoundController.playScreenshotSoundAsync();
     }
 
     /**
@@ -671,7 +671,7 @@ public class LegacyScreenshotController implements InteractiveScreenshotHandler 
      */
     private void saveScreenshotAndToast(ScreenshotData screenshot, Consumer<Uri> finisher) {
         // Play the shutter sound to notify that we've taken a screenshot
-        playCameraSoundIfNeeded();
+        // playCameraSoundIfNeeded();
 
         saveScreenshotInBackground(screenshot, UUID.randomUUID(), finisher, result -> {
             if (result.uri != null) {

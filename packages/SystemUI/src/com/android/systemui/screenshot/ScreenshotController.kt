@@ -318,7 +318,7 @@ internal constructor(
     }
 
     private fun releaseMediaPlayer() {
-        screenshotSoundController?.releaseScreenshotSoundAsync()
+        // screenshotSoundController?.releaseScreenshotSoundAsync()
     }
 
     /** Update resources on configuration change. Reinflate for theme/color changes. */
