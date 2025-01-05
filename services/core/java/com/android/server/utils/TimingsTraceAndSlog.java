@@ -89,7 +89,7 @@ public final class TimingsTraceAndSlog extends TimingsTraceLog {
 
     @Override
     public void traceBegin(@NonNull String name) {
-        Slog.d(mTag, name);
+        // Slog.d(mTag, name);
         super.traceBegin(name);
     }
 
@@ -97,7 +97,7 @@ public final class TimingsTraceAndSlog extends TimingsTraceLog {
     public void logDuration(String name, long timeMs) {
         super.logDuration(name, timeMs);
         if (BOTTLENECK_DURATION_MS > 0 && timeMs >= BOTTLENECK_DURATION_MS) {
-            Slog.w(mTag, "Slow duration for " + name + ": " + timeMs + "ms");
+            // Slog.w(mTag, "Slow duration for " + name + ": " + timeMs + "ms");
         }
     }
 
